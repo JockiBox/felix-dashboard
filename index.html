@@ -3001,6 +3001,396 @@
             color: var(--text-muted);
         }
 
+        /* ============ AUTOMATION SECTION ============ */
+
+        .automation-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .automation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .automation-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .automation-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .automation-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Follow-up Reminders */
+        .followup-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .followup-item.overdue {
+            border-left: 3px solid var(--accent-danger);
+        }
+
+        .followup-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .followup-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .followup-subject {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .followup-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .followup-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .followup-badge.overdue {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .followup-badge.soon {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        .followup-badge.later {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        /* Email Sequences */
+        .sequence-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .sequence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .sequence-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .sequence-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+
+        .sequence-status.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #16a34a;
+        }
+
+        .sequence-status.paused {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        .sequence-progress {
+            height: 4px;
+            background: var(--bg-elevated);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .sequence-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .sequence-recipient {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .sequence-next {
+            font-size: 11px;
+            color: var(--accent-warm);
+            margin-top: 6px;
+        }
+
+        /* Scheduled Emails */
+        .scheduled-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .scheduled-time {
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .scheduled-time-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .scheduled-time-label {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .scheduled-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .scheduled-to {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .scheduled-subject {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .scheduled-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .scheduled-btn {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .scheduled-btn.send {
+            background: var(--accent-warm);
+            color: white;
+        }
+
+        .scheduled-btn.edit {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+        }
+
+        /* Batch Operations */
+        .batch-filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .batch-filter-input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--bg-elevated);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .batch-filter-btn {
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--accent-warm);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .batch-preview {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .batch-preview-count {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .batch-preview-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .batch-action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .batch-action-btn {
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--bg-elevated);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .batch-action-btn:hover {
+            background: var(--bg-elevated);
+        }
+
+        .batch-action-btn.danger {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+        }
+
+        .batch-action-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .saved-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .saved-filter-chip:hover {
+            background: var(--bg-elevated);
+        }
+
+        /* Schedule Email Modal */
+        .schedule-modal-content {
+            padding: 20px;
+        }
+
+        .schedule-form-group {
+            margin-bottom: 16px;
+        }
+
+        .schedule-form-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .schedule-form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--bg-elevated);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .schedule-form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--bg-elevated);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 13px;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .quick-schedule-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-schedule-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--bg-elevated);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .quick-schedule-btn:hover {
+            background: var(--bg-elevated);
+        }
+
         /* Install PWA button */
         .install-pwa {
             display: none;
@@ -3853,6 +4243,84 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Automation Section -->
+            <section class="automation-section" id="automation-section">
+                <div class="automation-header">
+                    <div class="automation-icon">⚡</div>
+                    <div>
+                        <div class="automation-title">Automation</div>
+                        <div class="automation-subtitle">Set it and forget it</div>
+                    </div>
+                </div>
+
+                <!-- Follow-up Reminders -->
+                <div class="panel-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 class="section-subtitle">Follow-up Reminders</h4>
+                        <span class="badge" id="followup-count">0 pending</span>
+                    </div>
+                    <div id="followup-list">
+                        <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                            No follow-ups set. Use "Remind me" on any email.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Sequences -->
+                <div class="panel-section" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 class="section-subtitle">Email Sequences</h4>
+                        <button class="btn-secondary" onclick="showSequenceTemplates()" style="font-size: 11px; padding: 4px 10px;">
+                            + New
+                        </button>
+                    </div>
+                    <div id="active-sequences">
+                        <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                            No active sequences. Start one from templates.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduled Emails -->
+                <div class="panel-section" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 class="section-subtitle">Scheduled Emails</h4>
+                        <button class="btn-secondary" onclick="showScheduleEmailModal()" style="font-size: 11px; padding: 4px 10px;">
+                            + Schedule
+                        </button>
+                    </div>
+                    <div id="scheduled-list">
+                        <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                            No scheduled emails. Click + Schedule to queue one.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Operations -->
+                <div class="panel-section" style="margin-top: 20px;">
+                    <h4 class="section-subtitle">Batch Operations</h4>
+                    <div class="batch-filter-row">
+                        <input type="text" class="batch-filter-input" id="batch-sender-filter" placeholder="Filter by sender...">
+                        <button class="batch-filter-btn" onclick="previewBatchFilter()">Preview</button>
+                    </div>
+                    <div id="saved-filters" style="margin-bottom: 12px;">
+                        <!-- Saved filter chips will appear here -->
+                    </div>
+                    <div class="batch-preview" id="batch-preview" style="display: none;">
+                        <div class="batch-preview-count" id="batch-count">0</div>
+                        <div class="batch-preview-label">emails match filter</div>
+                    </div>
+                    <div class="batch-action-grid" id="batch-actions" style="display: none;">
+                        <button class="batch-action-btn" onclick="executeBatch('archive')">📥 Archive All</button>
+                        <button class="batch-action-btn" onclick="executeBatch('markRead')">✓ Mark Read</button>
+                        <button class="batch-action-btn" onclick="executeBatch('flag')">🚩 Flag All</button>
+                        <button class="batch-action-btn" onclick="executeBatch('markUnread')">○ Mark Unread</button>
+                        <button class="batch-action-btn" onclick="executeBatch('unflag')">⚪ Unflag All</button>
+                        <button class="batch-action-btn danger" onclick="executeBatch('delete')">🗑 Delete All</button>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- Chat Panel -->
@@ -3923,6 +4391,7 @@
             </button>
             <button class="preview-action-btn" onclick="archivePreviewEmail()">Archive</button>
             <button class="preview-action-btn" onclick="snoozePreviewEmail()">Snooze</button>
+            <button class="preview-action-btn" onclick="remindMePreviewEmail()" style="background: var(--accent-warning); color: white;">⏰ Remind Me</button>
             <button class="preview-action-btn" onclick="createTaskFromPreview()" style="background: var(--accent-info); color: white;">
                 → Task
             </button>
@@ -4254,6 +4723,126 @@
             <div class="modal-footer">
                 <button class="modal-btn secondary" onclick="closeTemplateModal()">Cancel</button>
                 <button class="modal-btn primary" onclick="saveTemplate()">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sequence Templates Modal -->
+    <div class="modal-overlay" id="sequence-modal">
+        <div class="modal" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3>Email Sequence Templates</h3>
+                <button class="modal-close" onclick="closeSequenceModal()">✕</button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                <div id="sequence-templates">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Sequence Modal -->
+    <div class="modal-overlay" id="start-sequence-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Start Email Sequence</h3>
+                <button class="modal-close" onclick="closeStartSequenceModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Recipient Email</label>
+                    <input type="email" class="schedule-form-input" id="seq-recipient-email" placeholder="john@example.com">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Recipient Name</label>
+                    <input type="text" class="schedule-form-input" id="seq-recipient-name" placeholder="John">
+                </div>
+                <div class="schedule-form-group" id="seq-variables-group">
+                    <!-- Variable fields will be added dynamically -->
+                </div>
+                <input type="hidden" id="seq-template-id">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeStartSequenceModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="startSequence()">Start Sequence</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Email Modal -->
+    <div class="modal-overlay" id="schedule-email-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Schedule Email</h3>
+                <button class="modal-close" onclick="closeScheduleEmailModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">To</label>
+                    <input type="email" class="schedule-form-input" id="sched-to" placeholder="recipient@example.com">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Subject</label>
+                    <input type="text" class="schedule-form-input" id="sched-subject" placeholder="Email subject">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Message</label>
+                    <textarea class="schedule-form-textarea" id="sched-body" placeholder="Write your message..."></textarea>
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Send At</label>
+                    <input type="datetime-local" class="schedule-form-input" id="sched-datetime">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Quick Schedule</label>
+                    <div class="quick-schedule-btns">
+                        <button class="quick-schedule-btn" onclick="setQuickSchedule(1)">In 1 hour</button>
+                        <button class="quick-schedule-btn" onclick="setQuickSchedule(3)">In 3 hours</button>
+                        <button class="quick-schedule-btn" onclick="setQuickSchedule('tomorrow9')">Tomorrow 9 AM</button>
+                        <button class="quick-schedule-btn" onclick="setQuickSchedule('monday9')">Monday 9 AM</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeScheduleEmailModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="scheduleEmail()">Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up Reminder Modal -->
+    <div class="modal-overlay" id="followup-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Set Follow-up Reminder</h3>
+                <button class="modal-close" onclick="closeFollowupModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Remind me in</label>
+                    <div class="quick-schedule-btns">
+                        <button class="quick-schedule-btn" onclick="setFollowupDays(1)">1 day</button>
+                        <button class="quick-schedule-btn" onclick="setFollowupDays(3)">3 days</button>
+                        <button class="quick-schedule-btn" onclick="setFollowupDays(7)">1 week</button>
+                        <button class="quick-schedule-btn" onclick="setFollowupDays(14)">2 weeks</button>
+                    </div>
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Or specify days</label>
+                    <input type="number" class="schedule-form-input" id="followup-days" placeholder="Number of days" min="1" max="90">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Note (optional)</label>
+                    <input type="text" class="schedule-form-input" id="followup-note" placeholder="e.g., Check if they replied">
+                </div>
+                <input type="hidden" id="followup-email-id">
+                <input type="hidden" id="followup-email-subject">
+                <input type="hidden" id="followup-email-sender">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeFollowupModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="createFollowup()">Set Reminder</button>
             </div>
         </div>
     </div>
@@ -6016,6 +6605,12 @@
             }
         }
 
+        function remindMePreviewEmail() {
+            if (previewEmail) {
+                showFollowupModal(previewEmail.id, previewEmail.subject, previewEmail.sender);
+            }
+        }
+
         // ============ SNOOZED INBOX ============
 
         async function loadSnoozedEmails() {
@@ -7293,6 +7888,517 @@
             }
         }
 
+        // ============ AUTOMATION FEATURES ============
+
+        let batchEmailIds = [];
+
+        // Follow-up Reminders
+        async function loadFollowups() {
+            try {
+                const res = await fetch(`${API_BASE}/followups`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const list = document.getElementById('followup-list');
+                    const countEl = document.getElementById('followup-count');
+
+                    countEl.textContent = `${data.stats.pending} pending`;
+
+                    if (data.reminders.length === 0) {
+                        list.innerHTML = `
+                            <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                                No follow-ups set. Use "Remind me" on any email.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    list.innerHTML = data.reminders
+                        .filter(r => r.status === 'pending')
+                        .slice(0, 5)
+                        .map(r => {
+                            const badgeClass = r.isOverdue ? 'overdue' : (r.daysUntil <= 1 ? 'soon' : 'later');
+                            const badgeText = r.isOverdue ? 'Overdue' : (r.daysUntil === 0 ? 'Today' : `${r.daysUntil}d`);
+
+                            return `
+                                <div class="followup-item ${r.isOverdue ? 'overdue' : ''}">
+                                    <div class="followup-icon">${r.isOverdue ? '🔔' : '⏰'}</div>
+                                    <div class="followup-info">
+                                        <div class="followup-subject">${r.emailSubject}</div>
+                                        <div class="followup-meta">From: ${r.emailSender}${r.note ? ` • ${r.note}` : ''}</div>
+                                    </div>
+                                    <span class="followup-badge ${badgeClass}">${badgeText}</span>
+                                    <button class="btn-icon" onclick="dismissFollowup(${r.id})" title="Dismiss">✓</button>
+                                </div>
+                            `;
+                        }).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load followups:', e);
+            }
+        }
+
+        function showFollowupModal(emailId, subject, sender) {
+            document.getElementById('followup-email-id').value = emailId;
+            document.getElementById('followup-email-subject').value = subject;
+            document.getElementById('followup-email-sender').value = sender;
+            document.getElementById('followup-days').value = '';
+            document.getElementById('followup-note').value = '';
+            document.getElementById('followup-modal').classList.add('show');
+        }
+
+        function closeFollowupModal() {
+            document.getElementById('followup-modal').classList.remove('show');
+        }
+
+        function setFollowupDays(days) {
+            document.getElementById('followup-days').value = days;
+        }
+
+        async function createFollowup() {
+            const emailId = document.getElementById('followup-email-id').value;
+            const emailSubject = document.getElementById('followup-email-subject').value;
+            const emailSender = document.getElementById('followup-email-sender').value;
+            const daysUntilRemind = parseInt(document.getElementById('followup-days').value);
+            const note = document.getElementById('followup-note').value;
+
+            if (!daysUntilRemind || daysUntilRemind < 1) {
+                addMessage('Please select when to remind you.', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/followups`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId, emailSubject, emailSender, daysUntilRemind, note })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeFollowupModal();
+                    addMessage(`Reminder set for ${daysUntilRemind} day${daysUntilRemind > 1 ? 's' : ''} from now.`, false);
+                    loadFollowups();
+                }
+            } catch (e) {
+                console.error('Failed to create followup:', e);
+                addMessage('Failed to set reminder.', false);
+            }
+        }
+
+        async function dismissFollowup(id) {
+            try {
+                await fetch(`${API_BASE}/followups/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'completed' })
+                });
+                loadFollowups();
+            } catch (e) {
+                console.error('Failed to dismiss followup:', e);
+            }
+        }
+
+        // Email Sequences
+        async function loadActiveSequences() {
+            try {
+                const res = await fetch(`${API_BASE}/sequences/active`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const container = document.getElementById('active-sequences');
+
+                    if (data.sequences.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                                No active sequences. Start one from templates.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = data.sequences.map(seq => {
+                        const progressPercent = (seq.steps.filter(s => s.status === 'sent').length / seq.steps.length) * 100;
+
+                        return `
+                            <div class="sequence-item">
+                                <div class="sequence-header">
+                                    <div class="sequence-name">${seq.templateName}</div>
+                                    <span class="sequence-status ${seq.status}">${seq.status}</span>
+                                </div>
+                                <div class="sequence-progress">
+                                    <div class="sequence-progress-bar" style="width: ${progressPercent}%"></div>
+                                </div>
+                                <div class="sequence-recipient">To: ${seq.recipientEmail} (${seq.progress})</div>
+                                ${seq.nextStep ? `<div class="sequence-next">Next: Step ${seq.nextStep.stepNumber} scheduled</div>` : ''}
+                                <div style="margin-top: 8px; display: flex; gap: 6px;">
+                                    ${seq.nextStep ? `<button class="btn-secondary" onclick="sendNextStep(${seq.id})" style="font-size: 10px; padding: 4px 8px;">Send Next</button>` : ''}
+                                    <button class="btn-secondary" onclick="toggleSequencePause(${seq.id})" style="font-size: 10px; padding: 4px 8px;">${seq.status === 'paused' ? 'Resume' : 'Pause'}</button>
+                                    <button class="btn-secondary" onclick="deleteSequence(${seq.id})" style="font-size: 10px; padding: 4px 8px; color: var(--accent-danger);">Cancel</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load sequences:', e);
+            }
+        }
+
+        async function showSequenceTemplates() {
+            document.getElementById('sequence-modal').classList.add('show');
+
+            try {
+                const res = await fetch(`${API_BASE}/sequences/templates`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('sequence-templates').innerHTML = data.templates.map(t => `
+                        <div class="sequence-item" style="cursor: pointer;" onclick="selectSequenceTemplate(${t.id})">
+                            <div class="sequence-name">${t.name}</div>
+                            <div class="sequence-recipient">${t.steps.length} steps: ${t.steps.map(s => `Day ${s.day}`).join(' → ')}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load templates:', e);
+            }
+        }
+
+        function closeSequenceModal() {
+            document.getElementById('sequence-modal').classList.remove('show');
+        }
+
+        function selectSequenceTemplate(templateId) {
+            closeSequenceModal();
+            document.getElementById('seq-template-id').value = templateId;
+            document.getElementById('seq-recipient-email').value = '';
+            document.getElementById('seq-recipient-name').value = '';
+            document.getElementById('start-sequence-modal').classList.add('show');
+        }
+
+        function closeStartSequenceModal() {
+            document.getElementById('start-sequence-modal').classList.remove('show');
+        }
+
+        async function startSequence() {
+            const templateId = parseInt(document.getElementById('seq-template-id').value);
+            const recipientEmail = document.getElementById('seq-recipient-email').value.trim();
+            const recipientName = document.getElementById('seq-recipient-name').value.trim();
+
+            if (!recipientEmail) {
+                addMessage('Please enter recipient email.', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/sequences/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ templateId, recipientEmail, recipientName })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeStartSequenceModal();
+                    addMessage(`Sequence started for ${recipientEmail}!`, false);
+                    loadActiveSequences();
+                }
+            } catch (e) {
+                console.error('Failed to start sequence:', e);
+            }
+        }
+
+        async function sendNextStep(sequenceId) {
+            try {
+                const res = await fetch(`${API_BASE}/sequences/${sequenceId}/send-next`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    addMessage('Email opened in Mail app. Send when ready!', false);
+                    loadActiveSequences();
+                }
+            } catch (e) {
+                console.error('Failed to send next step:', e);
+            }
+        }
+
+        async function toggleSequencePause(sequenceId) {
+            try {
+                await fetch(`${API_BASE}/sequences/${sequenceId}/pause`, { method: 'PUT' });
+                loadActiveSequences();
+            } catch (e) {
+                console.error('Failed to toggle sequence:', e);
+            }
+        }
+
+        async function deleteSequence(sequenceId) {
+            if (!confirm('Cancel this sequence?')) return;
+
+            try {
+                await fetch(`${API_BASE}/sequences/${sequenceId}`, { method: 'DELETE' });
+                loadActiveSequences();
+            } catch (e) {
+                console.error('Failed to delete sequence:', e);
+            }
+        }
+
+        // Scheduled Emails
+        async function loadScheduledEmails() {
+            try {
+                const res = await fetch(`${API_BASE}/scheduled`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const list = document.getElementById('scheduled-list');
+
+                    if (data.emails.filter(e => e.status === 'scheduled').length === 0) {
+                        list.innerHTML = `
+                            <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                                No scheduled emails. Click + Schedule to queue one.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    list.innerHTML = data.emails
+                        .filter(e => e.status === 'scheduled')
+                        .map(e => `
+                            <div class="scheduled-item">
+                                <div class="scheduled-time">
+                                    <div class="scheduled-time-value">${e.timeUntil}</div>
+                                    <div class="scheduled-time-label">until send</div>
+                                </div>
+                                <div class="scheduled-info">
+                                    <div class="scheduled-to">To: ${e.to}</div>
+                                    <div class="scheduled-subject">${e.subject}</div>
+                                </div>
+                                <div class="scheduled-actions">
+                                    <button class="scheduled-btn send" onclick="sendScheduledNow(${e.id})">Send Now</button>
+                                    <button class="scheduled-btn edit" onclick="deleteScheduled(${e.id})">Cancel</button>
+                                </div>
+                            </div>
+                        `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load scheduled:', e);
+            }
+        }
+
+        function showScheduleEmailModal() {
+            document.getElementById('sched-to').value = '';
+            document.getElementById('sched-subject').value = '';
+            document.getElementById('sched-body').value = '';
+            document.getElementById('sched-datetime').value = '';
+            document.getElementById('schedule-email-modal').classList.add('show');
+        }
+
+        function closeScheduleEmailModal() {
+            document.getElementById('schedule-email-modal').classList.remove('show');
+        }
+
+        function setQuickSchedule(option) {
+            const input = document.getElementById('sched-datetime');
+            const now = new Date();
+
+            if (typeof option === 'number') {
+                // Hours from now
+                now.setHours(now.getHours() + option);
+            } else if (option === 'tomorrow9') {
+                now.setDate(now.getDate() + 1);
+                now.setHours(9, 0, 0, 0);
+            } else if (option === 'monday9') {
+                const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
+                now.setDate(now.getDate() + daysUntilMonday);
+                now.setHours(9, 0, 0, 0);
+            }
+
+            // Format for datetime-local input
+            const formatted = now.toISOString().slice(0, 16);
+            input.value = formatted;
+        }
+
+        async function scheduleEmail() {
+            const to = document.getElementById('sched-to').value.trim();
+            const subject = document.getElementById('sched-subject').value.trim();
+            const body = document.getElementById('sched-body').value;
+            const sendAt = document.getElementById('sched-datetime').value;
+
+            if (!to || !subject || !sendAt) {
+                addMessage('Please fill in To, Subject, and Send At.', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/scheduled`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, body, sendAt })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeScheduleEmailModal();
+                    addMessage(`Email scheduled for ${new Date(sendAt).toLocaleString()}`, false);
+                    loadScheduledEmails();
+                }
+            } catch (e) {
+                console.error('Failed to schedule email:', e);
+            }
+        }
+
+        async function sendScheduledNow(id) {
+            try {
+                const res = await fetch(`${API_BASE}/scheduled/${id}/send-now`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    addMessage('Email opened in Mail app. Send when ready!', false);
+                    loadScheduledEmails();
+                }
+            } catch (e) {
+                console.error('Failed to send now:', e);
+            }
+        }
+
+        async function deleteScheduled(id) {
+            try {
+                await fetch(`${API_BASE}/scheduled/${id}`, { method: 'DELETE' });
+                loadScheduledEmails();
+            } catch (e) {
+                console.error('Failed to delete scheduled:', e);
+            }
+        }
+
+        // Batch Operations
+        async function loadSavedFilters() {
+            try {
+                const res = await fetch(`${API_BASE}/batch/filters`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('saved-filters').innerHTML = data.filters.map(f => `
+                        <span class="saved-filter-chip" onclick="applySavedFilter(${JSON.stringify(f.filter).replace(/"/g, '&quot;')})">
+                            ${f.name}
+                        </span>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load filters:', e);
+            }
+        }
+
+        function applySavedFilter(filter) {
+            document.getElementById('batch-sender-filter').value = filter.sender || '';
+            previewBatchFilter();
+        }
+
+        async function previewBatchFilter() {
+            const sender = document.getElementById('batch-sender-filter').value.trim();
+
+            if (!sender) {
+                document.getElementById('batch-preview').style.display = 'none';
+                document.getElementById('batch-actions').style.display = 'none';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/batch/preview`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filter: { sender } })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    batchEmailIds = data.emails.map(e => e.id);
+
+                    document.getElementById('batch-count').textContent = data.count;
+                    document.getElementById('batch-preview').style.display = 'block';
+                    document.getElementById('batch-actions').style.display = data.count > 0 ? 'grid' : 'none';
+                }
+            } catch (e) {
+                console.error('Failed to preview batch:', e);
+            }
+        }
+
+        async function executeBatch(action) {
+            if (batchEmailIds.length === 0) {
+                addMessage('No emails selected.', false);
+                return;
+            }
+
+            const actionLabel = {
+                archive: 'Archive',
+                delete: 'Delete',
+                markRead: 'Mark as read',
+                markUnread: 'Mark as unread',
+                flag: 'Flag',
+                unflag: 'Unflag'
+            }[action];
+
+            if (!confirm(`${actionLabel} ${batchEmailIds.length} emails?`)) return;
+
+            try {
+                addMessage(`Processing ${batchEmailIds.length} emails...`, false);
+
+                const res = await fetch(`${API_BASE}/batch/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailIds: batchEmailIds, action })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    addMessage(data.message, false);
+                    document.getElementById('batch-sender-filter').value = '';
+                    document.getElementById('batch-preview').style.display = 'none';
+                    document.getElementById('batch-actions').style.display = 'none';
+                    batchEmailIds = [];
+                    loadEmails();
+                }
+            } catch (e) {
+                console.error('Batch operation failed:', e);
+                addMessage('Batch operation failed.', false);
+            }
+        }
+
+        // Check for due reminders and scheduled emails
+        async function checkAutomationDue() {
+            try {
+                // Check followups
+                const followupsRes = await fetch(`${API_BASE}/followups/check`);
+                const followupsData = await followupsRes.json();
+
+                if (followupsData.count > 0) {
+                    followupsData.dueReminders.forEach(r => {
+                        addMessage(`🔔 Reminder: Check on "${r.emailSubject}" from ${r.emailSender}`, false);
+                    });
+                }
+
+                // Check scheduled emails
+                const scheduledRes = await fetch(`${API_BASE}/scheduled/check`);
+                const scheduledData = await scheduledRes.json();
+
+                if (scheduledData.count > 0) {
+                    addMessage(`📬 ${scheduledData.count} scheduled email(s) ready to send!`, false);
+                }
+            } catch (e) {
+                console.error('Failed to check automation:', e);
+            }
+        }
+
+        // Initialize automation features
+        function initAutomation() {
+            loadFollowups();
+            loadActiveSequences();
+            loadScheduledEmails();
+            loadSavedFilters();
+
+            // Check for due items every 5 minutes
+            setInterval(checkAutomationDue, 300000);
+        }
+
         // ============ LOAD ALL NEW FEATURES ============
 
         async function loadAllNewFeatures() {
@@ -7315,6 +8421,9 @@
 
             // Initialize Advanced AI after emails are loaded
             setTimeout(initAdvancedAI, 500);
+
+            // Initialize Automation features
+            setTimeout(initAutomation, 600);
         }
 
         // ============ UPDATE INIT ============

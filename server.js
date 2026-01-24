@@ -3963,6 +3963,703 @@ function generateCategorySuggestions(emails, categories) {
     return suggestions;
 }
 
+// ============ AUTOMATION: FOLLOW-UP REMINDERS ============
+
+const FOLLOWUPS_FILE = path.join(__dirname, 'followup-reminders.json');
+
+function loadFollowups() {
+    try {
+        if (fs.existsSync(FOLLOWUPS_FILE)) {
+            return JSON.parse(fs.readFileSync(FOLLOWUPS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { reminders: [] };
+}
+
+function saveFollowups(data) {
+    fs.writeFileSync(FOLLOWUPS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/followups', (req, res) => {
+    const data = loadFollowups();
+    const now = Date.now();
+
+    // Mark overdue reminders
+    const reminders = data.reminders.map(r => ({
+        ...r,
+        isOverdue: r.status === 'pending' && new Date(r.remindAt).getTime() < now,
+        daysUntil: Math.ceil((new Date(r.remindAt).getTime() - now) / (1000 * 60 * 60 * 24))
+    }));
+
+    res.json({
+        success: true,
+        reminders,
+        stats: {
+            total: reminders.length,
+            pending: reminders.filter(r => r.status === 'pending').length,
+            overdue: reminders.filter(r => r.isOverdue).length
+        }
+    });
+});
+
+app.post('/api/followups', (req, res) => {
+    const { emailId, emailSubject, emailSender, daysUntilRemind, note } = req.body;
+
+    if (!emailId || !daysUntilRemind) {
+        return res.status(400).json({ success: false, error: 'Email ID and days required' });
+    }
+
+    const data = loadFollowups();
+    const reminder = {
+        id: Date.now(),
+        emailId,
+        emailSubject: emailSubject || 'No subject',
+        emailSender: emailSender || 'Unknown',
+        note: note || '',
+        createdAt: new Date().toISOString(),
+        remindAt: new Date(Date.now() + daysUntilRemind * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'pending'
+    };
+
+    data.reminders.push(reminder);
+    saveFollowups(data);
+
+    res.json({ success: true, reminder });
+});
+
+app.put('/api/followups/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { status, note, remindAt } = req.body;
+
+    const data = loadFollowups();
+    const reminder = data.reminders.find(r => r.id === id);
+
+    if (!reminder) {
+        return res.status(404).json({ success: false, error: 'Reminder not found' });
+    }
+
+    if (status) reminder.status = status;
+    if (note !== undefined) reminder.note = note;
+    if (remindAt) reminder.remindAt = remindAt;
+
+    saveFollowups(data);
+    res.json({ success: true, reminder });
+});
+
+app.delete('/api/followups/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadFollowups();
+    data.reminders = data.reminders.filter(r => r.id !== id);
+    saveFollowups(data);
+    res.json({ success: true });
+});
+
+app.get('/api/followups/check', (req, res) => {
+    const data = loadFollowups();
+    const now = Date.now();
+
+    const due = data.reminders.filter(r =>
+        r.status === 'pending' &&
+        new Date(r.remindAt).getTime() <= now
+    );
+
+    res.json({
+        success: true,
+        dueReminders: due,
+        count: due.length
+    });
+});
+
+// ============ AUTOMATION: EMAIL SEQUENCES ============
+
+const SEQUENCES_FILE = path.join(__dirname, 'email-sequences.json');
+
+function loadSequences() {
+    try {
+        if (fs.existsSync(SEQUENCES_FILE)) {
+            return JSON.parse(fs.readFileSync(SEQUENCES_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        templates: [
+            {
+                id: 1,
+                name: 'Sales Follow-up',
+                steps: [
+                    { day: 0, subject: 'Nice to meet you!', body: 'Hi {{name}},\n\nIt was great connecting with you...' },
+                    { day: 3, subject: 'Following up', body: 'Hi {{name}},\n\nJust wanted to follow up on our conversation...' },
+                    { day: 7, subject: 'Any thoughts?', body: 'Hi {{name}},\n\nI wanted to check in one more time...' }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Job Application',
+                steps: [
+                    { day: 0, subject: 'Application for {{position}}', body: 'Dear Hiring Manager,\n\nI am writing to apply...' },
+                    { day: 5, subject: 'Following up on my application', body: 'Dear Hiring Manager,\n\nI wanted to follow up...' },
+                    { day: 10, subject: 'Still interested in {{position}}', body: 'Dear Hiring Manager,\n\nI remain very interested...' }
+                ]
+            },
+            {
+                id: 3,
+                name: 'Invoice Reminder',
+                steps: [
+                    { day: 0, subject: 'Invoice #{{invoice}} - Due Soon', body: 'Hi {{name}},\n\nThis is a friendly reminder...' },
+                    { day: 7, subject: 'Invoice #{{invoice}} - Past Due', body: 'Hi {{name}},\n\nYour invoice is now past due...' },
+                    { day: 14, subject: 'Final Notice - Invoice #{{invoice}}', body: 'Hi {{name}},\n\nThis is a final reminder...' }
+                ]
+            }
+        ],
+        active: []
+    };
+}
+
+function saveSequences(data) {
+    fs.writeFileSync(SEQUENCES_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/sequences/templates', (req, res) => {
+    const data = loadSequences();
+    res.json({ success: true, templates: data.templates });
+});
+
+app.post('/api/sequences/templates', (req, res) => {
+    const { name, steps } = req.body;
+
+    if (!name || !steps || steps.length === 0) {
+        return res.status(400).json({ success: false, error: 'Name and steps required' });
+    }
+
+    const data = loadSequences();
+    const template = {
+        id: Date.now(),
+        name,
+        steps
+    };
+
+    data.templates.push(template);
+    saveSequences(data);
+
+    res.json({ success: true, template });
+});
+
+app.get('/api/sequences/active', (req, res) => {
+    const data = loadSequences();
+    const now = Date.now();
+
+    const active = data.active.map(seq => {
+        const nextStep = seq.steps.find(s => s.status === 'pending');
+        return {
+            ...seq,
+            nextStep: nextStep ? {
+                ...nextStep,
+                scheduledFor: new Date(new Date(seq.startedAt).getTime() + nextStep.day * 24 * 60 * 60 * 1000).toISOString()
+            } : null,
+            progress: `${seq.steps.filter(s => s.status === 'sent').length}/${seq.steps.length}`
+        };
+    });
+
+    res.json({ success: true, sequences: active });
+});
+
+app.post('/api/sequences/start', (req, res) => {
+    const { templateId, recipientEmail, recipientName, variables } = req.body;
+
+    if (!templateId || !recipientEmail) {
+        return res.status(400).json({ success: false, error: 'Template and recipient required' });
+    }
+
+    const data = loadSequences();
+    const template = data.templates.find(t => t.id === templateId);
+
+    if (!template) {
+        return res.status(404).json({ success: false, error: 'Template not found' });
+    }
+
+    const sequence = {
+        id: Date.now(),
+        templateId,
+        templateName: template.name,
+        recipientEmail,
+        recipientName: recipientName || recipientEmail.split('@')[0],
+        variables: variables || {},
+        startedAt: new Date().toISOString(),
+        status: 'active',
+        steps: template.steps.map((step, i) => ({
+            ...step,
+            stepNumber: i + 1,
+            status: 'pending'
+        }))
+    };
+
+    data.active.push(sequence);
+    saveSequences(data);
+
+    res.json({ success: true, sequence });
+});
+
+app.post('/api/sequences/:id/send-next', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadSequences();
+    const sequence = data.active.find(s => s.id === id);
+
+    if (!sequence) {
+        return res.status(404).json({ success: false, error: 'Sequence not found' });
+    }
+
+    const nextStep = sequence.steps.find(s => s.status === 'pending');
+    if (!nextStep) {
+        return res.json({ success: false, error: 'No pending steps' });
+    }
+
+    // Replace variables in subject and body
+    let subject = nextStep.subject;
+    let body = nextStep.body;
+
+    const vars = { name: sequence.recipientName, ...sequence.variables };
+    for (const [key, value] of Object.entries(vars)) {
+        subject = subject.replace(new RegExp(`{{${key}}}`, 'g'), value);
+        body = body.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    }
+
+    // Open email in Mail app
+    const script = `
+        tell application "Mail"
+            set newMessage to make new outgoing message with properties {subject:"${subject.replace(/"/g, '\\"')}", content:"${body.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"}
+            tell newMessage
+                make new to recipient with properties {address:"${sequence.recipientEmail}"}
+            end tell
+            activate
+        end tell
+    `;
+
+    try {
+        runAppleScript(script);
+        nextStep.status = 'sent';
+        nextStep.sentAt = new Date().toISOString();
+
+        // Check if sequence is complete
+        if (sequence.steps.every(s => s.status === 'sent')) {
+            sequence.status = 'completed';
+            sequence.completedAt = new Date().toISOString();
+        }
+
+        saveSequences(data);
+        res.json({ success: true, step: nextStep });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/sequences/:id/pause', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadSequences();
+    const sequence = data.active.find(s => s.id === id);
+
+    if (!sequence) {
+        return res.status(404).json({ success: false, error: 'Sequence not found' });
+    }
+
+    sequence.status = sequence.status === 'paused' ? 'active' : 'paused';
+    saveSequences(data);
+
+    res.json({ success: true, status: sequence.status });
+});
+
+app.delete('/api/sequences/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadSequences();
+    data.active = data.active.filter(s => s.id !== id);
+    saveSequences(data);
+    res.json({ success: true });
+});
+
+// ============ AUTOMATION: SCHEDULED SENDING ============
+
+const SCHEDULED_FILE = path.join(__dirname, 'scheduled-emails.json');
+
+function loadScheduled() {
+    try {
+        if (fs.existsSync(SCHEDULED_FILE)) {
+            return JSON.parse(fs.readFileSync(SCHEDULED_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { emails: [] };
+}
+
+function saveScheduled(data) {
+    fs.writeFileSync(SCHEDULED_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/scheduled', (req, res) => {
+    const data = loadScheduled();
+    const now = Date.now();
+
+    const emails = data.emails.map(e => ({
+        ...e,
+        isReady: e.status === 'scheduled' && new Date(e.sendAt).getTime() <= now,
+        timeUntil: formatTimeUntil(new Date(e.sendAt).getTime() - now)
+    }));
+
+    res.json({
+        success: true,
+        emails,
+        stats: {
+            scheduled: emails.filter(e => e.status === 'scheduled').length,
+            ready: emails.filter(e => e.isReady).length,
+            sent: emails.filter(e => e.status === 'sent').length
+        }
+    });
+});
+
+function formatTimeUntil(ms) {
+    if (ms <= 0) return 'Now';
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        return `${days}d ${hours % 24}h`;
+    }
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+
+app.post('/api/scheduled', (req, res) => {
+    const { to, subject, body, sendAt } = req.body;
+
+    if (!to || !subject || !sendAt) {
+        return res.status(400).json({ success: false, error: 'To, subject, and sendAt required' });
+    }
+
+    const data = loadScheduled();
+    const email = {
+        id: Date.now(),
+        to,
+        subject,
+        body: body || '',
+        sendAt,
+        createdAt: new Date().toISOString(),
+        status: 'scheduled'
+    };
+
+    data.emails.push(email);
+    saveScheduled(data);
+
+    res.json({ success: true, email });
+});
+
+app.post('/api/scheduled/:id/send-now', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadScheduled();
+    const email = data.emails.find(e => e.id === id);
+
+    if (!email) {
+        return res.status(404).json({ success: false, error: 'Email not found' });
+    }
+
+    // Open email in Mail app
+    const script = `
+        tell application "Mail"
+            set newMessage to make new outgoing message with properties {subject:"${email.subject.replace(/"/g, '\\"')}", content:"${email.body.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"}
+            tell newMessage
+                make new to recipient with properties {address:"${email.to}"}
+            end tell
+            activate
+        end tell
+    `;
+
+    try {
+        runAppleScript(script);
+        email.status = 'sent';
+        email.sentAt = new Date().toISOString();
+        saveScheduled(data);
+        res.json({ success: true, email });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/scheduled/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { to, subject, body, sendAt } = req.body;
+
+    const data = loadScheduled();
+    const email = data.emails.find(e => e.id === id);
+
+    if (!email) {
+        return res.status(404).json({ success: false, error: 'Email not found' });
+    }
+
+    if (to) email.to = to;
+    if (subject) email.subject = subject;
+    if (body !== undefined) email.body = body;
+    if (sendAt) email.sendAt = sendAt;
+
+    saveScheduled(data);
+    res.json({ success: true, email });
+});
+
+app.delete('/api/scheduled/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadScheduled();
+    data.emails = data.emails.filter(e => e.id !== id);
+    saveScheduled(data);
+    res.json({ success: true });
+});
+
+app.get('/api/scheduled/check', (req, res) => {
+    const data = loadScheduled();
+    const now = Date.now();
+
+    const ready = data.emails.filter(e =>
+        e.status === 'scheduled' &&
+        new Date(e.sendAt).getTime() <= now
+    );
+
+    res.json({
+        success: true,
+        readyToSend: ready,
+        count: ready.length
+    });
+});
+
+// ============ AUTOMATION: BATCH OPERATIONS ============
+
+app.post('/api/batch/preview', (req, res) => {
+    const { filter } = req.body;
+
+    if (!filter) {
+        return res.status(400).json({ success: false, error: 'Filter required' });
+    }
+
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        let query = `
+            SELECT
+                m.ROWID as id,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject,
+                a.address as sender,
+                m.read,
+                m.flagged
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.deleted = 0
+        `;
+
+        const params = [];
+
+        // Apply filters
+        if (filter.sender) {
+            query += ` AND a.address LIKE ?`;
+            params.push(`%${filter.sender}%`);
+        }
+        if (filter.subject) {
+            query += ` AND s.subject LIKE ?`;
+            params.push(`%${filter.subject}%`);
+        }
+        if (filter.olderThanDays) {
+            query += ` AND m.date_received < strftime('%s', 'now', '-' || ? || ' days')`;
+            params.push(filter.olderThanDays);
+        }
+        if (filter.unreadOnly) {
+            query += ` AND m.read = 0`;
+        }
+        if (filter.readOnly) {
+            query += ` AND m.read = 1`;
+        }
+
+        query += ` ORDER BY m.date_received DESC LIMIT 100`;
+
+        const emails = db.prepare(query).all(...params);
+        db.close();
+
+        res.json({
+            success: true,
+            emails,
+            count: emails.length,
+            message: `Found ${emails.length} emails matching filter`
+        });
+
+    } catch (error) {
+        console.error('Batch preview error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/batch/execute', async (req, res) => {
+    const { emailIds, action } = req.body;
+
+    if (!emailIds || emailIds.length === 0 || !action) {
+        return res.status(400).json({ success: false, error: 'Email IDs and action required' });
+    }
+
+    const validActions = ['archive', 'delete', 'markRead', 'markUnread', 'flag', 'unflag'];
+    if (!validActions.includes(action)) {
+        return res.status(400).json({ success: false, error: `Invalid action. Valid: ${validActions.join(', ')}` });
+    }
+
+    const results = { success: 0, failed: 0, errors: [] };
+
+    for (const id of emailIds) {
+        try {
+            let script = '';
+
+            switch (action) {
+                case 'archive':
+                    // Move to Archive mailbox
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                set read status of theMessage to true
+                                delete theMessage
+                            end repeat
+                        end tell
+                    `;
+                    break;
+
+                case 'delete':
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                delete theMessage
+                            end repeat
+                        end tell
+                    `;
+                    break;
+
+                case 'markRead':
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                set read status of theMessage to true
+                            end repeat
+                        end tell
+                    `;
+                    break;
+
+                case 'markUnread':
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                set read status of theMessage to false
+                            end repeat
+                        end tell
+                    `;
+                    break;
+
+                case 'flag':
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                set flagged status of theMessage to true
+                            end repeat
+                        end tell
+                    `;
+                    break;
+
+                case 'unflag':
+                    script = `
+                        tell application "Mail"
+                            set theMessages to (messages of inbox whose id is ${id})
+                            repeat with theMessage in theMessages
+                                set flagged status of theMessage to false
+                            end repeat
+                        end tell
+                    `;
+                    break;
+            }
+
+            runAppleScript(script);
+            results.success++;
+
+        } catch (error) {
+            results.failed++;
+            results.errors.push({ id, error: error.message });
+        }
+    }
+
+    // Log the batch action
+    const actionsData = loadActions();
+    actionsData.actions.push({
+        type: `batch_${action}`,
+        count: results.success,
+        timestamp: new Date().toISOString()
+    });
+    saveActions(actionsData);
+
+    res.json({
+        success: true,
+        results,
+        message: `${action}: ${results.success} succeeded, ${results.failed} failed`
+    });
+});
+
+// Saved batch filters
+const BATCH_FILTERS_FILE = path.join(__dirname, 'batch-filters.json');
+
+function loadBatchFilters() {
+    try {
+        if (fs.existsSync(BATCH_FILTERS_FILE)) {
+            return JSON.parse(fs.readFileSync(BATCH_FILTERS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        filters: [
+            { id: 1, name: 'Old Newsletters', filter: { sender: 'newsletter', olderThanDays: 30 } },
+            { id: 2, name: 'Read Promotions', filter: { sender: 'promo', readOnly: true } },
+            { id: 3, name: 'Old GitHub Notifications', filter: { sender: 'github.com', olderThanDays: 14, readOnly: true } }
+        ]
+    };
+}
+
+function saveBatchFilters(data) {
+    fs.writeFileSync(BATCH_FILTERS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/batch/filters', (req, res) => {
+    const data = loadBatchFilters();
+    res.json({ success: true, filters: data.filters });
+});
+
+app.post('/api/batch/filters', (req, res) => {
+    const { name, filter } = req.body;
+
+    if (!name || !filter) {
+        return res.status(400).json({ success: false, error: 'Name and filter required' });
+    }
+
+    const data = loadBatchFilters();
+    const newFilter = {
+        id: Date.now(),
+        name,
+        filter
+    };
+
+    data.filters.push(newFilter);
+    saveBatchFilters(data);
+
+    res.json({ success: true, filter: newFilter });
+});
+
+app.delete('/api/batch/filters/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadBatchFilters();
+    data.filters = data.filters.filter(f => f.id !== id);
+    saveBatchFilters(data);
+    res.json({ success: true });
+});
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
@@ -3972,8 +4669,8 @@ app.listen(PORT, () => {
 ║     FELIX — Your Chief of Staff                       ║
 ║     Dashboard running at http://localhost:${PORT}       ║
 ║                                                       ║
-║     Advanced AI: Thread Summary, Smart Compose,       ║
-║     Sentiment Analysis, Auto-Categorization           ║
+║     Automation: Follow-ups, Sequences, Scheduled,     ║
+║     Batch Operations                                  ║
 ║     Press Ctrl+C to stop                              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
