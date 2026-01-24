@@ -1,0 +1,2180 @@
+const express = require('express');
+const cors = require('cors');
+const Database = require('better-sqlite3');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const app = express();
+const PORT = 3847;
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// Helper to run AppleScript
+function runAppleScript(script) {
+    try {
+        return execSync(`osascript -e '${script.replace(/'/g, "'\"'\"'")}'`, {
+            encoding: 'utf-8',
+            timeout: 10000
+        }).trim();
+    } catch (e) {
+        console.error('AppleScript error:', e.message);
+        return '';
+    }
+}
+
+// Get mail database path
+const HOME = os.homedir();
+const MAIL_DB_PATH = path.join(HOME, 'Library/Mail/V10/MailData/Envelope Index');
+
+// ============ EMAIL ENDPOINTS ============
+
+app.get('/api/emails/priority', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Get priority emails (last 7 days, filtered for important ones)
+        const emails = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject,
+                a.address as sender,
+                m.read,
+                m.flagged,
+                m.date_received as timestamp
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            ORDER BY m.date_received DESC
+            LIMIT 200
+        `).all();
+
+        db.close();
+
+        // Categorize and score emails
+        const priorityEmails = emails.map(email => {
+            let priority = 0;
+            let tags = [];
+            let category = 'general';
+
+            const sender = (email.sender || '').toLowerCase();
+            const subject = (email.subject || '').toLowerCase();
+
+            // Financial
+            if (sender.includes('bankofamerica') || sender.includes('venmo') ||
+                sender.includes('paypal') || sender.includes('bmo') ||
+                subject.includes('credit card') || subject.includes('payment') ||
+                subject.includes('transaction') || subject.includes('transfer')) {
+                priority += 30;
+                tags.push('financial');
+                category = 'financial';
+            }
+
+            // Action required
+            if (subject.includes('update') && subject.includes('payment') ||
+                subject.includes('renew') || subject.includes('action required') ||
+                subject.includes('confirm') || subject.includes('verify')) {
+                priority += 25;
+                tags.push('action');
+                category = 'action';
+            }
+
+            // Orders and shipping
+            if (subject.includes('order') || subject.includes('shipping') ||
+                subject.includes('delivery') || subject.includes('confirmed')) {
+                priority += 15;
+                tags.push('shipping');
+                if (category === 'general') category = 'shipping';
+            }
+
+            // Deployment/Tech alerts
+            if (sender.includes('vercel') || sender.includes('github') ||
+                subject.includes('failed') || subject.includes('deployment')) {
+                priority += 20;
+                tags.push('tech');
+                if (category === 'general') category = 'tech';
+            }
+
+            // Unread bonus
+            if (!email.read) priority += 10;
+
+            // Flagged bonus
+            if (email.flagged) priority += 20;
+
+            // Spam/marketing penalty
+            if (sender.includes('noreply@x.ai') || sender.includes('marketing') ||
+                sender.includes('promo') || sender.includes('@b.') ||
+                subject.includes('%') || subject.includes('sale') ||
+                subject.includes('off') && !subject.includes('office')) {
+                priority -= 50;
+                category = 'marketing';
+            }
+
+            return {
+                ...email,
+                priority,
+                tags,
+                category,
+                initials: getInitials(email.sender)
+            };
+        });
+
+        // Filter and sort by priority
+        const filtered = priorityEmails
+            .filter(e => e.priority > 0 && e.category !== 'marketing')
+            .sort((a, b) => b.priority - a.priority)
+            .slice(0, 10);
+
+        res.json({
+            success: true,
+            count: filtered.length,
+            emails: filtered
+        });
+
+    } catch (error) {
+        console.error('Email fetch error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/emails/stats', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        const stats = db.prepare(`
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN read = 0 THEN 1 ELSE 0 END) as unread,
+                SUM(CASE WHEN flagged = 1 THEN 1 ELSE 0 END) as flagged
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-7 days')
+            AND deleted = 0
+        `).get();
+
+        // Count by category
+        const topSenders = db.prepare(`
+            SELECT
+                a.address,
+                COUNT(*) as count
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            GROUP BY a.address
+            ORDER BY count DESC
+            LIMIT 10
+        `).all();
+
+        db.close();
+
+        res.json({
+            success: true,
+            stats: {
+                ...stats,
+                topSenders
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ CALENDAR ENDPOINTS ============
+
+app.get('/api/calendar/upcoming', (req, res) => {
+    try {
+        const script = `
+            set today to current date
+            set endDate to today + (14 * days)
+            set output to ""
+            tell application "Calendar"
+                repeat with cal in calendars
+                    set calName to name of cal
+                    try
+                        set evts to (every event of cal whose start date >= today and start date <= endDate)
+                        repeat with evt in evts
+                            set evtStart to start date of evt
+                            set evtSummary to summary of evt
+                            set output to output & calName & "|||" & (evtStart as string) & "|||" & evtSummary & "\\n"
+                        end repeat
+                    end try
+                end repeat
+            end tell
+            return output
+        `;
+
+        const result = runAppleScript(script);
+        const events = result.split('\n')
+            .filter(line => line.trim())
+            .map(line => {
+                const [calendar, dateStr, title] = line.split('|||');
+                const date = new Date(dateStr);
+                return {
+                    calendar: calendar?.trim() || 'Unknown',
+                    title: title?.trim() || 'Untitled',
+                    date: date.toISOString(),
+                    dateFormatted: date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric'
+                    }),
+                    time: date.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    }),
+                    isToday: isSameDay(date, new Date()),
+                    isTomorrow: isSameDay(date, addDays(new Date(), 1)),
+                    category: categorizeCalendar(calendar)
+                };
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        res.json({
+            success: true,
+            count: events.length,
+            events
+        });
+
+    } catch (error) {
+        console.error('Calendar error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ FILE SYSTEM ENDPOINTS ============
+
+app.get('/api/files/analysis', (req, res) => {
+    try {
+        const downloads = scanDirectory(path.join(HOME, 'Downloads'));
+        const desktop = scanDirectory(path.join(HOME, 'Desktop'));
+
+        // Find duplicates in downloads
+        const dmgFiles = downloads.files.filter(f => f.name.endsWith('.dmg'));
+        const duplicateDmgs = findDuplicates(dmgFiles);
+
+        // Find screenshots on desktop
+        const screenshots = desktop.files.filter(f =>
+            f.name.toLowerCase().includes('screenshot') ||
+            (f.name.match(/\.(png|jpg|jpeg)$/i) && f.name.match(/\d{4}-\d{2}-\d{2}/))
+        );
+
+        // Find old installers
+        const oldInstallers = downloads.files.filter(f =>
+            f.name.endsWith('.dmg') || f.name.endsWith('.pkg')
+        );
+
+        // Calculate recoverable space
+        const duplicateSize = duplicateDmgs.reduce((sum, d) => sum + d.totalSize - d.keepSize, 0);
+        const installerSize = oldInstallers.reduce((sum, f) => sum + f.size, 0);
+
+        res.json({
+            success: true,
+            analysis: {
+                downloads: {
+                    totalFiles: downloads.files.length,
+                    totalSize: downloads.totalSize,
+                    duplicates: duplicateDmgs.length,
+                    duplicateSize
+                },
+                desktop: {
+                    totalFiles: desktop.files.length,
+                    screenshots: screenshots.length,
+                    folders: desktop.folders.length
+                },
+                recommendations: [
+                    {
+                        id: 'duplicates',
+                        title: 'Duplicate DMG Files',
+                        description: `${duplicateDmgs.length} duplicate installers found`,
+                        size: duplicateSize,
+                        sizeFormatted: formatBytes(duplicateSize),
+                        items: duplicateDmgs.map(d => d.baseName),
+                        type: 'duplicates'
+                    },
+                    {
+                        id: 'installers',
+                        title: 'Old Installers',
+                        description: `${oldInstallers.length} DMG/PKG files can be deleted`,
+                        size: installerSize,
+                        sizeFormatted: formatBytes(installerSize),
+                        items: oldInstallers.map(f => f.name),
+                        type: 'cleanup'
+                    },
+                    {
+                        id: 'screenshots',
+                        title: 'Desktop Organization',
+                        description: `${screenshots.length} screenshots, ${desktop.folders.length} project folders`,
+                        items: screenshots.map(f => f.name),
+                        type: 'organize'
+                    }
+                ],
+                recoverableSpace: duplicateSize + installerSize,
+                recoverableFormatted: formatBytes(duplicateSize + installerSize)
+            }
+        });
+
+    } catch (error) {
+        console.error('File analysis error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/files/duplicates', (req, res) => {
+    try {
+        const downloads = scanDirectory(path.join(HOME, 'Downloads'));
+        const dmgFiles = downloads.files.filter(f => f.name.endsWith('.dmg'));
+        const duplicates = findDuplicates(dmgFiles);
+
+        res.json({
+            success: true,
+            duplicates: duplicates.map(d => ({
+                baseName: d.baseName,
+                count: d.files.length,
+                files: d.files.map(f => ({
+                    name: f.name,
+                    size: formatBytes(f.size),
+                    modified: f.modified
+                })),
+                totalSize: formatBytes(d.totalSize),
+                canRecover: formatBytes(d.totalSize - d.keepSize)
+            }))
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ DEPLOYMENT STATUS ============
+
+app.get('/api/deployments/status', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        const vercelEmails = db.prepare(`
+            SELECT
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-2 days')
+            AND a.address LIKE '%vercel%'
+            ORDER BY m.date_received DESC
+            LIMIT 50
+        `).all();
+
+        db.close();
+
+        const failures = vercelEmails.filter(e =>
+            e.subject?.toLowerCase().includes('failed')
+        );
+
+        const projects = {};
+        failures.forEach(f => {
+            const match = f.subject?.match(/team '([^']+)'/);
+            if (match) {
+                const project = match[1];
+                projects[project] = (projects[project] || 0) + 1;
+            }
+        });
+
+        res.json({
+            success: true,
+            deployments: {
+                totalFailures24h: failures.length,
+                projects: Object.entries(projects).map(([name, count]) => ({
+                    name,
+                    failures: count,
+                    status: count > 10 ? 'critical' : count > 5 ? 'warning' : 'normal'
+                }))
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ EMAIL ACTIONS & LEARNING ============
+
+const EMAIL_ACTIONS_FILE = path.join(__dirname, 'email-actions.json');
+
+function loadEmailActions() {
+    try {
+        if (fs.existsSync(EMAIL_ACTIONS_FILE)) {
+            return JSON.parse(fs.readFileSync(EMAIL_ACTIONS_FILE, 'utf-8'));
+        }
+    } catch (e) {
+        console.error('Error loading email actions:', e);
+    }
+    return {
+        senderActions: {},  // { "sender@domain.com": { action: "archive", count: 5, autoApply: true } }
+        subjectPatterns: {}, // { "pattern": { action: "delete", count: 3 } }
+        recentActions: []   // Last 100 actions for analysis
+    };
+}
+
+function saveEmailActions(actions) {
+    fs.writeFileSync(EMAIL_ACTIONS_FILE, JSON.stringify(actions, null, 2));
+}
+
+// Get suggested action for an email based on learning
+function getSuggestedAction(sender, subject) {
+    const actions = loadEmailActions();
+    const senderKey = sender?.toLowerCase();
+
+    // Check if we have a learned action for this sender
+    if (senderKey && actions.senderActions[senderKey]) {
+        const senderAction = actions.senderActions[senderKey];
+        if (senderAction.autoApply) {
+            return { action: senderAction.action, confidence: 'high', reason: 'auto' };
+        } else if (senderAction.count >= 3) {
+            return { action: senderAction.action, confidence: 'medium', reason: 'learned' };
+        }
+    }
+
+    // Check subject patterns
+    const subjectLower = (subject || '').toLowerCase();
+    for (const [pattern, data] of Object.entries(actions.subjectPatterns)) {
+        if (subjectLower.includes(pattern) && data.count >= 3) {
+            return { action: data.action, confidence: 'medium', reason: 'pattern' };
+        }
+    }
+
+    return null;
+}
+
+// Record an action and learn from it
+app.post('/api/emails/action', (req, res) => {
+    try {
+        const { emailId, sender, subject, action } = req.body;
+        // Actions: 'archive', 'delete', 'star', 'reply', 'snooze', 'keep'
+
+        const actions = loadEmailActions();
+        const senderKey = sender?.toLowerCase();
+
+        // Update sender actions
+        if (senderKey) {
+            if (!actions.senderActions[senderKey]) {
+                actions.senderActions[senderKey] = { action, count: 0, autoApply: false };
+            }
+
+            if (actions.senderActions[senderKey].action === action) {
+                actions.senderActions[senderKey].count++;
+                // Auto-apply after 5 consistent actions
+                if (actions.senderActions[senderKey].count >= 5) {
+                    actions.senderActions[senderKey].autoApply = true;
+                }
+            } else {
+                // Different action - reset or update
+                actions.senderActions[senderKey] = { action, count: 1, autoApply: false };
+            }
+        }
+
+        // Learn from subject patterns (extract key phrases)
+        const subjectLower = (subject || '').toLowerCase();
+        const patterns = extractPatterns(subjectLower);
+        for (const pattern of patterns) {
+            if (!actions.subjectPatterns[pattern]) {
+                actions.subjectPatterns[pattern] = { action, count: 0 };
+            }
+            if (actions.subjectPatterns[pattern].action === action) {
+                actions.subjectPatterns[pattern].count++;
+            }
+        }
+
+        // Record recent action
+        actions.recentActions.unshift({
+            emailId,
+            sender: senderKey,
+            subject,
+            action,
+            timestamp: new Date().toISOString()
+        });
+        actions.recentActions = actions.recentActions.slice(0, 100);
+
+        saveEmailActions(actions);
+
+        // Check if this sender now has auto-apply
+        const senderData = actions.senderActions[senderKey];
+        const autoApplyEnabled = senderData?.autoApply || false;
+
+        res.json({
+            success: true,
+            message: `Email marked as ${action}`,
+            learned: senderData?.count >= 3,
+            autoApply: autoApplyEnabled,
+            consecutiveCount: senderData?.count || 1
+        });
+
+    } catch (error) {
+        console.error('Email action error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get learned actions summary
+app.get('/api/emails/learned-actions', (req, res) => {
+    try {
+        const actions = loadEmailActions();
+
+        const autoApplied = Object.entries(actions.senderActions)
+            .filter(([_, data]) => data.autoApply)
+            .map(([sender, data]) => ({ sender, action: data.action }));
+
+        const learning = Object.entries(actions.senderActions)
+            .filter(([_, data]) => data.count >= 3 && !data.autoApply)
+            .map(([sender, data]) => ({ sender, action: data.action, count: data.count }));
+
+        res.json({
+            success: true,
+            autoApplied,
+            learning,
+            totalLearned: autoApplied.length + learning.length
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get suggested action for specific email
+app.get('/api/emails/suggest-action', (req, res) => {
+    const { sender, subject } = req.query;
+    const suggestion = getSuggestedAction(sender, subject);
+    res.json({ success: true, suggestion });
+});
+
+function extractPatterns(subject) {
+    const patterns = [];
+    // Extract key phrases that might indicate email type
+    const keywords = ['order', 'shipping', 'delivery', 'payment', 'receipt',
+                      'confirmation', 'alert', 'notification', 'newsletter',
+                      'update', 'reminder', 'invoice', 'statement'];
+    for (const kw of keywords) {
+        if (subject.includes(kw)) {
+            patterns.push(kw);
+        }
+    }
+    return patterns;
+}
+
+// ============ UNSUBSCRIBE MANAGEMENT ============
+
+// Store for unsubscribe preferences (persisted to file)
+const PREFS_FILE = path.join(__dirname, 'cliff-preferences.json');
+
+function loadPreferences() {
+    try {
+        if (fs.existsSync(PREFS_FILE)) {
+            return JSON.parse(fs.readFileSync(PREFS_FILE, 'utf-8'));
+        }
+    } catch (e) {
+        console.error('Error loading preferences:', e);
+    }
+    return {
+        unsubscribed: [],
+        archived: ['ealerts.bankofamerica.com'],
+        reviewed: []
+    };
+}
+
+function savePreferences(prefs) {
+    fs.writeFileSync(PREFS_FILE, JSON.stringify(prefs, null, 2));
+}
+
+// Get marketing senders for unsubscribe review
+app.get('/api/unsubscribe/candidates', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const prefs = loadPreferences();
+
+        const candidates = db.prepare(`
+            SELECT
+                a.address as sender,
+                COUNT(*) as email_count,
+                MAX(datetime(m.date_received, 'unixepoch', 'localtime')) as last_received
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-30 days')
+            AND m.deleted = 0
+            AND (
+                a.address LIKE '%@b.%'
+                OR a.address LIKE '%@e.%'
+                OR a.address LIKE '%@email.%'
+                OR a.address LIKE '%@mail.%'
+                OR a.address LIKE '%@marketing%'
+                OR a.address LIKE '%@promo%'
+                OR a.address LIKE '%@newsletters%'
+                OR a.address LIKE '%noreply%'
+                OR a.address LIKE '%hello@%'
+                OR a.address LIKE '%info@%'
+            )
+            AND a.address NOT LIKE '%bankofamerica%'
+            AND a.address NOT LIKE '%github%'
+            AND a.address NOT LIKE '%vercel%'
+            AND a.address NOT LIKE '%apple.com%'
+            AND a.address NOT LIKE '%google.com%'
+            GROUP BY a.address
+            HAVING email_count >= 3
+            ORDER BY email_count DESC
+            LIMIT 50
+        `).all();
+
+        db.close();
+
+        // Filter out already unsubscribed/reviewed
+        const filtered = candidates
+            .filter(c => !prefs.unsubscribed.includes(c.sender))
+            .filter(c => !prefs.reviewed.includes(c.sender))
+            .map(c => ({
+                ...c,
+                domain: c.sender.split('@')[1] || 'unknown',
+                brandName: extractBrandName(c.sender)
+            }));
+
+        res.json({
+            success: true,
+            count: filtered.length,
+            candidates: filtered,
+            unsubscribedCount: prefs.unsubscribed.length
+        });
+
+    } catch (error) {
+        console.error('Unsubscribe candidates error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Mark sender as unsubscribed (user will manually unsubscribe)
+app.post('/api/unsubscribe/mark', (req, res) => {
+    try {
+        const { sender, action } = req.body; // action: 'unsubscribe', 'keep', 'skip'
+        const prefs = loadPreferences();
+
+        if (action === 'unsubscribe') {
+            if (!prefs.unsubscribed.includes(sender)) {
+                prefs.unsubscribed.push(sender);
+            }
+        }
+
+        // Mark as reviewed regardless of action
+        if (!prefs.reviewed.includes(sender)) {
+            prefs.reviewed.push(sender);
+        }
+
+        savePreferences(prefs);
+
+        res.json({
+            success: true,
+            message: action === 'unsubscribe'
+                ? `Marked ${sender} for unsubscribe`
+                : `Keeping ${sender}`,
+            unsubscribedCount: prefs.unsubscribed.length
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get unsubscribe list
+app.get('/api/unsubscribe/list', (req, res) => {
+    try {
+        const prefs = loadPreferences();
+        res.json({
+            success: true,
+            unsubscribed: prefs.unsubscribed,
+            archived: prefs.archived
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Reset reviewed list (for new day)
+app.post('/api/unsubscribe/reset-reviewed', (req, res) => {
+    try {
+        const prefs = loadPreferences();
+        prefs.reviewed = [];
+        savePreferences(prefs);
+        res.json({ success: true, message: 'Reviewed list reset' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function extractBrandName(email) {
+    if (!email) return 'Unknown';
+    const local = email.split('@')[0];
+    const domain = email.split('@')[1] || '';
+
+    // Try to get brand from domain
+    const domainParts = domain.split('.');
+    if (domainParts.length >= 2) {
+        // Get the main domain part (e.g., 'express' from 'b.express.com')
+        for (const part of domainParts) {
+            if (part.length > 2 && !['com', 'net', 'org', 'mail', 'email'].includes(part)) {
+                return part.charAt(0).toUpperCase() + part.slice(1);
+            }
+        }
+    }
+
+    // Fallback to local part
+    return local.split(/[._-]/)[0].charAt(0).toUpperCase() + local.split(/[._-]/)[0].slice(1);
+}
+
+// ============ BRIEFING ENDPOINT ============
+
+app.get('/api/briefing', async (req, res) => {
+    try {
+        // Gather all data
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Email stats
+        const emailStats = db.prepare(`
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN read = 0 THEN 1 ELSE 0 END) as unread
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-24 hours')
+            AND deleted = 0
+        `).get();
+
+        // Priority count
+        const priorityCount = db.prepare(`
+            SELECT COUNT(*) as count
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            AND (
+                a.address LIKE '%bankofamerica%'
+                OR a.address LIKE '%venmo%'
+                OR a.address LIKE '%paypal%'
+                OR s.subject LIKE '%payment%'
+                OR s.subject LIKE '%order%'
+                OR s.subject LIKE '%action%'
+            )
+            AND m.read = 0
+        `).get();
+
+        // Vercel failures
+        const vercelFailures = db.prepare(`
+            SELECT COUNT(*) as count
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-24 hours')
+            AND a.address LIKE '%vercel%'
+            AND s.subject LIKE '%failed%'
+        `).get();
+
+        db.close();
+
+        // Calendar events today/tomorrow
+        const calendarScript = `
+            set today to current date
+            set tomorrow to today + (2 * days)
+            set eventCount to 0
+            tell application "Calendar"
+                repeat with cal in calendars
+                    try
+                        set evts to (every event of cal whose start date >= today and start date <= tomorrow)
+                        set eventCount to eventCount + (count of evts)
+                    end try
+                end repeat
+            end tell
+            return eventCount
+        `;
+        const upcomingEvents = parseInt(runAppleScript(calendarScript)) || 0;
+
+        // File stats
+        const downloads = scanDirectory(path.join(HOME, 'Downloads'));
+        const dmgFiles = downloads.files.filter(f => f.name.endsWith('.dmg'));
+        const duplicates = findDuplicates(dmgFiles);
+        const recoverableSpace = duplicates.reduce((sum, d) => sum + d.totalSize - d.keepSize, 0);
+
+        res.json({
+            success: true,
+            briefing: {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    emailsLast24h: emailStats.total,
+                    unreadEmails: emailStats.unread,
+                    priorityItems: priorityCount.count,
+                    deploymentFailures: vercelFailures.count,
+                    upcomingEvents,
+                    recoverableSpace: formatBytes(recoverableSpace)
+                },
+                alerts: [
+                    vercelFailures.count > 10 && {
+                        type: 'critical',
+                        message: `${vercelFailures.count} deployment failures in last 24h`
+                    },
+                    priorityCount.count > 0 && {
+                        type: 'warning',
+                        message: `${priorityCount.count} priority emails need attention`
+                    },
+                    recoverableSpace > 1000000000 && {
+                        type: 'info',
+                        message: `${formatBytes(recoverableSpace)} can be recovered from Downloads`
+                    }
+                ].filter(Boolean)
+            }
+        });
+
+    } catch (error) {
+        console.error('Briefing error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ HELPER FUNCTIONS ============
+
+function getInitials(email) {
+    if (!email) return '?';
+    const parts = email.split('@')[0].split(/[._-]/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+}
+
+function isSameDay(d1, d2) {
+    return d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate();
+}
+
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+function categorizeCalendar(name) {
+    const n = (name || '').toLowerCase();
+    if (n.includes('work') || n.includes('cascadia')) return 'work';
+    if (n.includes('family') || n.includes('home') || n.includes('personal')) return 'personal';
+    if (n.includes('holiday') || n.includes('birthday')) return 'holiday';
+    return 'default';
+}
+
+function scanDirectory(dirPath) {
+    const files = [];
+    const folders = [];
+    let totalSize = 0;
+
+    try {
+        const items = fs.readdirSync(dirPath);
+
+        for (const item of items) {
+            if (item.startsWith('.')) continue;
+
+            const fullPath = path.join(dirPath, item);
+            try {
+                const stat = fs.statSync(fullPath);
+
+                if (stat.isDirectory()) {
+                    folders.push({
+                        name: item,
+                        path: fullPath
+                    });
+                } else {
+                    files.push({
+                        name: item,
+                        path: fullPath,
+                        size: stat.size,
+                        modified: stat.mtime
+                    });
+                    totalSize += stat.size;
+                }
+            } catch (e) {
+                // Skip inaccessible files
+            }
+        }
+    } catch (e) {
+        console.error(`Error scanning ${dirPath}:`, e.message);
+    }
+
+    return { files, folders, totalSize };
+}
+
+function findDuplicates(files) {
+    const groups = {};
+
+    for (const file of files) {
+        // Extract base name without (1), (2), etc.
+        const baseName = file.name
+            .replace(/\s*\(\d+\)\s*/, '')
+            .replace(/\.(dmg|pkg)$/i, '');
+
+        if (!groups[baseName]) {
+            groups[baseName] = [];
+        }
+        groups[baseName].push(file);
+    }
+
+    return Object.entries(groups)
+        .filter(([_, files]) => files.length > 1)
+        .map(([baseName, files]) => {
+            files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+            const keepSize = files[0].size;
+
+            return {
+                baseName,
+                files,
+                totalSize,
+                keepSize
+            };
+        });
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// ============ WEEKLY DIGEST ============
+
+app.get('/api/digest/weekly', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Email volume by day (last 7 days)
+        const volumeByDay = db.prepare(`
+            SELECT
+                date(datetime(date_received, 'unixepoch', 'localtime')) as day,
+                COUNT(*) as count
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-7 days')
+            AND deleted = 0
+            GROUP BY day
+            ORDER BY day
+        `).all();
+
+        // Top senders
+        const topSenders = db.prepare(`
+            SELECT
+                a.address as sender,
+                COUNT(*) as count
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            GROUP BY a.address
+            ORDER BY count DESC
+            LIMIT 10
+        `).all();
+
+        // Email by hour (to find peak times)
+        const byHour = db.prepare(`
+            SELECT
+                strftime('%H', datetime(date_received, 'unixepoch', 'localtime')) as hour,
+                COUNT(*) as count
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-7 days')
+            AND deleted = 0
+            GROUP BY hour
+            ORDER BY hour
+        `).all();
+
+        // Read vs unread ratio
+        const readStats = db.prepare(`
+            SELECT
+                SUM(CASE WHEN read = 1 THEN 1 ELSE 0 END) as read_count,
+                SUM(CASE WHEN read = 0 THEN 1 ELSE 0 END) as unread_count,
+                COUNT(*) as total
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-7 days')
+            AND deleted = 0
+        `).get();
+
+        // Categories breakdown
+        const categories = db.prepare(`
+            SELECT
+                CASE
+                    WHEN a.address LIKE '%@b.%' OR a.address LIKE '%@e.%' OR a.address LIKE '%promo%' OR a.address LIKE '%marketing%' THEN 'Marketing'
+                    WHEN a.address LIKE '%github%' OR a.address LIKE '%vercel%' OR a.address LIKE '%gitlab%' THEN 'Development'
+                    WHEN a.address LIKE '%bank%' OR a.address LIKE '%paypal%' OR a.address LIKE '%venmo%' THEN 'Financial'
+                    WHEN a.address LIKE '%noreply%' OR a.address LIKE '%no-reply%' THEN 'Automated'
+                    ELSE 'Personal/Work'
+                END as category,
+                COUNT(*) as count
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            GROUP BY category
+            ORDER BY count DESC
+        `).all();
+
+        db.close();
+
+        // Find peak hours
+        const peakHour = byHour.reduce((max, h) => h.count > max.count ? h : max, { count: 0 });
+
+        res.json({
+            success: true,
+            digest: {
+                period: '7 days',
+                totalEmails: readStats.total,
+                readRate: Math.round((readStats.read_count / readStats.total) * 100),
+                volumeByDay,
+                topSenders: topSenders.map(s => ({
+                    sender: s.sender,
+                    brandName: extractBrandName(s.sender),
+                    count: s.count
+                })),
+                peakHour: `${peakHour.hour}:00`,
+                peakHourCount: peakHour.count,
+                byHour,
+                categories,
+                insights: generateInsights(readStats, topSenders, peakHour, categories)
+            }
+        });
+
+    } catch (error) {
+        console.error('Digest error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function generateInsights(readStats, topSenders, peakHour, categories) {
+    const insights = [];
+
+    const readRate = (readStats.read_count / readStats.total) * 100;
+    if (readRate < 50) {
+        insights.push({ type: 'warning', text: `You're only reading ${Math.round(readRate)}% of emails. Consider more aggressive filtering.` });
+    }
+
+    const marketingCategory = categories.find(c => c.category === 'Marketing');
+    if (marketingCategory && marketingCategory.count > readStats.total * 0.3) {
+        insights.push({ type: 'suggestion', text: `${Math.round((marketingCategory.count / readStats.total) * 100)}% of your emails are marketing. Time to unsubscribe!` });
+    }
+
+    if (parseInt(peakHour.hour) < 9) {
+        insights.push({ type: 'info', text: `Most emails arrive before 9 AM. Consider checking email after your morning routine.` });
+    }
+
+    if (topSenders[0]?.count > 20) {
+        insights.push({ type: 'info', text: `${extractBrandName(topSenders[0].sender)} sent you ${topSenders[0].count} emails this week.` });
+    }
+
+    return insights;
+}
+
+// ============ SENDER REPUTATION ============
+
+const REPUTATION_FILE = path.join(__dirname, 'sender-reputation.json');
+
+function loadReputation() {
+    try {
+        if (fs.existsSync(REPUTATION_FILE)) {
+            return JSON.parse(fs.readFileSync(REPUTATION_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {};
+}
+
+function saveReputation(rep) {
+    fs.writeFileSync(REPUTATION_FILE, JSON.stringify(rep, null, 2));
+}
+
+app.get('/api/reputation/summary', (req, res) => {
+    try {
+        const actions = loadEmailActions();
+        const reputation = {};
+
+        // Build reputation from actions
+        for (const [sender, data] of Object.entries(actions.senderActions)) {
+            reputation[sender] = {
+                action: data.action,
+                count: data.count,
+                autoApply: data.autoApply,
+                reputation: data.action === 'delete' ? 'ignore' :
+                           data.action === 'archive' ? 'low-priority' :
+                           data.action === 'star' ? 'important' :
+                           data.action === 'reply' ? 'engage' : 'neutral'
+            };
+        }
+
+        const summary = {
+            important: Object.entries(reputation).filter(([_, r]) => r.reputation === 'important').length,
+            engage: Object.entries(reputation).filter(([_, r]) => r.reputation === 'engage').length,
+            lowPriority: Object.entries(reputation).filter(([_, r]) => r.reputation === 'low-priority').length,
+            ignore: Object.entries(reputation).filter(([_, r]) => r.reputation === 'ignore').length
+        };
+
+        res.json({
+            success: true,
+            reputation,
+            summary,
+            topIgnored: Object.entries(reputation)
+                .filter(([_, r]) => r.reputation === 'ignore')
+                .slice(0, 5)
+                .map(([sender]) => ({ sender, brandName: extractBrandName(sender) })),
+            topImportant: Object.entries(reputation)
+                .filter(([_, r]) => r.reputation === 'important' || r.reputation === 'engage')
+                .slice(0, 5)
+                .map(([sender]) => ({ sender, brandName: extractBrandName(sender) }))
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ TIME TRACKING ============
+
+app.get('/api/analytics/response-times', (req, res) => {
+    try {
+        const actions = loadEmailActions();
+
+        // Calculate average time to action
+        const recentActions = actions.recentActions || [];
+
+        // Group by action type
+        const byAction = {};
+        recentActions.forEach(a => {
+            if (!byAction[a.action]) byAction[a.action] = 0;
+            byAction[a.action]++;
+        });
+
+        res.json({
+            success: true,
+            analytics: {
+                totalActions: recentActions.length,
+                byAction,
+                recentActivity: recentActions.slice(0, 10)
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ QUICK REPLY TEMPLATES ============
+
+const TEMPLATES_FILE = path.join(__dirname, 'reply-templates.json');
+
+function loadTemplates() {
+    try {
+        if (fs.existsSync(TEMPLATES_FILE)) {
+            return JSON.parse(fs.readFileSync(TEMPLATES_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        templates: [
+            { id: 1, name: 'Acknowledge', subject: 'Re: {{subject}}', body: 'Thanks for reaching out. I\'ve received your message and will get back to you shortly.' },
+            { id: 2, name: 'Not Interested', subject: 'Re: {{subject}}', body: 'Thank you for thinking of me, but I\'m not interested at this time.' },
+            { id: 3, name: 'Schedule Call', subject: 'Re: {{subject}}', body: 'Thanks for your message. I\'d be happy to discuss this further. Would you have time for a quick call this week?' },
+            { id: 4, name: 'Need More Info', subject: 'Re: {{subject}}', body: 'Thanks for reaching out. Could you provide more details about what you\'re looking for?' },
+            { id: 5, name: 'Following Up', subject: 'Following up: {{subject}}', body: 'I wanted to follow up on my previous message. Please let me know if you have any questions.' },
+            { id: 6, name: 'Thank You', subject: 'Re: {{subject}}', body: 'Thank you! I appreciate your help with this.' }
+        ]
+    };
+}
+
+function saveTemplates(templates) {
+    fs.writeFileSync(TEMPLATES_FILE, JSON.stringify(templates, null, 2));
+}
+
+app.get('/api/templates', (req, res) => {
+    const data = loadTemplates();
+    res.json({ success: true, templates: data.templates });
+});
+
+app.post('/api/templates', (req, res) => {
+    try {
+        const { name, subject, body } = req.body;
+        const data = loadTemplates();
+        const newId = Math.max(...data.templates.map(t => t.id), 0) + 1;
+        data.templates.push({ id: newId, name, subject, body });
+        saveTemplates(data);
+        res.json({ success: true, template: { id: newId, name, subject, body } });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/templates/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const data = loadTemplates();
+        data.templates = data.templates.filter(t => t.id !== id);
+        saveTemplates(data);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ SMART SCHEDULING ============
+
+app.get('/api/scheduling/suggestions', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Find emails that might need follow-up or dedicated time
+        const actionableEmails = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                s.subject,
+                a.address as sender,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-3 days')
+            AND m.read = 0
+            AND m.deleted = 0
+            AND (
+                s.subject LIKE '%meeting%'
+                OR s.subject LIKE '%call%'
+                OR s.subject LIKE '%review%'
+                OR s.subject LIKE '%deadline%'
+                OR s.subject LIKE '%urgent%'
+                OR s.subject LIKE '%action%'
+                OR s.subject LIKE '%request%'
+            )
+            ORDER BY m.date_received DESC
+            LIMIT 10
+        `).all();
+
+        db.close();
+
+        const suggestions = actionableEmails.map(email => {
+            const subjectLower = (email.subject || '').toLowerCase();
+            let suggestedDuration = 30;
+            let suggestedType = 'Focus Time';
+
+            if (subjectLower.includes('meeting') || subjectLower.includes('call')) {
+                suggestedDuration = 60;
+                suggestedType = 'Meeting Prep';
+            } else if (subjectLower.includes('review')) {
+                suggestedDuration = 45;
+                suggestedType = 'Review Task';
+            } else if (subjectLower.includes('urgent') || subjectLower.includes('deadline')) {
+                suggestedDuration = 60;
+                suggestedType = 'Priority Task';
+            }
+
+            return {
+                emailId: email.id,
+                subject: email.subject,
+                sender: email.sender,
+                suggestedBlock: {
+                    duration: suggestedDuration,
+                    type: suggestedType,
+                    title: `${suggestedType}: ${email.subject?.substring(0, 30)}...`
+                }
+            };
+        });
+
+        res.json({
+            success: true,
+            suggestions,
+            recommendedFocusTime: suggestions.length > 3 ? '2 hours' : '1 hour'
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ NOTIFICATIONS ============
+
+app.get('/api/notifications/pending', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Check for urgent unread emails in last hour
+        const urgent = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                s.subject,
+                a.address as sender,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-1 hour')
+            AND m.read = 0
+            AND m.deleted = 0
+            AND (
+                s.subject LIKE '%urgent%'
+                OR s.subject LIKE '%URGENT%'
+                OR s.subject LIKE '%action required%'
+                OR s.subject LIKE '%immediate%'
+                OR a.address LIKE '%bankofamerica%'
+                OR a.address LIKE '%paypal%'
+            )
+            ORDER BY m.date_received DESC
+            LIMIT 5
+        `).all();
+
+        db.close();
+
+        res.json({
+            success: true,
+            notifications: urgent.map(e => ({
+                id: e.id,
+                title: 'Urgent Email',
+                body: e.subject,
+                sender: extractBrandName(e.sender),
+                priority: 'high'
+            }))
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ iOS SHORTCUTS INTEGRATION ============
+
+app.get('/api/shortcuts/briefing', (req, res) => {
+    // Simplified briefing for iOS shortcuts
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        const stats = db.prepare(`
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN read = 0 THEN 1 ELSE 0 END) as unread
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-24 hours')
+            AND deleted = 0
+        `).get();
+
+        db.close();
+
+        const text = `You have ${stats.unread} unread emails out of ${stats.total} received today.`;
+
+        res.json({
+            success: true,
+            text,
+            unread: stats.unread,
+            total: stats.total
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ EMAIL RULES SYSTEM ============
+
+const RULES_FILE = path.join(__dirname, 'email-rules.json');
+
+function loadRules() {
+    try {
+        if (fs.existsSync(RULES_FILE)) {
+            return JSON.parse(fs.readFileSync(RULES_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { rules: [] };
+}
+
+function saveRules(rules) {
+    fs.writeFileSync(RULES_FILE, JSON.stringify(rules, null, 2));
+}
+
+app.get('/api/rules', (req, res) => {
+    const data = loadRules();
+    res.json({ success: true, rules: data.rules });
+});
+
+app.post('/api/rules', (req, res) => {
+    try {
+        const { name, conditions, actions, enabled = true } = req.body;
+        const data = loadRules();
+        const newId = Date.now();
+        const rule = { id: newId, name, conditions, actions, enabled, createdAt: new Date().toISOString() };
+        data.rules.push(rule);
+        saveRules(data);
+        res.json({ success: true, rule });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/rules/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const data = loadRules();
+        const index = data.rules.findIndex(r => r.id === id);
+        if (index >= 0) {
+            data.rules[index] = { ...data.rules[index], ...req.body };
+            saveRules(data);
+            res.json({ success: true, rule: data.rules[index] });
+        } else {
+            res.status(404).json({ success: false, error: 'Rule not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/rules/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const data = loadRules();
+        data.rules = data.rules.filter(r => r.id !== id);
+        saveRules(data);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Apply rules to an email
+app.post('/api/rules/apply', (req, res) => {
+    try {
+        const { email } = req.body;
+        const data = loadRules();
+        const matchedRules = [];
+
+        for (const rule of data.rules.filter(r => r.enabled)) {
+            let matches = true;
+            for (const condition of rule.conditions) {
+                const field = email[condition.field]?.toLowerCase() || '';
+                const value = condition.value.toLowerCase();
+
+                switch (condition.operator) {
+                    case 'contains':
+                        matches = matches && field.includes(value);
+                        break;
+                    case 'equals':
+                        matches = matches && field === value;
+                        break;
+                    case 'startsWith':
+                        matches = matches && field.startsWith(value);
+                        break;
+                    case 'endsWith':
+                        matches = matches && field.endsWith(value);
+                        break;
+                }
+            }
+            if (matches) {
+                matchedRules.push(rule);
+            }
+        }
+
+        res.json({ success: true, matchedRules, suggestedActions: matchedRules.flatMap(r => r.actions) });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ SNOOZE SYSTEM ============
+
+const SNOOZE_FILE = path.join(__dirname, 'snoozed-emails.json');
+
+function loadSnoozed() {
+    try {
+        if (fs.existsSync(SNOOZE_FILE)) {
+            return JSON.parse(fs.readFileSync(SNOOZE_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { snoozed: [] };
+}
+
+function saveSnoozed(data) {
+    fs.writeFileSync(SNOOZE_FILE, JSON.stringify(data, null, 2));
+}
+
+app.post('/api/emails/snooze', (req, res) => {
+    try {
+        const { emailId, sender, subject, snoozeUntil, snoozeType } = req.body;
+        const data = loadSnoozed();
+
+        let wakeTime = new Date();
+        switch (snoozeType) {
+            case 'tonight':
+                wakeTime.setHours(18, 0, 0, 0);
+                break;
+            case 'tomorrow':
+                wakeTime.setDate(wakeTime.getDate() + 1);
+                wakeTime.setHours(9, 0, 0, 0);
+                break;
+            case 'weekend':
+                const daysUntilSat = (6 - wakeTime.getDay() + 7) % 7 || 7;
+                wakeTime.setDate(wakeTime.getDate() + daysUntilSat);
+                wakeTime.setHours(10, 0, 0, 0);
+                break;
+            case 'nextWeek':
+                wakeTime.setDate(wakeTime.getDate() + (8 - wakeTime.getDay()) % 7);
+                wakeTime.setHours(9, 0, 0, 0);
+                break;
+            case 'afterMeeting':
+                // Get next calendar event end time
+                wakeTime.setHours(wakeTime.getHours() + 1);
+                break;
+            case 'custom':
+                wakeTime = new Date(snoozeUntil);
+                break;
+        }
+
+        data.snoozed.push({
+            emailId,
+            sender,
+            subject,
+            snoozedAt: new Date().toISOString(),
+            wakeTime: wakeTime.toISOString(),
+            snoozeType
+        });
+
+        saveSnoozed(data);
+        res.json({ success: true, wakeTime: wakeTime.toISOString() });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/emails/snoozed', (req, res) => {
+    const data = loadSnoozed();
+    const now = new Date();
+    const awakened = data.snoozed.filter(s => new Date(s.wakeTime) <= now);
+    const stillSnoozed = data.snoozed.filter(s => new Date(s.wakeTime) > now);
+    res.json({ success: true, awakened, snoozed: stillSnoozed });
+});
+
+// ============ CONTACT INTELLIGENCE ============
+
+const CONTACTS_FILE = path.join(__dirname, 'contact-intelligence.json');
+
+function loadContacts() {
+    try {
+        if (fs.existsSync(CONTACTS_FILE)) {
+            return JSON.parse(fs.readFileSync(CONTACTS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { contacts: {} };
+}
+
+function saveContacts(data) {
+    fs.writeFileSync(CONTACTS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/contacts/intelligence', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const contacts = loadContacts();
+
+        // Get interaction data from emails
+        const interactions = db.prepare(`
+            SELECT
+                a.address as email,
+                COUNT(*) as total_emails,
+                MAX(datetime(m.date_received, 'unixepoch', 'localtime')) as last_received,
+                MIN(datetime(m.date_received, 'unixepoch', 'localtime')) as first_received
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-90 days')
+            AND m.deleted = 0
+            AND a.address IS NOT NULL
+            GROUP BY a.address
+            ORDER BY total_emails DESC
+            LIMIT 50
+        `).all();
+
+        db.close();
+
+        const now = new Date();
+        const enriched = interactions.map(c => {
+            const lastDate = new Date(c.last_received);
+            const daysSince = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+
+            let relationship = 'acquaintance';
+            if (c.total_emails > 20) relationship = 'frequent';
+            else if (c.total_emails > 10) relationship = 'regular';
+            else if (c.total_emails > 5) relationship = 'occasional';
+
+            let status = 'active';
+            if (daysSince > 30) status = 'dormant';
+            if (daysSince > 60) status = 'cold';
+
+            return {
+                email: c.email,
+                name: extractBrandName(c.email),
+                totalEmails: c.total_emails,
+                lastContact: c.last_received,
+                daysSinceContact: daysSince,
+                relationship,
+                status,
+                needsFollowUp: daysSince > 14 && c.total_emails > 5
+            };
+        });
+
+        // Find contacts that need attention
+        const needsAttention = enriched.filter(c => c.needsFollowUp).slice(0, 5);
+
+        res.json({
+            success: true,
+            contacts: enriched,
+            needsAttention,
+            summary: {
+                frequent: enriched.filter(c => c.relationship === 'frequent').length,
+                dormant: enriched.filter(c => c.status === 'dormant').length,
+                cold: enriched.filter(c => c.status === 'cold').length
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ DAILY GOALS ============
+
+const GOALS_FILE = path.join(__dirname, 'daily-goals.json');
+
+function loadGoals() {
+    try {
+        if (fs.existsSync(GOALS_FILE)) {
+            return JSON.parse(fs.readFileSync(GOALS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { goals: [], history: [] };
+}
+
+function saveGoals(data) {
+    fs.writeFileSync(GOALS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/goals', (req, res) => {
+    const data = loadGoals();
+    const today = new Date().toISOString().split('T')[0];
+    const todayGoals = data.goals.filter(g => g.date === today);
+    res.json({ success: true, goals: todayGoals, history: data.history.slice(0, 7) });
+});
+
+app.post('/api/goals', (req, res) => {
+    try {
+        const { text } = req.body;
+        const data = loadGoals();
+        const today = new Date().toISOString().split('T')[0];
+        const todayGoals = data.goals.filter(g => g.date === today);
+
+        if (todayGoals.length >= 3) {
+            return res.status(400).json({ success: false, error: 'Maximum 3 goals per day' });
+        }
+
+        const goal = {
+            id: Date.now(),
+            text,
+            date: today,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        data.goals.push(goal);
+        saveGoals(data);
+        res.json({ success: true, goal });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/goals/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { completed } = req.body;
+        const data = loadGoals();
+        const goal = data.goals.find(g => g.id === id);
+
+        if (goal) {
+            goal.completed = completed;
+            goal.completedAt = completed ? new Date().toISOString() : null;
+            saveGoals(data);
+            res.json({ success: true, goal });
+        } else {
+            res.status(404).json({ success: false, error: 'Goal not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ WEATHER & COMMUTE ============
+
+app.get('/api/weather', async (req, res) => {
+    try {
+        // Use wttr.in for simple weather (no API key needed)
+        const response = await fetch('https://wttr.in/?format=j1');
+        const data = await response.json();
+
+        const current = data.current_condition[0];
+        const weather = {
+            temp: current.temp_F,
+            feelsLike: current.FeelsLikeF,
+            condition: current.weatherDesc[0].value,
+            humidity: current.humidity,
+            icon: getWeatherIcon(current.weatherCode)
+        };
+
+        res.json({ success: true, weather });
+    } catch (error) {
+        // Fallback with mock data
+        res.json({
+            success: true,
+            weather: {
+                temp: '--',
+                condition: 'Unable to fetch',
+                icon: '☁️'
+            }
+        });
+    }
+});
+
+function getWeatherIcon(code) {
+    const icons = {
+        '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
+        '143': '🌫️', '176': '🌧️', '179': '🌨️', '182': '🌨️',
+        '185': '🌨️', '200': '⛈️', '227': '❄️', '230': '❄️',
+        '248': '🌫️', '260': '🌫️', '263': '🌧️', '266': '🌧️'
+    };
+    return icons[code] || '☁️';
+}
+
+// ============ SYSTEM STATUS ============
+
+app.get('/api/system/status', (req, res) => {
+    try {
+        // Get disk space
+        const diskInfo = execSync("df -h / | tail -1 | awk '{print $4, $5}'", { encoding: 'utf-8' }).trim().split(' ');
+        const freeSpace = diskInfo[0];
+        const usedPercent = parseInt(diskInfo[1]);
+
+        // Get battery info (macOS)
+        let battery = { level: 100, charging: false };
+        try {
+            const batteryInfo = execSync("pmset -g batt | grep -o '[0-9]*%' | head -1", { encoding: 'utf-8' }).trim();
+            battery.level = parseInt(batteryInfo) || 100;
+            battery.charging = execSync("pmset -g batt", { encoding: 'utf-8' }).includes('AC Power');
+        } catch (e) {}
+
+        // Get memory usage
+        const memInfo = execSync("vm_stat | head -5", { encoding: 'utf-8' });
+
+        // Check for Time Machine backup
+        let lastBackup = 'Unknown';
+        try {
+            lastBackup = execSync("tmutil latestbackup 2>/dev/null | xargs -I {} stat -f '%Sm' {} 2>/dev/null || echo 'Not configured'", { encoding: 'utf-8' }).trim();
+        } catch (e) {
+            lastBackup = 'Not configured';
+        }
+
+        const alerts = [];
+        if (usedPercent > 90) alerts.push({ type: 'critical', message: 'Disk space critically low!' });
+        else if (usedPercent > 80) alerts.push({ type: 'warning', message: 'Disk space running low' });
+        if (battery.level < 20 && !battery.charging) alerts.push({ type: 'warning', message: 'Battery low' });
+
+        res.json({
+            success: true,
+            system: {
+                disk: { freeSpace, usedPercent },
+                battery,
+                lastBackup,
+                alerts
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ BILLABLE HOURS ============
+
+const HOURS_FILE = path.join(__dirname, 'billable-hours.json');
+
+function loadHours() {
+    try {
+        if (fs.existsSync(HOURS_FILE)) {
+            return JSON.parse(fs.readFileSync(HOURS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { clients: [], entries: [] };
+}
+
+function saveHours(data) {
+    fs.writeFileSync(HOURS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/hours', (req, res) => {
+    const data = loadHours();
+    const today = new Date().toISOString().split('T')[0];
+    const todayEntries = data.entries.filter(e => e.date === today);
+    const todayTotal = todayEntries.reduce((sum, e) => sum + e.minutes, 0);
+
+    res.json({
+        success: true,
+        clients: data.clients,
+        todayEntries,
+        todayTotal,
+        weekTotal: data.entries
+            .filter(e => {
+                const d = new Date(e.date);
+                const now = new Date();
+                const weekAgo = new Date(now.setDate(now.getDate() - 7));
+                return d >= weekAgo;
+            })
+            .reduce((sum, e) => sum + e.minutes, 0)
+    });
+});
+
+app.post('/api/hours', (req, res) => {
+    try {
+        const { client, minutes, description } = req.body;
+        const data = loadHours();
+
+        if (!data.clients.includes(client)) {
+            data.clients.push(client);
+        }
+
+        const entry = {
+            id: Date.now(),
+            client,
+            minutes,
+            description,
+            date: new Date().toISOString().split('T')[0],
+            timestamp: new Date().toISOString()
+        };
+
+        data.entries.push(entry);
+        saveHours(data);
+        res.json({ success: true, entry });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ EMAIL RESPONSE TIME ============
+
+app.get('/api/emails/response-insights', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Find emails that have been sitting unread
+        const pendingEmails = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                s.subject,
+                a.address as sender,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                (strftime('%s', 'now') - m.date_received) / 3600 as hours_waiting
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.read = 0
+            AND m.deleted = 0
+            AND m.date_received > strftime('%s', 'now', '-14 days')
+            ORDER BY m.date_received ASC
+            LIMIT 20
+        `).all();
+
+        db.close();
+
+        const insights = pendingEmails.map(e => {
+            const hours = Math.round(e.hours_waiting);
+            let urgency = 'normal';
+            let message = '';
+
+            if (hours > 72) {
+                urgency = 'overdue';
+                message = `Waiting ${Math.round(hours/24)} days — consider responding or archiving`;
+            } else if (hours > 24) {
+                urgency = 'attention';
+                message = `${Math.round(hours/24)} day${hours > 48 ? 's' : ''} old`;
+            } else {
+                message = `${hours} hours`;
+            }
+
+            return {
+                ...e,
+                hoursWaiting: hours,
+                urgency,
+                insight: message
+            };
+        });
+
+        const overdue = insights.filter(i => i.urgency === 'overdue');
+
+        res.json({
+            success: true,
+            insights,
+            overdue,
+            avgResponseTime: Math.round(insights.reduce((sum, i) => sum + i.hoursWaiting, 0) / insights.length) || 0
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ VIP SENDERS ============
+
+const VIP_FILE = path.join(__dirname, 'vip-senders.json');
+
+function loadVIPs() {
+    try {
+        if (fs.existsSync(VIP_FILE)) {
+            return JSON.parse(fs.readFileSync(VIP_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { vips: [] };
+}
+
+function saveVIPs(data) {
+    fs.writeFileSync(VIP_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/vip', (req, res) => {
+    const data = loadVIPs();
+    res.json({ success: true, vips: data.vips });
+});
+
+app.post('/api/vip', (req, res) => {
+    try {
+        const { email, name } = req.body;
+        const data = loadVIPs();
+        if (!data.vips.find(v => v.email === email)) {
+            data.vips.push({ email, name, addedAt: new Date().toISOString() });
+            saveVIPs(data);
+        }
+        res.json({ success: true, vips: data.vips });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/vip/:email', (req, res) => {
+    try {
+        const email = decodeURIComponent(req.params.email);
+        const data = loadVIPs();
+        data.vips = data.vips.filter(v => v.email !== email);
+        saveVIPs(data);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/vip/check', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const vips = loadVIPs().vips;
+
+        if (vips.length === 0) {
+            return res.json({ success: true, vipEmails: [] });
+        }
+
+        const vipAddresses = vips.map(v => v.email.toLowerCase());
+        const placeholders = vipAddresses.map(() => '?').join(',');
+
+        const vipEmails = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                s.subject,
+                a.address as sender,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-1 hour')
+            AND m.read = 0
+            AND m.deleted = 0
+            AND LOWER(a.address) IN (${placeholders})
+        `).all(...vipAddresses);
+
+        db.close();
+
+        res.json({ success: true, vipEmails });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ ATTACHMENT SCANNER ============
+
+app.get('/api/attachments/pending', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Find emails with attachments that haven't been read
+        const withAttachments = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                s.subject,
+                a.address as sender,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                m.attachment_count
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.read = 0
+            AND m.deleted = 0
+            AND m.attachment_count > 0
+            AND m.date_received > strftime('%s', 'now', '-30 days')
+            ORDER BY m.date_received DESC
+            LIMIT 20
+        `).all();
+
+        db.close();
+
+        const totalAttachments = withAttachments.reduce((sum, e) => sum + (e.attachment_count || 0), 0);
+
+        res.json({
+            success: true,
+            emails: withAttachments,
+            totalEmails: withAttachments.length,
+            totalAttachments
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ WEEKEND MODE ============
+
+const SETTINGS_FILE = path.join(__dirname, 'felix-settings.json');
+
+function loadSettings() {
+    try {
+        if (fs.existsSync(SETTINGS_FILE)) {
+            return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        weekendMode: { enabled: true, autoEnable: true },
+        focusHours: { start: 9, end: 17 },
+        notifications: { vipOnly: false, quietHours: { start: 22, end: 7 } }
+    };
+}
+
+function saveSettings(data) {
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/settings', (req, res) => {
+    const settings = loadSettings();
+    const now = new Date();
+    const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+    const weekendModeActive = settings.weekendMode.autoEnable && isWeekend;
+
+    res.json({ success: true, settings, weekendModeActive, isWeekend });
+});
+
+app.put('/api/settings', (req, res) => {
+    try {
+        const settings = loadSettings();
+        Object.assign(settings, req.body);
+        saveSettings(settings);
+        res.json({ success: true, settings });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ MEETING PREP ============
+
+app.get('/api/meetings/prep', (req, res) => {
+    try {
+        // Get upcoming meetings in next 2 hours
+        const script = `
+            set now to current date
+            set twoHours to now + (2 * hours)
+            set output to ""
+            tell application "Calendar"
+                repeat with cal in calendars
+                    try
+                        set evts to (every event of cal whose start date >= now and start date <= twoHours)
+                        repeat with evt in evts
+                            set evtStart to start date of evt
+                            set evtSummary to summary of evt
+                            set evtNotes to description of evt
+                            set output to output & evtSummary & "|||" & (evtStart as string) & "|||" & evtNotes & "\\n"
+                        end repeat
+                    end try
+                end repeat
+            end tell
+            return output
+        `;
+
+        const result = runAppleScript(script);
+        const meetings = result.split('\n').filter(l => l.trim()).map(line => {
+            const [title, dateStr, notes] = line.split('|||');
+            return { title: title?.trim(), date: dateStr?.trim(), notes: notes?.trim() || '' };
+        });
+
+        // For each meeting, find relevant emails
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const preppedMeetings = meetings.map(meeting => {
+            // Extract potential attendee names from meeting title
+            const keywords = (meeting.title || '').split(/[\s,]+/).filter(w => w.length > 3);
+
+            let relevantEmails = [];
+            if (keywords.length > 0) {
+                const searchTerm = `%${keywords[0]}%`;
+                relevantEmails = db.prepare(`
+                    SELECT
+                        s.subject,
+                        a.address as sender,
+                        datetime(m.date_received, 'unixepoch', 'localtime') as received
+                    FROM messages m
+                    LEFT JOIN subjects s ON m.subject = s.ROWID
+                    LEFT JOIN addresses a ON m.sender = a.ROWID
+                    WHERE m.date_received > strftime('%s', 'now', '-14 days')
+                    AND m.deleted = 0
+                    AND (s.subject LIKE ? OR a.address LIKE ?)
+                    ORDER BY m.date_received DESC
+                    LIMIT 5
+                `).all(searchTerm, searchTerm);
+            }
+
+            return { ...meeting, relevantEmails };
+        });
+
+        db.close();
+
+        res.json({ success: true, meetings: preppedMeetings });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ START SERVER ============
+
+app.listen(PORT, () => {
+    console.log(`
+╔═══════════════════════════════════════════════════════╗
+║                                                       ║
+║     FELIX — Your Chief of Staff                       ║
+║     Dashboard running at http://localhost:${PORT}       ║
+║                                                       ║
+║     Press Ctrl+C to stop                              ║
+║                                                       ║
+╚═══════════════════════════════════════════════════════╝
+    `);
+});
