@@ -5,15 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#b8935a">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Felix">
+    <title>Felix — Your Chief of Staff</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-256.png">
-    <title>Felix — Your Chief of Staff</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,12 +26,9 @@
             --accent-info: #4a7a9a;
             --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.08);
             --shadow-neumorphic: 6px 6px 14px rgba(0, 0, 0, 0.08), -4px -4px 10px rgba(255, 255, 255, 0.9);
-            --shadow-inner: inset 3px 3px 6px rgba(0, 0, 0, 0.06), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
-            --border-subtle: 1px solid rgba(0, 0, 0, 0.06);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,210 +37,141 @@
             font-family: 'DM Sans', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* Layout */
-        .app-container {
+        .app {
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 24px;
-            padding: 24px;
-            min-height: 100vh;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: 420px 1fr;
+            height: 100vh;
         }
 
-        /* Header */
-        .header {
-            grid-column: 1 / -1;
+        /* Chat Panel */
+        .chat-panel {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--bg-elevated);
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            display: flex;
             align-items: center;
-            padding: 8px 0 16px;
-            border-bottom: var(--border-subtle);
-            margin-bottom: 8px;
+            gap: 12px;
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .logo-mark {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, var(--accent-warm) 0%, #a88a5c 100%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-warm), #a88a5c);
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 20px;
             color: white;
-            box-shadow: var(--shadow-neumorphic);
         }
 
-        .logo-text {
+        .chat-title h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 500;
         }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .inbox-zero-goal {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 20px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-soft);
-        }
-
-        .inbox-zero-goal .count {
-            font-size: 28px;
-            font-weight: 600;
-            color: var(--accent-warm);
-        }
-
-        .inbox-zero-goal .count.zero {
-            color: var(--accent-success);
-        }
-
-        .inbox-zero-goal .label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .datetime {
-            text-align: right;
-        }
-
-        .datetime-time {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 28px;
-            color: var(--text-primary);
-        }
-
-        .datetime-date {
+        .chat-title p {
             font-size: 11px;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
         }
 
-        /* Chat Panel */
-        .chat-panel {
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-neumorphic);
-            overflow: hidden;
-            height: calc(100vh - 120px);
-        }
-
-        .chat-header {
-            padding: 20px 24px;
-            border-bottom: var(--border-subtle);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .chat-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-warm) 0%, #a88a5c 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
+        .unread-badge {
+            margin-left: auto;
+            background: var(--accent-warm);
             color: white;
-        }
-
-        .chat-info h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 500;
         }
 
-        .chat-info p {
-            font-size: 12px;
-            color: var(--text-muted);
+        .unread-badge.zero {
+            background: var(--accent-success);
         }
 
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
-        .chat-message {
-            max-width: 90%;
-            padding: 14px 18px;
+        .msg {
+            max-width: 95%;
+            padding: 12px 16px;
             border-radius: var(--radius-lg);
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.5;
+            white-space: pre-wrap;
         }
 
-        .chat-message.felix {
+        .msg.felix {
             background: var(--bg-tertiary);
             align-self: flex-start;
             border-bottom-left-radius: 4px;
         }
 
-        .chat-message.user {
+        .msg.user {
             background: var(--accent-warm);
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
 
-        .chat-input-container {
-            padding: 16px 20px;
-            border-top: var(--border-subtle);
+        .msg.system {
+            background: rgba(74, 154, 74, 0.1);
+            color: var(--accent-success);
+            align-self: center;
+            font-size: 12px;
+            padding: 8px 16px;
+        }
+
+        .msg.error {
+            background: rgba(196, 90, 90, 0.1);
+            color: var(--accent-danger);
+        }
+
+        .chat-input-area {
+            padding: 12px 16px;
+            border-top: 1px solid var(--bg-tertiary);
             background: var(--bg-tertiary);
         }
 
-        .chat-input-wrapper {
+        .input-row {
             display: flex;
-            gap: 12px;
-            align-items: center;
+            gap: 10px;
         }
 
         .chat-input {
             flex: 1;
-            padding: 14px 18px;
+            padding: 12px 16px;
             border: none;
             border-radius: var(--radius-lg);
             background: var(--bg-secondary);
             font-size: 14px;
-            box-shadow: var(--shadow-inner);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05);
         }
 
         .chat-input:focus {
             outline: none;
-            box-shadow: var(--shadow-inner), 0 0 0 2px var(--accent-warm-dim);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), 0 0 0 2px var(--accent-warm-dim);
         }
 
-        .chat-send {
+        .send-btn {
             width: 44px;
             height: 44px;
             border: none;
@@ -260,256 +182,202 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .chat-send:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(184, 147, 90, 0.4);
+        .send-btn:hover {
+            filter: brightness(1.1);
         }
 
-        .quick-commands {
+        .suggestions {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
 
-        .quick-cmd {
-            padding: 6px 12px;
+        .suggest-btn {
+            padding: 5px 10px;
             background: var(--bg-secondary);
-            border: var(--border-subtle);
-            border-radius: var(--radius-md);
+            border: 1px solid var(--bg-elevated);
+            border-radius: var(--radius-sm);
             font-size: 11px;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .quick-cmd:hover {
+        .suggest-btn:hover {
             background: var(--accent-warm-dim);
+            border-color: var(--accent-warm);
             color: var(--accent-warm);
         }
 
-        /* Main Content */
-        .main-content {
+        /* Email Panel */
+        .email-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-            max-height: calc(100vh - 120px);
-            padding-right: 8px;
-        }
-
-        /* Email Section */
-        .email-section {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-neumorphic);
             overflow: hidden;
         }
 
         .email-header {
-            padding: 20px 24px;
-            border-bottom: var(--border-subtle);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bg-elevated);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
         }
 
         .email-header h2 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 500;
         }
 
-        .email-actions-header {
+        .filter-btns {
             display: flex;
-            gap: 8px;
+            gap: 4px;
+            margin-left: auto;
         }
 
-        .header-btn {
-            padding: 8px 16px;
+        .filter-btn {
+            padding: 6px 12px;
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             background: var(--bg-tertiary);
             color: var(--text-secondary);
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .header-btn:hover {
-            background: var(--accent-warm-dim);
-            color: var(--accent-warm);
-        }
-
-        .header-btn.active {
+        .filter-btn.active {
             background: var(--accent-warm);
             color: white;
         }
 
         .email-list {
-            max-height: 500px;
+            flex: 1;
             overflow-y: auto;
+            background: var(--bg-secondary);
         }
 
-        .email-item {
+        .email-row {
             display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            padding: 16px 24px;
-            border-bottom: var(--border-subtle);
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--bg-tertiary);
             cursor: pointer;
-            transition: background 0.2s;
+            gap: 10px;
+            font-size: 12px;
         }
 
-        .email-item:hover {
+        .email-row:hover {
             background: var(--bg-tertiary);
         }
 
-        .email-item.selected {
+        .email-row.selected {
             background: var(--accent-warm-dim);
         }
 
-        .email-checkbox {
-            width: 18px;
-            height: 18px;
+        .email-check {
+            width: 16px;
+            height: 16px;
             border: 2px solid var(--bg-elevated);
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
-            transition: all 0.2s;
             flex-shrink: 0;
-            margin-top: 2px;
         }
 
-        .email-checkbox.checked {
+        .email-check.checked {
             background: var(--accent-warm);
             border-color: var(--accent-warm);
         }
 
-        .email-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .email-from {
+        .email-sender {
+            width: 160px;
             font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
         }
 
         .email-subject {
-            font-size: 13px;
+            flex: 1;
             color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .email-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 6px;
+        .email-tag {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
+
+        .email-tag.respond { background: rgba(196, 146, 42, 0.2); color: var(--accent-warning); }
+        .email-tag.important { background: rgba(196, 90, 90, 0.2); color: var(--accent-danger); }
+        .email-tag.later { background: rgba(74, 122, 154, 0.2); color: var(--accent-info); }
 
         .email-time {
-            font-size: 11px;
+            width: 60px;
             color: var(--text-muted);
+            font-size: 11px;
+            text-align: right;
+            flex-shrink: 0;
         }
 
-        .email-tag {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 500;
-            text-transform: uppercase;
+        .bulk-bar {
+            display: none;
+            padding: 10px 16px;
+            background: var(--accent-warm);
+            color: white;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
         }
 
-        .email-tag.respond {
-            background: rgba(196, 146, 42, 0.15);
-            color: var(--accent-warning);
-        }
+        .bulk-bar.show { display: flex; }
 
-        .email-tag.important {
-            background: rgba(196, 90, 90, 0.15);
-            color: var(--accent-danger);
-        }
-
-        .email-tag.later {
-            background: rgba(74, 122, 154, 0.15);
-            color: var(--accent-info);
-        }
-
-        .email-actions {
-            display: flex;
-            gap: 4px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .email-item:hover .email-actions {
-            opacity: 1;
-        }
-
-        .email-btn {
-            width: 32px;
-            height: 32px;
+        .bulk-btn {
+            padding: 5px 12px;
+            background: rgba(255,255,255,0.2);
             border: none;
             border-radius: var(--radius-sm);
-            background: var(--bg-secondary);
-            color: var(--text-muted);
+            color: white;
+            font-size: 11px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
         }
 
-        .email-btn:hover {
-            background: var(--bg-elevated);
-            color: var(--text-primary);
+        .bulk-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .empty-state {
+            padding: 60px;
+            text-align: center;
+            color: var(--text-muted);
         }
 
-        .email-btn.delete:hover {
-            background: rgba(196, 90, 90, 0.15);
-            color: var(--accent-danger);
-        }
-
-        .email-btn.archive:hover {
-            background: rgba(74, 154, 74, 0.15);
+        .empty-state h3 {
             color: var(--accent-success);
-        }
-
-        .email-btn.tag:hover {
-            background: rgba(184, 147, 90, 0.15);
-            color: var(--accent-warm);
-        }
-
-        .email-btn.save:hover {
-            background: rgba(74, 122, 154, 0.15);
-            color: var(--accent-info);
+            margin-bottom: 8px;
         }
 
         .load-more {
-            padding: 16px;
+            padding: 12px;
             text-align: center;
-            border-top: var(--border-subtle);
         }
 
         .load-more button {
-            padding: 10px 24px;
+            padding: 8px 20px;
             border: 1px dashed var(--bg-elevated);
-            border-radius: var(--radius-md);
-            background: transparent;
+            border-radius: var(--radius-sm);
+            background: none;
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .load-more button:hover {
@@ -517,854 +385,626 @@
             color: var(--accent-warm);
         }
 
-        /* Bulk Actions */
-        .bulk-actions {
-            display: none;
-            padding: 12px 24px;
-            background: var(--accent-warm);
-            color: white;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .bulk-actions.show {
-            display: flex;
-        }
-
-        .bulk-actions span {
-            font-size: 13px;
-        }
-
-        .bulk-btn {
-            padding: 6px 14px;
-            border: none;
-            border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .bulk-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Calendar Mini */
-        .calendar-section {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-neumorphic);
-            padding: 20px 24px;
-        }
-
-        .calendar-section h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 16px;
-        }
-
-        .calendar-event {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: var(--border-subtle);
-        }
-
-        .calendar-event:last-child {
-            border-bottom: none;
-        }
-
-        .event-time {
-            font-size: 12px;
-            color: var(--text-muted);
-            width: 60px;
-        }
-
-        .event-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-warm);
-        }
-
-        .event-title {
-            font-size: 13px;
-            flex: 1;
-        }
-
-        /* Tag Dropdown */
-        .tag-dropdown {
-            position: absolute;
-            background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-soft);
-            padding: 8px 0;
-            z-index: 100;
-            min-width: 140px;
-            display: none;
-        }
-
-        .tag-dropdown.show {
-            display: block;
-        }
-
-        .tag-option {
-            padding: 8px 16px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tag-option:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .tag-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .tag-dot.respond { background: var(--accent-warning); }
-        .tag-dot.important { background: var(--accent-danger); }
-        .tag-dot.later { background: var(--accent-info); }
-        .tag-dot.clear { background: var(--text-muted); }
-
-        /* Empty State */
-        .empty-state {
-            padding: 60px 24px;
-            text-align: center;
-            color: var(--text-muted);
-        }
-
-        .empty-state svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: var(--accent-success);
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--bg-elevated);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
-        }
-
         /* Toast */
         .toast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            padding: 14px 20px;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
             background: var(--text-primary);
             color: white;
             border-radius: var(--radius-md);
             font-size: 13px;
-            box-shadow: var(--shadow-soft);
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s;
             z-index: 1000;
         }
 
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* Responsive */
-        @media (max-width: 1000px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-            .chat-panel {
-                height: 400px;
-            }
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <div class="logo-mark">F</div>
-                <div>
-                    <div class="logo-text">Felix</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="inbox-zero-goal">
-                    <div class="count" id="unread-count">--</div>
-                    <div class="label">Unread</div>
-                </div>
-                <div class="datetime">
-                    <div class="datetime-time" id="time">--:--</div>
-                    <div class="datetime-date" id="date">Loading...</div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Chat Panel -->
-        <aside class="chat-panel">
+    <div class="app">
+        <!-- Chat -->
+        <div class="chat-panel">
             <div class="chat-header">
-                <div class="chat-avatar">F</div>
-                <div class="chat-info">
-                    <h3>Felix</h3>
-                    <p>Tell me what to do with your emails</p>
+                <div class="logo">F</div>
+                <div class="chat-title">
+                    <h1>Felix</h1>
+                    <p>Your Chief of Staff</p>
                 </div>
+                <div class="unread-badge" id="unread-badge">--</div>
             </div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="chat-message felix">
-                    Good morning! I'm ready to help you reach inbox zero today. Just tell me what you'd like me to do - like "delete all newsletters" or "auto-archive emails from LinkedIn".
-                </div>
-            </div>
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                    <input type="text" class="chat-input" id="chat-input" placeholder="Tell Felix what to do..." onkeypress="handleChatKeypress(event)">
-                    <button class="chat-send" onclick="sendMessage()">
+            <div class="chat-messages" id="chat"></div>
+            <div class="chat-input-area">
+                <div class="input-row">
+                    <input type="text" class="chat-input" id="input" placeholder="Tell me what to do..." autofocus>
+                    <button class="send-btn" onclick="send()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="22" y1="2" x2="11" y2="13"/>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                         </svg>
                     </button>
                 </div>
-                <div class="quick-commands">
-                    <button class="quick-cmd" onclick="sendQuickCommand('Delete all newsletters')">Delete newsletters</button>
-                    <button class="quick-cmd" onclick="sendQuickCommand('Auto-archive promotions')">Archive promos</button>
-                    <button class="quick-cmd" onclick="sendQuickCommand('Show emails I need to respond to')">Need response</button>
-                    <button class="quick-cmd" onclick="sendQuickCommand('Save important emails to a file')">Save important</button>
+                <div class="suggestions">
+                    <button class="suggest-btn" onclick="say('delete all newsletters')">Delete newsletters</button>
+                    <button class="suggest-btn" onclick="say('archive all from linkedin')">Archive LinkedIn</button>
+                    <button class="suggest-btn" onclick="say('show me emails from vercel')">From Vercel</button>
+                    <button class="suggest-btn" onclick="say('tag selected as respond')">Tag respond</button>
+                    <button class="suggest-btn" onclick="say('select all')">Select all</button>
+                    <button class="suggest-btn" onclick="say('help')">Help</button>
                 </div>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Emails -->
-            <section class="email-section">
-                <div class="bulk-actions" id="bulk-actions">
-                    <span><strong id="selected-count">0</strong> selected</span>
-                    <button class="bulk-btn" onclick="bulkAction('delete')">Delete</button>
-                    <button class="bulk-btn" onclick="bulkAction('archive')">Archive</button>
-                    <button class="bulk-btn" onclick="bulkTag('respond')">Tag: Respond</button>
-                    <button class="bulk-btn" onclick="bulkTag('later')">Tag: Later</button>
-                    <button class="bulk-btn" onclick="clearSelection()">Cancel</button>
-                </div>
-                <div class="email-header">
-                    <h2>Inbox</h2>
-                    <div class="email-actions-header">
-                        <button class="header-btn active" id="filter-all" onclick="filterEmails('all')">All</button>
-                        <button class="header-btn" id="filter-respond" onclick="filterEmails('respond')">Respond</button>
-                        <button class="header-btn" id="filter-important" onclick="filterEmails('important')">Important</button>
-                        <button class="header-btn" id="filter-later" onclick="filterEmails('later')">Later</button>
-                    </div>
-                </div>
-                <div class="email-list" id="email-list">
-                    <div class="empty-state">
-                        <p>Loading emails...</p>
-                    </div>
-                </div>
-                <div class="load-more" id="load-more" style="display: none;">
-                    <button onclick="loadMoreEmails()">Load more emails</button>
-                </div>
-            </section>
-
-            <!-- Calendar -->
-            <section class="calendar-section">
-                <h3>Today's Schedule</h3>
-                <div id="calendar-events">
-                    <p style="color: var(--text-muted); font-size: 13px;">Loading calendar...</p>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Tag Dropdown -->
-    <div class="tag-dropdown" id="tag-dropdown">
-        <div class="tag-option" onclick="setTag('respond')">
-            <span class="tag-dot respond"></span> Respond Today
         </div>
-        <div class="tag-option" onclick="setTag('important')">
-            <span class="tag-dot important"></span> Important
-        </div>
-        <div class="tag-option" onclick="setTag('later')">
-            <span class="tag-dot later"></span> Later
-        </div>
-        <div class="tag-option" onclick="setTag(null)">
-            <span class="tag-dot clear"></span> Clear Tag
+
+        <!-- Emails -->
+        <div class="email-panel">
+            <div class="bulk-bar" id="bulk-bar">
+                <span><b id="sel-count">0</b> selected</span>
+                <button class="bulk-btn" onclick="say('delete selected')">Delete</button>
+                <button class="bulk-btn" onclick="say('archive selected')">Archive</button>
+                <button class="bulk-btn" onclick="say('tag selected as respond')">Tag: Respond</button>
+                <button class="bulk-btn" onclick="say('tag selected as important')">Tag: Important</button>
+                <button class="bulk-btn" onclick="say('save selected')">Save</button>
+                <button class="bulk-btn" onclick="clearSel()">Cancel</button>
+            </div>
+            <div class="email-header">
+                <h2>Inbox</h2>
+                <div class="filter-btns">
+                    <button class="filter-btn active" onclick="setFilter('all')">All</button>
+                    <button class="filter-btn" onclick="setFilter('respond')">Respond</button>
+                    <button class="filter-btn" onclick="setFilter('important')">Important</button>
+                    <button class="filter-btn" onclick="setFilter('later')">Later</button>
+                </div>
+            </div>
+            <div class="email-list" id="emails"></div>
+            <div class="load-more" id="load-more" style="display:none;">
+                <button onclick="loadMore()">Load more</button>
+            </div>
         </div>
     </div>
-
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-        const API_BASE = 'http://localhost:3847/api';
-        let currentEmails = [];
-        let selectedEmails = new Set();
-        let emailOffset = 0;
-        let totalUnread = 0;
-        let currentFilter = 'all';
-        let currentTagEmail = null;
-        let emailTags = {}; // emailId -> tag
+        const API = 'http://localhost:3847/api';
+        let emails = [];
+        let selected = new Set();
+        let tags = JSON.parse(localStorage.getItem('tags') || '{}');
+        let filter = 'all';
+        let offset = 0;
+        let total = 0;
 
-        // Load tags from localStorage
-        try {
-            emailTags = JSON.parse(localStorage.getItem('emailTags') || '{}');
-        } catch (e) {}
-
-        function saveTags() {
-            localStorage.setItem('emailTags', JSON.stringify(emailTags));
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            updateTime();
-            setInterval(updateTime, 1000);
-            loadEmails();
-            loadCalendar();
-
-            // Close tag dropdown on click outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.tag-dropdown') && !e.target.closest('.email-btn.tag')) {
-                    document.getElementById('tag-dropdown').classList.remove('show');
-                }
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT') return;
-                if (e.key === '/') {
-                    e.preventDefault();
-                    document.getElementById('chat-input').focus();
-                }
-            });
+        // Init
+        document.getElementById('input').addEventListener('keypress', e => { if (e.key === 'Enter') send(); });
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === '/') { e.preventDefault(); document.getElementById('input').focus(); }
+            if (e.key === 'a' && e.metaKey) { e.preventDefault(); say('select all'); }
         });
 
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('time').textContent = now.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
-            document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-            });
+        load();
+        addMsg('felix', `Good ${getGreeting()}! I'm Felix, your email assistant. Tell me what to do with your inbox.
+
+Try things like:
+• "delete all from linkedin"
+• "archive newsletters"
+• "show emails from amazon"
+• "tag #3 as important"
+• "select 1-10 then delete"
+• "auto-delete future emails from sender.com"
+
+Type "help" for all commands.`);
+
+        function getGreeting() {
+            const h = new Date().getHours();
+            return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
         }
 
-        // Email Loading
-        async function loadEmails() {
+        // Data
+        async function load() {
             try {
-                const res = await fetch(`${API_BASE}/emails/unread?limit=50&offset=${emailOffset}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    if (emailOffset === 0) {
-                        currentEmails = data.emails;
-                    } else {
-                        currentEmails = [...currentEmails, ...data.emails];
-                    }
-                    totalUnread = data.total;
-                    updateUnreadCount();
-                    renderEmails();
-
-                    document.getElementById('load-more').style.display =
-                        currentEmails.length < data.total ? 'block' : 'none';
+                const r = await fetch(`${API}/emails/unread?limit=100&offset=${offset}`);
+                const d = await r.json();
+                if (d.success) {
+                    emails = offset === 0 ? d.emails : [...emails, ...d.emails];
+                    total = d.total;
+                    render();
+                    updateBadge();
+                    document.getElementById('load-more').style.display = emails.length < total ? 'block' : 'none';
                 }
             } catch (e) {
-                console.error('Failed to load emails:', e);
-                document.getElementById('email-list').innerHTML = `
-                    <div class="empty-state">
-                        <p>Could not connect to server</p>
-                    </div>
-                `;
+                addMsg('error', 'Could not connect to server. Is Felix running?');
             }
         }
 
-        function loadMoreEmails() {
-            emailOffset += 50;
-            loadEmails();
+        function loadMore() { offset += 100; load(); }
+
+        function updateBadge() {
+            const b = document.getElementById('unread-badge');
+            b.textContent = total;
+            b.classList.toggle('zero', total === 0);
         }
 
-        function updateUnreadCount() {
-            const countEl = document.getElementById('unread-count');
-            countEl.textContent = totalUnread;
-            countEl.classList.toggle('zero', totalUnread === 0);
-        }
+        function render() {
+            const el = document.getElementById('emails');
+            let list = emails;
+            if (filter !== 'all') list = list.filter(e => tags[e.id] === filter);
 
-        function renderEmails() {
-            const container = document.getElementById('email-list');
-            let emails = currentEmails;
-
-            // Apply filter
-            if (currentFilter !== 'all') {
-                emails = emails.filter(e => emailTags[e.id] === currentFilter);
-            }
-
-            if (emails.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                        <h3>${currentFilter === 'all' ? 'Inbox Zero!' : 'No emails with this tag'}</h3>
-                        <p>${currentFilter === 'all' ? 'You\'ve processed all your emails.' : 'Tag some emails to see them here.'}</p>
-                    </div>
-                `;
+            if (list.length === 0) {
+                el.innerHTML = `<div class="empty-state"><h3>${filter === 'all' ? 'Inbox Zero!' : 'No emails'}</h3><p>${filter === 'all' ? 'You did it!' : 'No emails with this tag'}</p></div>`;
                 return;
             }
 
-            container.innerHTML = emails.map(email => {
-                const tag = emailTags[email.id];
-                const isSelected = selectedEmails.has(email.id);
-
-                return `
-                    <div class="email-item ${isSelected ? 'selected' : ''}" data-id="${email.id}">
-                        <div class="email-checkbox ${isSelected ? 'checked' : ''}" onclick="toggleSelect(event, ${email.id})"></div>
-                        <div class="email-content" onclick="openEmail(${email.id})">
-                            <div class="email-from">
-                                ${escapeHtml(email.senderName || email.sender || 'Unknown')}
-                            </div>
-                            <div class="email-subject">${escapeHtml(email.subject || 'No subject')}</div>
-                            <div class="email-meta">
-                                <span class="email-time">${formatTime(email.received)}</span>
-                                ${tag ? `<span class="email-tag ${tag}">${tag}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="email-actions">
-                            <button class="email-btn tag" onclick="showTagDropdown(event, ${email.id})" title="Tag">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                                    <line x1="7" y1="7" x2="7.01" y2="7"/>
-                                </svg>
-                            </button>
-                            <button class="email-btn save" onclick="saveEmail(event, ${email.id})" title="Save to file">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                                    <polyline points="17 21 17 13 7 13 7 21"/>
-                                    <polyline points="7 3 7 8 15 8"/>
-                                </svg>
-                            </button>
-                            <button class="email-btn archive" onclick="archiveEmail(event, ${email.id})" title="Archive">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="21 8 21 21 3 21 3 8"/>
-                                    <rect x="1" y="3" width="22" height="5"/>
-                                </svg>
-                            </button>
-                            <button class="email-btn delete" onclick="deleteEmail(event, ${email.id})" title="Delete">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                `;
+            el.innerHTML = list.map((e, i) => {
+                const tag = tags[e.id];
+                const sel = selected.has(e.id);
+                const num = emails.indexOf(e) + 1;
+                return `<div class="email-row ${sel ? 'selected' : ''}" data-id="${e.id}">
+                    <div class="email-check ${sel ? 'checked' : ''}" onclick="toggle(event,${e.id})"></div>
+                    <span class="email-sender" title="${esc(e.sender)}">#${num} ${esc(e.senderName || e.sender?.split('@')[0] || '?')}</span>
+                    <span class="email-subject" title="${esc(e.subject)}">${esc(e.subject || '(no subject)')}</span>
+                    ${tag ? `<span class="email-tag ${tag}">${tag}</span>` : ''}
+                    <span class="email-time">${timeAgo(e.received)}</span>
+                </div>`;
             }).join('');
 
-            updateBulkActions();
+            updateBulk();
         }
 
-        function formatTime(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-
-            if (diffMins < 60) return `${diffMins}m ago`;
-            if (diffHours < 24) return `${diffHours}h ago`;
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        function toggle(ev, id) {
+            ev.stopPropagation();
+            selected.has(id) ? selected.delete(id) : selected.add(id);
+            render();
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        function clearSel() { selected.clear(); render(); }
+
+        function updateBulk() {
+            const bar = document.getElementById('bulk-bar');
+            document.getElementById('sel-count').textContent = selected.size;
+            bar.classList.toggle('show', selected.size > 0);
         }
 
-        // Selection
-        function toggleSelect(event, emailId) {
-            event.stopPropagation();
-            if (selectedEmails.has(emailId)) {
-                selectedEmails.delete(emailId);
-            } else {
-                selectedEmails.add(emailId);
-            }
-            renderEmails();
+        function setFilter(f) {
+            filter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.filter-btn:nth-child(${f === 'all' ? 1 : f === 'respond' ? 2 : f === 'important' ? 3 : 4})`).classList.add('active');
+            render();
         }
 
-        function clearSelection() {
-            selectedEmails.clear();
-            renderEmails();
+        function timeAgo(d) {
+            if (!d) return '';
+            const diff = (Date.now() - new Date(d)) / 60000;
+            if (diff < 60) return Math.floor(diff) + 'm';
+            if (diff < 1440) return Math.floor(diff / 60) + 'h';
+            return new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' });
         }
 
-        function updateBulkActions() {
-            const bulkEl = document.getElementById('bulk-actions');
-            const countEl = document.getElementById('selected-count');
-            if (selectedEmails.size > 0) {
-                bulkEl.classList.add('show');
-                countEl.textContent = selectedEmails.size;
-            } else {
-                bulkEl.classList.remove('show');
-            }
+        function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+        // Chat
+        function addMsg(type, text) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.textContent = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
         }
 
-        // Email Actions
-        async function deleteEmail(event, emailId) {
-            event.stopPropagation();
-            await performEmailAction(emailId, 'delete');
-            currentEmails = currentEmails.filter(e => e.id !== emailId);
-            totalUnread--;
-            updateUnreadCount();
-            renderEmails();
-            showToast('Email deleted');
+        function say(text) {
+            document.getElementById('input').value = text;
+            send();
         }
 
-        async function archiveEmail(event, emailId) {
-            event.stopPropagation();
-            await performEmailAction(emailId, 'archive');
-            currentEmails = currentEmails.filter(e => e.id !== emailId);
-            totalUnread--;
-            updateUnreadCount();
-            renderEmails();
-            showToast('Email archived');
-        }
-
-        async function saveEmail(event, emailId) {
-            event.stopPropagation();
-            const email = currentEmails.find(e => e.id === emailId);
-            if (!email) return;
-
-            try {
-                const res = await fetch(`${API_BASE}/emails/save`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ emailId, sender: email.sender, subject: email.subject })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast(`Saved to ${data.filename}`);
-                }
-            } catch (e) {
-                showToast('Failed to save email');
-            }
-        }
-
-        async function performEmailAction(emailId, action) {
-            const email = currentEmails.find(e => e.id === emailId);
-            try {
-                await fetch(`${API_BASE}/emails/action`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        emailId,
-                        sender: email?.sender,
-                        subject: email?.subject,
-                        action
-                    })
-                });
-            } catch (e) {
-                console.error('Action failed:', e);
-            }
-        }
-
-        // Bulk Actions
-        async function bulkAction(action) {
-            const ids = Array.from(selectedEmails);
-            for (const id of ids) {
-                await performEmailAction(id, action);
-            }
-            currentEmails = currentEmails.filter(e => !selectedEmails.has(e.id));
-            totalUnread -= ids.length;
-            updateUnreadCount();
-            selectedEmails.clear();
-            renderEmails();
-            showToast(`${ids.length} emails ${action}d`);
-        }
-
-        function bulkTag(tag) {
-            for (const id of selectedEmails) {
-                emailTags[id] = tag;
-            }
-            saveTags();
-            selectedEmails.clear();
-            renderEmails();
-            showToast(`Tagged ${selectedEmails.size} emails`);
-        }
-
-        // Tagging
-        function showTagDropdown(event, emailId) {
-            event.stopPropagation();
-            currentTagEmail = emailId;
-            const dropdown = document.getElementById('tag-dropdown');
-            const rect = event.target.getBoundingClientRect();
-            dropdown.style.top = (rect.bottom + 4) + 'px';
-            dropdown.style.left = (rect.left - 100) + 'px';
-            dropdown.classList.add('show');
-        }
-
-        function setTag(tag) {
-            if (currentTagEmail) {
-                if (tag) {
-                    emailTags[currentTagEmail] = tag;
-                } else {
-                    delete emailTags[currentTagEmail];
-                }
-                saveTags();
-                renderEmails();
-                showToast(tag ? `Tagged as "${tag}"` : 'Tag removed');
-            }
-            document.getElementById('tag-dropdown').classList.remove('show');
-            currentTagEmail = null;
-        }
-
-        // Filter
-        function filterEmails(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.header-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`filter-${filter}`).classList.add('active');
-            renderEmails();
-        }
-
-        function openEmail(emailId) {
-            // For now, just log. Could open a preview modal.
-            console.log('Open email:', emailId);
-        }
-
-        // Calendar
-        async function loadCalendar() {
-            try {
-                const res = await fetch(`${API_BASE}/calendar/upcoming`);
-                const data = await res.json();
-
-                const container = document.getElementById('calendar-events');
-                if (data.success && data.events.length > 0) {
-                    container.innerHTML = data.events.slice(0, 5).map(evt => `
-                        <div class="calendar-event">
-                            <span class="event-time">${evt.time}</span>
-                            <span class="event-dot"></span>
-                            <span class="event-title">${escapeHtml(evt.title)}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-muted); font-size: 13px;">No events today</p>';
-                }
-            } catch (e) {
-                document.getElementById('calendar-events').innerHTML =
-                    '<p style="color: var(--text-muted); font-size: 13px;">Calendar unavailable</p>';
-            }
-        }
-
-        // Chat / Natural Language
-        function handleChatKeypress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        function sendQuickCommand(cmd) {
-            document.getElementById('chat-input').value = cmd;
-            sendMessage();
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            addChatMessage(message, 'user');
+        async function send() {
+            const input = document.getElementById('input');
+            const text = input.value.trim();
+            if (!text) return;
             input.value = '';
-
-            // Process the command
-            const response = await processCommand(message);
-            addChatMessage(response, 'felix');
+            addMsg('user', text);
+            const response = await process(text);
+            addMsg('felix', response);
         }
 
-        function addChatMessage(text, sender) {
-            const container = document.getElementById('chat-messages');
-            const msg = document.createElement('div');
-            msg.className = `chat-message ${sender}`;
-            msg.textContent = text;
-            container.appendChild(msg);
-            container.scrollTop = container.scrollHeight;
-        }
+        // Command Processing
+        async function process(cmd) {
+            const c = cmd.toLowerCase().trim();
 
-        async function processCommand(command) {
-            const cmd = command.toLowerCase();
+            // HELP
+            if (c === 'help' || c === '?') {
+                return `FELIX COMMANDS:
 
-            // Delete newsletters
-            if (cmd.includes('delete') && (cmd.includes('newsletter') || cmd.includes('promo'))) {
-                const newsletters = currentEmails.filter(e => {
-                    const sender = (e.sender || '').toLowerCase();
-                    const subject = (e.subject || '').toLowerCase();
-                    return sender.includes('newsletter') || sender.includes('noreply') ||
-                           sender.includes('marketing') || sender.includes('promo') ||
-                           subject.includes('unsubscribe');
-                });
+VIEWING:
+• "show all" / "refresh" - reload emails
+• "show from [sender]" - filter by sender
+• "show tagged [respond/important/later]"
 
-                if (newsletters.length === 0) {
-                    return "I didn't find any obvious newsletters. Want me to look for specific senders?";
-                }
+SELECTION:
+• "select all" - select all visible emails
+• "select 1-10" - select range by number
+• "select from [sender]" - select by sender
+• "clear selection" - deselect all
 
-                for (const email of newsletters) {
-                    await performEmailAction(email.id, 'delete');
-                }
-                currentEmails = currentEmails.filter(e => !newsletters.find(n => n.id === e.id));
-                totalUnread -= newsletters.length;
-                updateUnreadCount();
-                renderEmails();
+ACTIONS (on selected or specify):
+• "delete selected" / "delete all from [sender]"
+• "archive selected" / "archive all from [sender]"
+• "tag selected as [respond/important/later]"
+• "save selected" - save to file
+• "clear tags" - remove all tags from selected
 
-                return `Done! I deleted ${newsletters.length} newsletter/promotional emails. ${totalUnread} unread remaining.`;
+RULES:
+• "auto-delete from [sender]" - future emails
+• "auto-archive from [sender]" - future emails
+• "unsubscribe from [sender]" - mark as unsubscribe
+
+SHORTCUTS:
+• "delete newsletters" - delete marketing emails
+• "archive promos" - archive promotional
+• "inbox status" - show summary
+
+Type naturally! I'll figure out what you mean.`;
             }
 
-            // Archive promotions
-            if (cmd.includes('archive') && cmd.includes('promo')) {
-                const promos = currentEmails.filter(e => {
-                    const sender = (e.sender || '').toLowerCase();
-                    return sender.includes('promo') || sender.includes('deal') ||
-                           sender.includes('offer') || sender.includes('sale');
-                });
+            // STATUS
+            if (c.includes('status') || c.includes('how many') || c === 'inbox') {
+                const respond = emails.filter(e => tags[e.id] === 'respond').length;
+                const important = emails.filter(e => tags[e.id] === 'important').length;
+                return `📊 Inbox Status:
+• ${total} total unread emails
+• ${respond} tagged "respond"
+• ${important} tagged "important"
+• ${selected.size} currently selected
 
-                for (const email of promos) {
-                    await performEmailAction(email.id, 'archive');
-                }
-                currentEmails = currentEmails.filter(e => !promos.find(p => p.id === e.id));
-                totalUnread -= promos.length;
-                updateUnreadCount();
-                renderEmails();
-
-                return `Archived ${promos.length} promotional emails.`;
+${total === 0 ? '🎉 Inbox zero achieved!' : total < 10 ? '👍 Almost there!' : 'Let\'s clean this up!'}`;
             }
 
-            // Auto-archive/delete from sender
-            if ((cmd.includes('auto-archive') || cmd.includes('auto-delete') || cmd.includes('always delete') || cmd.includes('always archive')) &&
-                (cmd.includes('from') || cmd.includes('emails from'))) {
-                const action = cmd.includes('delete') ? 'auto-delete' : 'auto-archive';
-                const match = cmd.match(/from\s+(\S+)/);
-                if (match) {
-                    const sender = match[1];
-                    try {
-                        await fetch(`${API_BASE}/rules/quick/${action}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ sender })
-                        });
-                        return `Got it! I'll ${action.replace('-', ' ')} all future emails from ${sender}.`;
-                    } catch (e) {
-                        return "Sorry, I couldn't create that rule. Try again?";
-                    }
+            // REFRESH
+            if (c === 'refresh' || c === 'reload' || c === 'show all') {
+                offset = 0; filter = 'all';
+                await load();
+                setFilter('all');
+                return `Refreshed! ${total} unread emails.`;
+            }
+
+            // SELECT ALL
+            if (c === 'select all') {
+                const visible = filter === 'all' ? emails : emails.filter(e => tags[e.id] === filter);
+                visible.forEach(e => selected.add(e.id));
+                render();
+                return `Selected ${selected.size} emails. Now tell me what to do with them.`;
+            }
+
+            // SELECT RANGE (select 1-10)
+            const rangeMatch = c.match(/select\s+(\d+)\s*[-–to]+\s*(\d+)/);
+            if (rangeMatch) {
+                const start = parseInt(rangeMatch[1]) - 1;
+                const end = parseInt(rangeMatch[2]);
+                selected.clear();
+                for (let i = start; i < end && i < emails.length; i++) {
+                    selected.add(emails[i].id);
+                }
+                render();
+                return `Selected emails #${start + 1} to #${Math.min(end, emails.length)}.`;
+            }
+
+            // SELECT BY NUMBER (select #5 or select 5)
+            const numMatch = c.match(/select\s+#?(\d+)/);
+            if (numMatch && !c.includes('-')) {
+                const idx = parseInt(numMatch[1]) - 1;
+                if (idx >= 0 && idx < emails.length) {
+                    selected.add(emails[idx].id);
+                    render();
+                    return `Selected email #${idx + 1}: "${emails[idx].subject}"`;
+                }
+                return `No email #${numMatch[1]} found.`;
+            }
+
+            // CLEAR SELECTION
+            if (c.includes('clear') && c.includes('select')) {
+                selected.clear();
+                render();
+                return 'Selection cleared.';
+            }
+
+            // SELECT FROM SENDER
+            if (c.startsWith('select') && c.includes('from')) {
+                const sender = extractSender(c);
+                if (sender) {
+                    const matches = emails.filter(e => matchSender(e, sender));
+                    matches.forEach(e => selected.add(e.id));
+                    render();
+                    return `Selected ${matches.length} emails from "${sender}".`;
                 }
             }
 
-            // Show emails needing response
-            if (cmd.includes('respond') || cmd.includes('reply') || cmd.includes('need to answer')) {
-                const tagged = currentEmails.filter(e => emailTags[e.id] === 'respond');
-                if (tagged.length > 0) {
-                    filterEmails('respond');
-                    return `You have ${tagged.length} emails tagged for response. I've filtered the view to show just those.`;
-                } else {
-                    return "You haven't tagged any emails as needing a response yet. Click the tag icon on emails you need to reply to.";
+            // SHOW FROM SENDER
+            if ((c.startsWith('show') || c.startsWith('find') || c.startsWith('search')) && c.includes('from')) {
+                const sender = extractSender(c);
+                if (sender) {
+                    const matches = emails.filter(e => matchSender(e, sender));
+                    if (matches.length === 0) return `No emails from "${sender}" found.`;
+                    selected.clear();
+                    matches.forEach(e => selected.add(e.id));
+                    render();
+                    return `Found ${matches.length} emails from "${sender}". They're now selected.`;
                 }
             }
 
-            // Save important emails
-            if (cmd.includes('save') && cmd.includes('important')) {
-                const important = currentEmails.filter(e => emailTags[e.id] === 'important');
-                if (important.length === 0) {
-                    return "No emails are tagged as important. Tag some emails first, then I can save them.";
-                }
+            // SHOW TAGGED
+            if (c.includes('show') && (c.includes('tagged') || c.includes('respond') || c.includes('important') || c.includes('later'))) {
+                const tag = c.includes('respond') ? 'respond' : c.includes('important') ? 'important' : 'later';
+                setFilter(tag);
+                return `Showing emails tagged "${tag}".`;
+            }
 
+            // DELETE SELECTED
+            if (c.includes('delete') && (c.includes('selected') || c.includes('them'))) {
+                if (selected.size === 0) return 'No emails selected. Select some first, or say "delete all from [sender]".';
+                const count = selected.size;
+                await bulkAction('delete');
+                return `🗑️ Deleted ${count} emails.`;
+            }
+
+            // ARCHIVE SELECTED
+            if (c.includes('archive') && (c.includes('selected') || c.includes('them'))) {
+                if (selected.size === 0) return 'No emails selected. Select some first.';
+                const count = selected.size;
+                await bulkAction('archive');
+                return `📦 Archived ${count} emails.`;
+            }
+
+            // TAG SELECTED
+            if (c.includes('tag') && (c.includes('selected') || c.includes('them'))) {
+                const tag = c.includes('respond') ? 'respond' : c.includes('important') ? 'important' : c.includes('later') ? 'later' : null;
+                if (!tag) return 'Tag as what? Try "tag selected as respond" or "important" or "later".';
+                if (selected.size === 0) return 'No emails selected.';
+                selected.forEach(id => tags[id] = tag);
+                saveTags();
+                const count = selected.size;
+                selected.clear();
+                render();
+                return `🏷️ Tagged ${count} emails as "${tag}".`;
+            }
+
+            // TAG BY NUMBER
+            const tagNumMatch = c.match(/tag\s+#?(\d+)\s+(?:as\s+)?(\w+)/);
+            if (tagNumMatch) {
+                const idx = parseInt(tagNumMatch[1]) - 1;
+                const tag = tagNumMatch[2].toLowerCase();
+                if (idx >= 0 && idx < emails.length && ['respond', 'important', 'later'].includes(tag)) {
+                    tags[emails[idx].id] = tag;
+                    saveTags();
+                    render();
+                    return `Tagged email #${idx + 1} as "${tag}".`;
+                }
+            }
+
+            // CLEAR TAGS
+            if (c.includes('clear') && c.includes('tag')) {
+                if (selected.size === 0) return 'No emails selected.';
+                selected.forEach(id => delete tags[id]);
+                saveTags();
+                const count = selected.size;
+                selected.clear();
+                render();
+                return `Cleared tags from ${count} emails.`;
+            }
+
+            // SAVE SELECTED
+            if (c.includes('save') && (c.includes('selected') || c.includes('them'))) {
+                if (selected.size === 0) return 'No emails selected.';
                 let saved = 0;
-                for (const email of important) {
-                    try {
-                        await fetch(`${API_BASE}/emails/save`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ emailId: email.id, sender: email.sender, subject: email.subject })
-                        });
-                        saved++;
-                    } catch (e) {}
-                }
-                return `Saved ${saved} important emails to ~/Documents/Felix/saved-emails/`;
-            }
-
-            // Status check
-            if (cmd.includes('how many') || cmd.includes('status') || cmd.includes('inbox')) {
-                const respond = currentEmails.filter(e => emailTags[e.id] === 'respond').length;
-                const important = currentEmails.filter(e => emailTags[e.id] === 'important').length;
-                return `You have ${totalUnread} unread emails. ${respond} are tagged for response, ${important} marked important. Let's get to inbox zero!`;
-            }
-
-            // Help
-            if (cmd.includes('help') || cmd.includes('what can you do')) {
-                return `I can help you manage your inbox. Try:
-• "Delete all newsletters"
-• "Auto-delete emails from [sender]"
-• "Auto-archive emails from LinkedIn"
-• "Show emails I need to respond to"
-• "Save important emails to a file"
-• "How many unread do I have?"`;
-            }
-
-            // Generic - try to understand intent
-            if (cmd.includes('delete') && cmd.includes('from')) {
-                const match = cmd.match(/from\s+(\S+)/);
-                if (match) {
-                    const sender = match[1];
-                    const toDelete = currentEmails.filter(e =>
-                        (e.sender || '').toLowerCase().includes(sender.toLowerCase())
-                    );
-                    if (toDelete.length > 0) {
-                        for (const email of toDelete) {
-                            await performEmailAction(email.id, 'delete');
-                        }
-                        currentEmails = currentEmails.filter(e => !toDelete.find(d => d.id === e.id));
-                        totalUnread -= toDelete.length;
-                        updateUnreadCount();
-                        renderEmails();
-                        return `Deleted ${toDelete.length} emails from ${sender}. Want me to auto-delete future emails from them too?`;
+                for (const id of selected) {
+                    const e = emails.find(x => x.id === id);
+                    if (e) {
+                        try {
+                            await fetch(`${API}/emails/save`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ emailId: id, sender: e.sender, subject: e.subject })
+                            });
+                            saved++;
+                        } catch (err) {}
                     }
-                    return `I didn't find any emails from "${sender}".`;
+                }
+                selected.clear();
+                render();
+                return `💾 Saved ${saved} emails to ~/Documents/Felix/saved-emails/`;
+            }
+
+            // DELETE FROM SENDER
+            if (c.includes('delete') && (c.includes('from') || c.includes('all'))) {
+                const sender = extractSender(c);
+                if (sender) {
+                    const matches = emails.filter(e => matchSender(e, sender));
+                    if (matches.length === 0) return `No emails from "${sender}" found.`;
+                    for (const e of matches) await action(e.id, 'delete');
+                    emails = emails.filter(e => !matches.find(m => m.id === e.id));
+                    total -= matches.length;
+                    render();
+                    updateBadge();
+                    return `🗑️ Deleted ${matches.length} emails from "${sender}". Want me to auto-delete future ones? Say "auto-delete from ${sender}"`;
                 }
             }
 
-            return "I'm not sure what you mean. Try saying things like 'delete newsletters' or 'auto-archive emails from LinkedIn'. Type 'help' to see what I can do.";
+            // ARCHIVE FROM SENDER
+            if (c.includes('archive') && (c.includes('from') || c.includes('all'))) {
+                const sender = extractSender(c);
+                if (sender) {
+                    const matches = emails.filter(e => matchSender(e, sender));
+                    if (matches.length === 0) return `No emails from "${sender}" found.`;
+                    for (const e of matches) await action(e.id, 'archive');
+                    emails = emails.filter(e => !matches.find(m => m.id === e.id));
+                    total -= matches.length;
+                    render();
+                    updateBadge();
+                    return `📦 Archived ${matches.length} emails from "${sender}".`;
+                }
+            }
+
+            // DELETE NEWSLETTERS
+            if (c.includes('delete') && (c.includes('newsletter') || c.includes('marketing') || c.includes('promo'))) {
+                const matches = emails.filter(e => isNewsletter(e));
+                if (matches.length === 0) return 'No obvious newsletters found.';
+                for (const e of matches) await action(e.id, 'delete');
+                emails = emails.filter(e => !matches.find(m => m.id === e.id));
+                total -= matches.length;
+                render();
+                updateBadge();
+                return `🗑️ Deleted ${matches.length} newsletter/marketing emails. ${total} remaining.`;
+            }
+
+            // ARCHIVE PROMOS
+            if (c.includes('archive') && (c.includes('promo') || c.includes('marketing'))) {
+                const matches = emails.filter(e => isPromo(e));
+                for (const e of matches) await action(e.id, 'archive');
+                emails = emails.filter(e => !matches.find(m => m.id === e.id));
+                total -= matches.length;
+                render();
+                updateBadge();
+                return `📦 Archived ${matches.length} promotional emails.`;
+            }
+
+            // AUTO-DELETE RULE
+            if (c.includes('auto-delete') || (c.includes('always') && c.includes('delete'))) {
+                const sender = extractSender(c);
+                if (sender) {
+                    await createRule('auto-delete', sender);
+                    return `✅ Rule created: Auto-delete future emails from "${sender}".`;
+                }
+                return 'From which sender? Try "auto-delete from example.com"';
+            }
+
+            // AUTO-ARCHIVE RULE
+            if (c.includes('auto-archive') || (c.includes('always') && c.includes('archive'))) {
+                const sender = extractSender(c);
+                if (sender) {
+                    await createRule('auto-archive', sender);
+                    return `✅ Rule created: Auto-archive future emails from "${sender}".`;
+                }
+                return 'From which sender? Try "auto-archive from linkedin"';
+            }
+
+            // UNSUBSCRIBE
+            if (c.includes('unsubscribe')) {
+                const sender = extractSender(c);
+                if (sender) {
+                    await createRule('unsubscribe', sender);
+                    return `✅ Marked as unsubscribe: "${sender}". Future emails will be auto-deleted.`;
+                }
+                return 'From which sender? Try "unsubscribe from newsletter.com"';
+            }
+
+            // DELETE BY NUMBER
+            const delNumMatch = c.match(/delete\s+#?(\d+)/);
+            if (delNumMatch) {
+                const idx = parseInt(delNumMatch[1]) - 1;
+                if (idx >= 0 && idx < emails.length) {
+                    const e = emails[idx];
+                    await action(e.id, 'delete');
+                    emails.splice(idx, 1);
+                    total--;
+                    render();
+                    updateBadge();
+                    return `🗑️ Deleted email #${idx + 1}: "${e.subject}"`;
+                }
+            }
+
+            // ARCHIVE BY NUMBER
+            const archNumMatch = c.match(/archive\s+#?(\d+)/);
+            if (archNumMatch) {
+                const idx = parseInt(archNumMatch[1]) - 1;
+                if (idx >= 0 && idx < emails.length) {
+                    const e = emails[idx];
+                    await action(e.id, 'archive');
+                    emails.splice(idx, 1);
+                    total--;
+                    render();
+                    updateBadge();
+                    return `📦 Archived email #${idx + 1}: "${e.subject}"`;
+                }
+            }
+
+            // Fallback
+            return `I didn't understand that. Try:
+• "delete all from [sender]"
+• "archive newsletters"
+• "select 1-5 then delete them"
+• "tag #3 as important"
+• "help" for all commands`;
         }
 
-        // Toast
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        // Helpers
+        function extractSender(cmd) {
+            const match = cmd.match(/(?:from|@)\s*([^\s,]+)/i);
+            return match ? match[1].replace(/['"]/g, '') : null;
+        }
+
+        function matchSender(email, query) {
+            const s = (email.sender || '').toLowerCase();
+            const n = (email.senderName || '').toLowerCase();
+            const q = query.toLowerCase();
+            return s.includes(q) || n.includes(q);
+        }
+
+        function isNewsletter(e) {
+            const s = (e.sender || '').toLowerCase();
+            const subj = (e.subject || '').toLowerCase();
+            return s.includes('newsletter') || s.includes('noreply') || s.includes('marketing') ||
+                   s.includes('info@') || s.includes('hello@') || s.includes('news@') ||
+                   subj.includes('unsubscribe') || subj.includes('weekly') || subj.includes('digest');
+        }
+
+        function isPromo(e) {
+            const s = (e.sender || '').toLowerCase();
+            const subj = (e.subject || '').toLowerCase();
+            return s.includes('promo') || s.includes('deals') || s.includes('offer') ||
+                   subj.includes('% off') || subj.includes('sale') || subj.includes('discount');
+        }
+
+        async function action(id, act) {
+            const e = emails.find(x => x.id === id);
+            try {
+                await fetch(`${API}/emails/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId: id, sender: e?.sender, subject: e?.subject, action: act })
+                });
+            } catch (err) {}
+        }
+
+        async function bulkAction(act) {
+            const ids = Array.from(selected);
+            for (const id of ids) await action(id, act);
+            emails = emails.filter(e => !selected.has(e.id));
+            total -= ids.length;
+            selected.clear();
+            render();
+            updateBadge();
+        }
+
+        async function createRule(type, sender) {
+            try {
+                await fetch(`${API}/rules/quick/${type}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sender })
+                });
+            } catch (err) {}
+        }
+
+        function saveTags() { localStorage.setItem('tags', JSON.stringify(tags)); }
+
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
     </script>
 </body>
