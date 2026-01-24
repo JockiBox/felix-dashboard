@@ -2,24 +2,29 @@
   "senderActions": {
     "support@novamane.com": {
       "action": "archive",
-      "count": 1,
+      "count": 2,
       "autoApply": false
     },
     "no-reply@doordash.com": {
-      "action": "delete",
+      "action": "archive",
       "count": 1,
       "autoApply": false
     },
     "onlinebanking@ealerts.bankofamerica.com": {
       "action": "archive",
-      "count": 1,
+      "count": 7,
+      "autoApply": true
+    },
+    "donotreply@outreach.slhs.org": {
+      "action": "archive",
+      "count": 2,
       "autoApply": false
     }
   },
   "subjectPatterns": {
     "order": {
       "action": "archive",
-      "count": 1
+      "count": 3
     },
     "confirmation": {
       "action": "delete",
@@ -27,10 +32,84 @@
     },
     "alert": {
       "action": "archive",
-      "count": 1
+      "count": 6
+    },
+    "payment": {
+      "action": "archive",
+      "count": 2
     }
   },
   "recentActions": [
+    {
+      "emailId": 69107,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card not present during this transaction",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:23.721Z"
+    },
+    {
+      "emailId": 69108,
+      "sender": "donotreply@outreach.slhs.org",
+      "subject": "Owen, thank you for your payment",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:22.002Z"
+    },
+    {
+      "emailId": 69109,
+      "sender": "donotreply@outreach.slhs.org",
+      "subject": "Owen, thank you for your payment",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:20.779Z"
+    },
+    {
+      "emailId": 69129,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:19.999Z"
+    },
+    {
+      "emailId": 69147,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:19.233Z"
+    },
+    {
+      "emailId": 69154,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:18.474Z"
+    },
+    {
+      "emailId": 69155,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:17.733Z"
+    },
+    {
+      "emailId": 69189,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:16.954Z"
+    },
+    {
+      "emailId": 69130,
+      "sender": "no-reply@doordash.com",
+      "subject": "Order Confirmation for Owen from Jack in the Box",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:11.657Z"
+    },
+    {
+      "emailId": 69187,
+      "sender": "support@novamane.com",
+      "subject": "Order #NM1118137 confirmed",
+      "action": "archive",
+      "timestamp": "2026-01-24T21:57:06.196Z"
+    },
     {
       "emailId": 69034,
       "action": "read",
