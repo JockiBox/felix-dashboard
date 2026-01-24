@@ -1,0 +1,16 @@
+node_modules/
+.DS_Store
+
+# User data files
+cliff-preferences.json
+email-actions.json
+email-rules.json
+daily-goals.json
+billable-hours.json
+vip-senders.json
+contact-intelligence.json
+snoozed-emails.json
+slack-config.json
+felix-settings.json
+sender-reputation.json
+reply-templates.json
