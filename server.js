@@ -2649,6 +2649,819 @@ app.put('/api/theme', (req, res) => {
     }
 });
 
+// ============ PRODUCTIVITY SCORE ============
+
+const PRODUCTIVITY_FILE = path.join(__dirname, 'productivity-data.json');
+
+function loadProductivity() {
+    try {
+        if (fs.existsSync(PRODUCTIVITY_FILE)) {
+            return JSON.parse(fs.readFileSync(PRODUCTIVITY_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        inboxZeroStreak: 0,
+        lastInboxZero: null,
+        dailyStats: {},
+        weeklyScores: []
+    };
+}
+
+function saveProductivity(data) {
+    fs.writeFileSync(PRODUCTIVITY_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/productivity/score', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const productivity = loadProductivity();
+        const actions = loadEmailActions();
+        const goals = loadGoals();
+
+        // Calculate metrics
+        const today = new Date().toISOString().split('T')[0];
+
+        // Emails processed today
+        const todayActions = (actions.recentActions || []).filter(a =>
+            a.timestamp?.startsWith(today)
+        ).length;
+
+        // Unread count
+        const unreadStats = db.prepare(`
+            SELECT COUNT(*) as unread
+            FROM messages
+            WHERE read = 0 AND deleted = 0
+            AND date_received > strftime('%s', 'now', '-7 days')
+        `).get();
+
+        // Response time (avg hours to action)
+        const avgResponseTime = db.prepare(`
+            SELECT AVG((strftime('%s', 'now') - date_received) / 3600) as avg_hours
+            FROM messages
+            WHERE read = 0 AND deleted = 0
+            AND date_received > strftime('%s', 'now', '-7 days')
+        `).get();
+
+        db.close();
+
+        // Goals completed today
+        const todayGoals = goals.goals?.filter(g => g.date === today) || [];
+        const goalsCompleted = todayGoals.filter(g => g.completed).length;
+        const goalsTotal = todayGoals.length;
+
+        // Calculate score (0-100)
+        let score = 50; // Base score
+
+        // Inbox management (+/- 20)
+        if (unreadStats.unread < 10) score += 20;
+        else if (unreadStats.unread < 25) score += 10;
+        else if (unreadStats.unread > 100) score -= 20;
+        else if (unreadStats.unread > 50) score -= 10;
+
+        // Actions taken (+15)
+        if (todayActions > 20) score += 15;
+        else if (todayActions > 10) score += 10;
+        else if (todayActions > 5) score += 5;
+
+        // Goals (+15)
+        if (goalsTotal > 0) {
+            score += Math.round((goalsCompleted / goalsTotal) * 15);
+        }
+
+        // Response time (+/- 10)
+        const avgHours = avgResponseTime.avg_hours || 0;
+        if (avgHours < 4) score += 10;
+        else if (avgHours < 12) score += 5;
+        else if (avgHours > 48) score -= 10;
+
+        // Check for inbox zero
+        const isInboxZero = unreadStats.unread === 0;
+        if (isInboxZero) {
+            if (!productivity.lastInboxZero || productivity.lastInboxZero !== today) {
+                productivity.inboxZeroStreak++;
+                productivity.lastInboxZero = today;
+                saveProductivity(productivity);
+            }
+            score += 10;
+        }
+
+        // Clamp score
+        score = Math.max(0, Math.min(100, score));
+
+        // Determine grade
+        let grade = 'C';
+        if (score >= 90) grade = 'A+';
+        else if (score >= 80) grade = 'A';
+        else if (score >= 70) grade = 'B';
+        else if (score >= 60) grade = 'B-';
+        else if (score >= 50) grade = 'C';
+        else if (score >= 40) grade = 'C-';
+        else grade = 'D';
+
+        res.json({
+            success: true,
+            score,
+            grade,
+            metrics: {
+                unreadEmails: unreadStats.unread,
+                actionsToday: todayActions,
+                goalsCompleted,
+                goalsTotal,
+                avgResponseHours: Math.round(avgHours),
+                inboxZeroStreak: productivity.inboxZeroStreak,
+                isInboxZero
+            },
+            tips: generateProductivityTips(score, unreadStats.unread, todayActions, avgHours)
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function generateProductivityTips(score, unread, actions, avgHours) {
+    const tips = [];
+
+    if (unread > 50) {
+        tips.push({ type: 'warning', text: 'High unread count. Consider batch processing or creating more rules.' });
+    }
+    if (actions < 5) {
+        tips.push({ type: 'suggestion', text: 'Process at least 10 emails to boost your score.' });
+    }
+    if (avgHours > 24) {
+        tips.push({ type: 'warning', text: 'Some emails waiting 24+ hours. Check for buried priorities.' });
+    }
+    if (score >= 80) {
+        tips.push({ type: 'success', text: 'Excellent email management! Keep it up.' });
+    }
+
+    return tips;
+}
+
+// ============ WEEKLY REPORT ============
+
+app.get('/api/report/weekly', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const actions = loadEmailActions();
+        const goals = loadGoals();
+        const hours = loadHours();
+
+        // This week's stats
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - 7);
+        const weekStartStr = weekStart.toISOString().split('T')[0];
+
+        // Email stats
+        const emailStats = db.prepare(`
+            SELECT
+                COUNT(*) as received,
+                SUM(CASE WHEN read = 1 THEN 1 ELSE 0 END) as read_count,
+                SUM(CASE WHEN deleted = 1 THEN 1 ELSE 0 END) as deleted
+            FROM messages
+            WHERE date_received > strftime('%s', 'now', '-7 days')
+        `).get();
+
+        // Top senders
+        const topSenders = db.prepare(`
+            SELECT a.address, COUNT(*) as count
+            FROM messages m
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.date_received > strftime('%s', 'now', '-7 days')
+            AND m.deleted = 0
+            GROUP BY a.address
+            ORDER BY count DESC
+            LIMIT 5
+        `).all();
+
+        db.close();
+
+        // Actions this week
+        const weekActions = (actions.recentActions || []).filter(a =>
+            a.timestamp >= weekStartStr
+        );
+        const actionCounts = {};
+        weekActions.forEach(a => {
+            actionCounts[a.action] = (actionCounts[a.action] || 0) + 1;
+        });
+
+        // Goals this week
+        const weekGoals = (goals.goals || []).filter(g => g.date >= weekStartStr);
+        const goalsCompleted = weekGoals.filter(g => g.completed).length;
+
+        // Hours this week
+        const weekHours = (hours.entries || [])
+            .filter(e => e.date >= weekStartStr)
+            .reduce((sum, e) => sum + e.minutes, 0);
+
+        // Build report
+        const report = {
+            period: `${weekStart.toLocaleDateString()} - ${new Date().toLocaleDateString()}`,
+            summary: {
+                emailsReceived: emailStats.received,
+                emailsRead: emailStats.read_count,
+                readRate: Math.round((emailStats.read_count / emailStats.received) * 100) || 0,
+                actionsTotal: weekActions.length,
+                goalsSet: weekGoals.length,
+                goalsCompleted,
+                hoursLogged: Math.round(weekHours / 60 * 10) / 10
+            },
+            actionBreakdown: actionCounts,
+            topSenders: topSenders.map(s => ({
+                sender: extractBrandName(s.address),
+                email: s.address,
+                count: s.count
+            })),
+            highlights: [],
+            areasToImprove: []
+        };
+
+        // Generate highlights
+        if (report.summary.readRate > 70) {
+            report.highlights.push('Great read rate - staying on top of inbox');
+        }
+        if (goalsCompleted >= weekGoals.length * 0.8 && weekGoals.length > 0) {
+            report.highlights.push(`Completed ${goalsCompleted}/${weekGoals.length} goals`);
+        }
+        if (actionCounts.archive > 20) {
+            report.highlights.push('Active inbox management with archiving');
+        }
+
+        // Areas to improve
+        if (report.summary.readRate < 50) {
+            report.areasToImprove.push('Low read rate - consider more aggressive filtering');
+        }
+        if (weekGoals.length === 0) {
+            report.areasToImprove.push('No goals set - try setting daily priorities');
+        }
+
+        res.json({ success: true, report });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Generate email report (could be sent via email)
+app.post('/api/report/send', async (req, res) => {
+    try {
+        // Get weekly report
+        const reportRes = await fetch(`http://localhost:${PORT}/api/report/weekly`);
+        const reportData = await reportRes.json();
+
+        if (!reportData.success) {
+            return res.status(500).json({ success: false, error: 'Could not generate report' });
+        }
+
+        const report = reportData.report;
+
+        // Format as text for email/notification
+        const reportText = `
+Felix Weekly Report
+${report.period}
+
+📊 SUMMARY
+• Emails received: ${report.summary.emailsReceived}
+• Read rate: ${report.summary.readRate}%
+• Actions taken: ${report.summary.actionsTotal}
+• Goals completed: ${report.summary.goalsCompleted}/${report.summary.goalsSet}
+• Hours logged: ${report.summary.hoursLogged}h
+
+🏆 HIGHLIGHTS
+${report.highlights.map(h => '• ' + h).join('\n') || '• Keep working on your email habits!'}
+
+📈 AREAS TO IMPROVE
+${report.areasToImprove.map(a => '• ' + a).join('\n') || '• Doing great!'}
+
+Top Senders: ${report.topSenders.slice(0, 3).map(s => s.sender).join(', ')}
+        `.trim();
+
+        res.json({
+            success: true,
+            reportText,
+            message: 'Report generated. Copy to share or view in dashboard.'
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ TIME BLOCKING ============
+
+app.get('/api/timeblocking/suggestions', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Analyze email workload
+        const pendingEmails = db.prepare(`
+            SELECT COUNT(*) as count,
+                   SUM(CASE WHEN s.subject LIKE '%urgent%' OR s.subject LIKE '%asap%' THEN 1 ELSE 0 END) as urgent
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            WHERE m.read = 0 AND m.deleted = 0
+            AND m.date_received > strftime('%s', 'now', '-7 days')
+        `).get();
+
+        // Get current calendar to find free slots
+        const calendarScript = `
+            set today to current date
+            set endOfDay to today + (1 * days)
+            set busySlots to ""
+            tell application "Calendar"
+                repeat with cal in calendars
+                    try
+                        set evts to (every event of cal whose start date >= today and start date <= endOfDay)
+                        repeat with evt in evts
+                            set busySlots to busySlots & (start date of evt as string) & "|||" & (end date of evt as string) & "\\n"
+                        end repeat
+                    end try
+                end repeat
+            end tell
+            return busySlots
+        `;
+
+        db.close();
+
+        const busyResult = runAppleScript(calendarScript);
+        const busySlots = busyResult.split('\n').filter(l => l.trim()).map(line => {
+            const [start, end] = line.split('|||');
+            return { start: new Date(start), end: new Date(end) };
+        });
+
+        // Calculate suggested blocks
+        const suggestions = [];
+        const now = new Date();
+        const endOfDay = new Date(now);
+        endOfDay.setHours(18, 0, 0, 0);
+
+        // Email processing block
+        if (pendingEmails.count > 20) {
+            suggestions.push({
+                type: 'email_processing',
+                title: 'Email Processing',
+                duration: 60,
+                reason: `${pendingEmails.count} unread emails need attention`,
+                priority: pendingEmails.urgent > 0 ? 'high' : 'medium',
+                suggestedTime: findNextFreeSlot(now, busySlots, 60)
+            });
+        } else if (pendingEmails.count > 0) {
+            suggestions.push({
+                type: 'email_processing',
+                title: 'Quick Email Check',
+                duration: 30,
+                reason: `${pendingEmails.count} emails to review`,
+                priority: 'low',
+                suggestedTime: findNextFreeSlot(now, busySlots, 30)
+            });
+        }
+
+        // Focus time block
+        suggestions.push({
+            type: 'focus_time',
+            title: 'Deep Work Block',
+            duration: 90,
+            reason: 'Protected time for important tasks',
+            priority: 'high',
+            suggestedTime: findNextFreeSlot(now, busySlots, 90)
+        });
+
+        // End of day review
+        const reviewTime = new Date(now);
+        reviewTime.setHours(17, 0, 0, 0);
+        if (now < reviewTime) {
+            suggestions.push({
+                type: 'review',
+                title: 'Daily Review',
+                duration: 15,
+                reason: 'Review progress and plan tomorrow',
+                priority: 'medium',
+                suggestedTime: reviewTime.toISOString()
+            });
+        }
+
+        res.json({
+            success: true,
+            suggestions,
+            workload: {
+                pendingEmails: pendingEmails.count,
+                urgentEmails: pendingEmails.urgent,
+                recommendedEmailTime: pendingEmails.count > 30 ? '1.5 hours' : pendingEmails.count > 10 ? '45 min' : '20 min'
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function findNextFreeSlot(startFrom, busySlots, durationMinutes) {
+    let candidate = new Date(startFrom);
+    candidate.setMinutes(Math.ceil(candidate.getMinutes() / 15) * 15); // Round to 15 min
+
+    const endOfDay = new Date(candidate);
+    endOfDay.setHours(18, 0, 0, 0);
+
+    while (candidate < endOfDay) {
+        const candidateEnd = new Date(candidate.getTime() + durationMinutes * 60000);
+
+        const conflict = busySlots.some(slot =>
+            (candidate >= slot.start && candidate < slot.end) ||
+            (candidateEnd > slot.start && candidateEnd <= slot.end)
+        );
+
+        if (!conflict) {
+            return candidate.toISOString();
+        }
+
+        candidate = new Date(candidate.getTime() + 15 * 60000); // Try 15 min later
+    }
+
+    return null; // No slot found today
+}
+
+// Create time block in calendar
+app.post('/api/timeblocking/create', (req, res) => {
+    try {
+        const { title, startTime, duration, calendar = '' } = req.body;
+
+        const start = new Date(startTime);
+        const end = new Date(start.getTime() + duration * 60000);
+
+        const script = `
+            set eventTitle to "${title.replace(/"/g, '\\"')}"
+            set startDate to date "${start.toLocaleString('en-US')}"
+            set endDate to date "${end.toLocaleString('en-US')}"
+
+            tell application "Calendar"
+                tell calendar "${calendar || 'Calendar'}"
+                    make new event with properties {summary:eventTitle, start date:startDate, end date:endDate}
+                end tell
+            end tell
+            return "success"
+        `;
+
+        const result = runAppleScript(script);
+
+        res.json({
+            success: result.includes('success'),
+            message: `Time block "${title}" created`
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ NOTION INTEGRATION ============
+
+const NOTION_FILE = path.join(__dirname, 'notion-config.json');
+
+function loadNotionConfig() {
+    try {
+        if (fs.existsSync(NOTION_FILE)) {
+            return JSON.parse(fs.readFileSync(NOTION_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { token: null, databaseId: null, connected: false };
+}
+
+function saveNotionConfig(config) {
+    fs.writeFileSync(NOTION_FILE, JSON.stringify(config, null, 2));
+}
+
+app.get('/api/notion/status', (req, res) => {
+    const config = loadNotionConfig();
+    res.json({ success: true, connected: config.connected });
+});
+
+app.post('/api/notion/connect', (req, res) => {
+    try {
+        const { token, databaseId } = req.body;
+        const config = { token, databaseId, connected: true, connectedAt: new Date().toISOString() };
+        saveNotionConfig(config);
+        res.json({ success: true, message: 'Notion connected' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/notion/create-task', async (req, res) => {
+    try {
+        const config = loadNotionConfig();
+        if (!config.token || !config.databaseId) {
+            return res.json({ success: false, error: 'Notion not configured' });
+        }
+
+        const { title, emailSubject, emailSender, dueDate, priority = 'Medium' } = req.body;
+
+        const data = JSON.stringify({
+            parent: { database_id: config.databaseId },
+            properties: {
+                Name: { title: [{ text: { content: title } }] },
+                'Email Subject': { rich_text: [{ text: { content: emailSubject || '' } }] },
+                'From': { rich_text: [{ text: { content: emailSender || '' } }] },
+                'Priority': { select: { name: priority } },
+                'Due Date': dueDate ? { date: { start: dueDate } } : undefined,
+                'Source': { select: { name: 'Felix' } }
+            }
+        });
+
+        const options = {
+            hostname: 'api.notion.com',
+            port: 443,
+            path: '/v1/pages',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.token}`,
+                'Notion-Version': '2022-06-28',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const notionReq = https.request(options, (notionRes) => {
+            let body = '';
+            notionRes.on('data', chunk => body += chunk);
+            notionRes.on('end', () => {
+                const response = JSON.parse(body);
+                if (response.id) {
+                    res.json({ success: true, pageId: response.id, url: response.url });
+                } else {
+                    res.json({ success: false, error: response.message || 'Failed to create' });
+                }
+            });
+        });
+
+        notionReq.on('error', (e) => {
+            res.status(500).json({ success: false, error: e.message });
+        });
+
+        notionReq.write(data);
+        notionReq.end();
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ LINEAR INTEGRATION ============
+
+const LINEAR_FILE = path.join(__dirname, 'linear-config.json');
+
+function loadLinearConfig() {
+    try {
+        if (fs.existsSync(LINEAR_FILE)) {
+            return JSON.parse(fs.readFileSync(LINEAR_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { token: null, teamId: null, connected: false };
+}
+
+function saveLinearConfig(config) {
+    fs.writeFileSync(LINEAR_FILE, JSON.stringify(config, null, 2));
+}
+
+app.get('/api/linear/status', (req, res) => {
+    const config = loadLinearConfig();
+    res.json({ success: true, connected: config.connected });
+});
+
+app.post('/api/linear/connect', (req, res) => {
+    try {
+        const { token, teamId } = req.body;
+        const config = { token, teamId, connected: true, connectedAt: new Date().toISOString() };
+        saveLinearConfig(config);
+        res.json({ success: true, message: 'Linear connected' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/linear/create-issue', async (req, res) => {
+    try {
+        const config = loadLinearConfig();
+        if (!config.token || !config.teamId) {
+            return res.json({ success: false, error: 'Linear not configured' });
+        }
+
+        const { title, description, priority = 3 } = req.body;
+
+        const query = `
+            mutation CreateIssue($title: String!, $description: String, $teamId: String!, $priority: Int) {
+                issueCreate(input: { title: $title, description: $description, teamId: $teamId, priority: $priority }) {
+                    success
+                    issue { id identifier url title }
+                }
+            }
+        `;
+
+        const data = JSON.stringify({
+            query,
+            variables: { title, description, teamId: config.teamId, priority }
+        });
+
+        const options = {
+            hostname: 'api.linear.app',
+            port: 443,
+            path: '/graphql',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': config.token,
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const linearReq = https.request(options, (linearRes) => {
+            let body = '';
+            linearRes.on('data', chunk => body += chunk);
+            linearRes.on('end', () => {
+                const response = JSON.parse(body);
+                if (response.data?.issueCreate?.success) {
+                    const issue = response.data.issueCreate.issue;
+                    res.json({ success: true, issue });
+                } else {
+                    res.json({ success: false, error: response.errors?.[0]?.message || 'Failed' });
+                }
+            });
+        });
+
+        linearReq.on('error', (e) => {
+            res.status(500).json({ success: false, error: e.message });
+        });
+
+        linearReq.write(data);
+        linearReq.end();
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ GITHUB ISSUES ============
+
+app.post('/api/github/create-issue', async (req, res) => {
+    try {
+        const { repo, title, body, labels = [] } = req.body;
+        const token = process.env.GITHUB_TOKEN;
+
+        if (!token) {
+            return res.json({ success: false, error: 'GITHUB_TOKEN not set' });
+        }
+
+        const data = JSON.stringify({ title, body, labels });
+
+        const [owner, repoName] = repo.split('/');
+
+        const options = {
+            hostname: 'api.github.com',
+            port: 443,
+            path: `/repos/${owner}/${repoName}/issues`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'User-Agent': 'Felix-Dashboard',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const ghReq = https.request(options, (ghRes) => {
+            let body = '';
+            ghRes.on('data', chunk => body += chunk);
+            ghRes.on('end', () => {
+                const response = JSON.parse(body);
+                if (response.id) {
+                    res.json({ success: true, issue: { id: response.id, number: response.number, url: response.html_url } });
+                } else {
+                    res.json({ success: false, error: response.message || 'Failed' });
+                }
+            });
+        });
+
+        ghReq.on('error', (e) => {
+            res.status(500).json({ success: false, error: e.message });
+        });
+
+        ghReq.write(data);
+        ghReq.end();
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ ZAPIER WEBHOOKS ============
+
+const WEBHOOKS_FILE = path.join(__dirname, 'webhooks-config.json');
+
+function loadWebhooks() {
+    try {
+        if (fs.existsSync(WEBHOOKS_FILE)) {
+            return JSON.parse(fs.readFileSync(WEBHOOKS_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { webhooks: [] };
+}
+
+function saveWebhooks(data) {
+    fs.writeFileSync(WEBHOOKS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/webhooks', (req, res) => {
+    const data = loadWebhooks();
+    res.json({ success: true, webhooks: data.webhooks });
+});
+
+app.post('/api/webhooks', (req, res) => {
+    try {
+        const { name, url, trigger, enabled = true } = req.body;
+        const data = loadWebhooks();
+
+        const webhook = {
+            id: Date.now(),
+            name,
+            url,
+            trigger, // 'email_received', 'email_action', 'goal_completed', 'inbox_zero'
+            enabled,
+            createdAt: new Date().toISOString()
+        };
+
+        data.webhooks.push(webhook);
+        saveWebhooks(data);
+
+        res.json({ success: true, webhook });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/webhooks/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const data = loadWebhooks();
+        data.webhooks = data.webhooks.filter(w => w.id !== id);
+        saveWebhooks(data);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Trigger webhooks
+async function triggerWebhooks(triggerType, payload) {
+    const data = loadWebhooks();
+    const webhooks = data.webhooks.filter(w => w.enabled && w.trigger === triggerType);
+
+    for (const webhook of webhooks) {
+        try {
+            const url = new URL(webhook.url);
+            const postData = JSON.stringify({
+                trigger: triggerType,
+                timestamp: new Date().toISOString(),
+                ...payload
+            });
+
+            const options = {
+                hostname: url.hostname,
+                port: url.port || 443,
+                path: url.pathname + url.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            };
+
+            const req = https.request(options);
+            req.write(postData);
+            req.end();
+        } catch (e) {
+            console.error(`Webhook ${webhook.name} failed:`, e.message);
+        }
+    }
+}
+
+// Test webhook
+app.post('/api/webhooks/:id/test', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const data = loadWebhooks();
+        const webhook = data.webhooks.find(w => w.id === id);
+
+        if (!webhook) {
+            return res.status(404).json({ success: false, error: 'Webhook not found' });
+        }
+
+        await triggerWebhooks(webhook.trigger, { test: true, webhookId: id });
+        res.json({ success: true, message: 'Test webhook sent' });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
@@ -2658,7 +3471,7 @@ app.listen(PORT, () => {
 ║     FELIX — Your Chief of Staff                       ║
 ║     Dashboard running at http://localhost:${PORT}       ║
 ║                                                       ║
-║     Features: AI Replies, Slack, PWA, Shortcuts       ║
+║     All features enabled: AI, Slack, Notion, Linear   ║
 ║     Press Ctrl+C to stop                              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝

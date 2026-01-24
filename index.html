@@ -2395,6 +2395,279 @@
             cursor: grabbing;
         }
 
+        /* Productivity Score */
+        .productivity-widget {
+            background: linear-gradient(135deg, var(--accent-warm-dim) 0%, rgba(74, 154, 74, 0.08) 100%);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            margin: 0 auto 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-neumorphic);
+        }
+
+        .score-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--accent-warm);
+        }
+
+        .score-grade {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .score-metrics {
+            display: flex;
+            justify-content: space-around;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .score-metric {
+            text-align: center;
+        }
+
+        .score-metric-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--accent-success);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* Weekly Report */
+        .report-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .report-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+
+        .report-highlights {
+            margin-top: 16px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(74, 154, 74, 0.1);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--accent-success);
+        }
+
+        .improve-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(196, 146, 42, 0.1);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--accent-warning);
+        }
+
+        /* Time Blocking */
+        .timeblock-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .timeblock-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+        }
+
+        .timeblock-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .timeblock-icon.email { background: rgba(196, 90, 90, 0.15); }
+        .timeblock-icon.focus { background: rgba(74, 122, 154, 0.15); }
+        .timeblock-icon.review { background: rgba(74, 154, 74, 0.15); }
+
+        .timeblock-info {
+            flex: 1;
+        }
+
+        .timeblock-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .timeblock-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .timeblock-time {
+            font-size: 12px;
+            color: var(--accent-info);
+            font-weight: 500;
+        }
+
+        .timeblock-add {
+            padding: 6px 12px;
+            background: var(--accent-warm);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* Integrations Panel */
+        .integrations-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .integration-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .integration-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .integration-info {
+            flex: 1;
+        }
+
+        .integration-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .integration-status {
+            font-size: 11px;
+        }
+
+        .integration-status.connected {
+            color: var(--accent-success);
+        }
+
+        .integration-status.disconnected {
+            color: var(--text-muted);
+        }
+
+        .integration-btn {
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .integration-btn.connect {
+            background: var(--accent-warm);
+            color: white;
+        }
+
+        .integration-btn.settings {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+        }
+
+        /* Webhooks */
+        .webhook-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .webhook-trigger {
+            padding: 2px 8px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
         /* Install PWA button */
         .install-pwa {
             display: none;
@@ -2684,6 +2957,32 @@
                         <h4>Focus Mode</h4>
                         <span>Show only top 3 priorities</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Productivity Score -->
+            <div class="productivity-widget" id="productivity-widget">
+                <div class="score-circle">
+                    <div class="score-value" id="prod-score">--</div>
+                    <div class="score-grade" id="prod-grade">-</div>
+                </div>
+                <div class="score-label">Productivity Score</div>
+                <div class="score-metrics">
+                    <div class="score-metric">
+                        <div class="score-metric-value" id="prod-unread">--</div>
+                        <div>Unread</div>
+                    </div>
+                    <div class="score-metric">
+                        <div class="score-metric-value" id="prod-actions">--</div>
+                        <div>Actions</div>
+                    </div>
+                    <div class="score-metric">
+                        <div class="score-metric-value" id="prod-goals">--</div>
+                        <div>Goals</div>
+                    </div>
+                </div>
+                <div id="inbox-zero-streak" style="display: none;">
+                    <span class="streak-badge">🔥 <span id="streak-count">0</span> day streak!</span>
                 </div>
             </div>
 
@@ -3016,6 +3315,81 @@
                 </div>
                 <div id="snoozed-list"></div>
             </section>
+
+            <!-- Time Blocking -->
+            <section class="timeblock-section" id="timeblock-section" style="display: none;">
+                <div class="files-header">
+                    <h3 class="section-title">Suggested Time Blocks</h3>
+                    <span id="timeblock-workload" style="font-size: 11px; color: var(--text-muted);"></span>
+                </div>
+                <div id="timeblock-list"></div>
+            </section>
+
+            <!-- Weekly Report -->
+            <section class="report-section" id="report-section" style="display: none;">
+                <div class="files-header">
+                    <h3 class="section-title">Weekly Report</h3>
+                    <button class="refresh-btn" onclick="shareWeeklyReport()" title="Share Report">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                            <polyline points="16 6 12 2 8 6"/>
+                            <line x1="12" y1="2" x2="12" y2="15"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="report-summary" id="report-summary">
+                    <div class="report-stat">
+                        <div class="digest-stat-value" id="report-emails">--</div>
+                        <div class="digest-stat-label">Emails</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="digest-stat-value" id="report-actions">--</div>
+                        <div class="digest-stat-label">Actions</div>
+                    </div>
+                    <div class="report-stat">
+                        <div class="digest-stat-value" id="report-goals">--</div>
+                        <div class="digest-stat-label">Goals Done</div>
+                    </div>
+                </div>
+                <div class="report-highlights" id="report-highlights"></div>
+            </section>
+
+            <!-- Integrations -->
+            <section class="integrations-section" id="integrations-section">
+                <h3 class="section-title">Integrations</h3>
+                <div class="integration-item">
+                    <div class="integration-icon" style="background: #000;">📝</div>
+                    <div class="integration-info">
+                        <div class="integration-name">Notion</div>
+                        <div class="integration-status disconnected" id="notion-status">Not connected</div>
+                    </div>
+                    <button class="integration-btn connect" onclick="connectNotion()">Connect</button>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-icon" style="background: #5E6AD2;">📊</div>
+                    <div class="integration-info">
+                        <div class="integration-name">Linear</div>
+                        <div class="integration-status disconnected" id="linear-status">Not connected</div>
+                    </div>
+                    <button class="integration-btn connect" onclick="connectLinear()">Connect</button>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-icon" style="background: #24292e;">🐙</div>
+                    <div class="integration-info">
+                        <div class="integration-name">GitHub Issues</div>
+                        <div class="integration-status" id="github-status">Via GITHUB_TOKEN</div>
+                    </div>
+                    <button class="integration-btn settings" onclick="showGitHubHelp()">Setup</button>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-icon" style="background: #FF4A00;">⚡</div>
+                    <div class="integration-info">
+                        <div class="integration-name">Webhooks / Zapier</div>
+                        <div class="integration-status" id="webhook-count">0 webhooks</div>
+                    </div>
+                    <button class="integration-btn connect" onclick="showWebhooksModal()">Manage</button>
+                </div>
+            </section>
         </main>
 
         <!-- Chat Panel -->
@@ -3082,11 +3456,13 @@
                     <polyline points="9 17 4 12 9 7"/>
                     <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
                 </svg>
-                Reply with AI
+                Reply
             </button>
             <button class="preview-action-btn" onclick="archivePreviewEmail()">Archive</button>
-            <button class="preview-action-btn" onclick="deletePreviewEmail()">Delete</button>
             <button class="preview-action-btn" onclick="snoozePreviewEmail()">Snooze</button>
+            <button class="preview-action-btn" onclick="createTaskFromPreview()" style="background: var(--accent-info); color: white;">
+                → Task
+            </button>
         </div>
         <div class="preview-body" id="preview-body">
             Loading email content...
@@ -3126,6 +3502,140 @@
         <div class="ai-draft-actions">
             <button class="secondary" onclick="regenerateAIDraft()">Regenerate</button>
             <button class="primary" onclick="copyAIDraft()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <!-- Notion Connect Modal -->
+    <div class="modal-overlay" id="notion-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Connect Notion</h3>
+                <button class="modal-close" onclick="closeNotionModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Create tasks in Notion from emails. You'll need an integration token and database ID.
+                </p>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">Integration Token</label>
+                    <input type="password" id="notion-token" placeholder="secret_..."
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-muted);">Database ID</label>
+                    <input type="text" id="notion-database" placeholder="abc123..."
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px;">
+                    Get these from notion.so/my-integrations
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeNotionModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveNotionConfig()">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Linear Connect Modal -->
+    <div class="modal-overlay" id="linear-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Connect Linear</h3>
+                <button class="modal-close" onclick="closeLinearModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Create issues in Linear from emails.
+                </p>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">API Key</label>
+                    <input type="password" id="linear-token" placeholder="lin_api_..."
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-muted);">Team ID</label>
+                    <input type="text" id="linear-team" placeholder="abc-123..."
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px;">
+                    Get these from linear.app/settings/api
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeLinearModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveLinearConfig()">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Webhooks Modal -->
+    <div class="modal-overlay" id="webhooks-modal">
+        <div class="modal" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3>Webhooks / Zapier</h3>
+                <button class="modal-close" onclick="closeWebhooksModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Connect Felix to 5000+ apps via webhooks. Great for Zapier, Make, or n8n.
+                </p>
+                <div id="webhooks-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 16px;"></div>
+                <div style="border-top: var(--border-subtle); padding-top: 16px;">
+                    <h4 style="font-size: 12px; margin-bottom: 12px;">Add New Webhook</h4>
+                    <input type="text" id="webhook-name" placeholder="Webhook name"
+                           style="width: 100%; padding: 10px; margin-bottom: 8px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                    <input type="url" id="webhook-url" placeholder="https://hooks.zapier.com/..."
+                           style="width: 100%; padding: 10px; margin-bottom: 8px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                    <select id="webhook-trigger"
+                            style="width: 100%; padding: 10px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                        <option value="email_action">When email is archived/deleted/starred</option>
+                        <option value="goal_completed">When goal is completed</option>
+                        <option value="inbox_zero">When inbox zero achieved</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeWebhooksModal()">Close</button>
+                <button class="modal-btn primary" onclick="addWebhook()">Add Webhook</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal (for integrations) -->
+    <div class="modal-overlay" id="create-task-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create Task from Email</h3>
+                <button class="modal-close" onclick="closeCreateTaskModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">Task Title</label>
+                    <input type="text" id="task-title"
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">Send To</label>
+                    <select id="task-destination"
+                            style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                        <option value="notion">Notion</option>
+                        <option value="linear">Linear</option>
+                        <option value="github">GitHub Issue</option>
+                    </select>
+                </div>
+                <div id="github-repo-field" style="display: none; margin-bottom: 12px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">GitHub Repo (owner/repo)</label>
+                    <input type="text" id="task-repo" placeholder="hammy15/my-project"
+                           style="width: 100%; padding: 10px; margin-top: 4px; border: var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <input type="hidden" id="task-email-subject">
+                <input type="hidden" id="task-email-sender">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeCreateTaskModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="createTaskFromEmail()">Create Task</button>
+            </div>
         </div>
     </div>
 
@@ -5541,6 +6051,414 @@
             }
         }
 
+        // ============ PRODUCTIVITY SCORE ============
+
+        async function loadProductivityScore() {
+            try {
+                const res = await fetch(`${API_BASE}/productivity/score`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('prod-score').textContent = data.score;
+                    document.getElementById('prod-grade').textContent = data.grade;
+                    document.getElementById('prod-unread').textContent = data.metrics.unreadEmails;
+                    document.getElementById('prod-actions').textContent = data.metrics.actionsToday;
+                    document.getElementById('prod-goals').textContent = `${data.metrics.goalsCompleted}/${data.metrics.goalsTotal}`;
+
+                    if (data.metrics.inboxZeroStreak > 0) {
+                        document.getElementById('inbox-zero-streak').style.display = 'block';
+                        document.getElementById('streak-count').textContent = data.metrics.inboxZeroStreak;
+                    }
+
+                    // Show tips in chat
+                    if (data.tips && data.tips.length > 0) {
+                        data.tips.forEach(tip => {
+                            if (tip.type === 'success') {
+                                addMessage(`🏆 ${tip.text}`, false);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load productivity:', e);
+            }
+        }
+
+        // ============ WEEKLY REPORT ============
+
+        async function loadWeeklyReport() {
+            try {
+                const res = await fetch(`${API_BASE}/report/weekly`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('report-section').style.display = 'block';
+                    const r = data.report.summary;
+
+                    document.getElementById('report-emails').textContent = r.emailsReceived;
+                    document.getElementById('report-actions').textContent = r.actionsTotal;
+                    document.getElementById('report-goals').textContent = r.goalsCompleted;
+
+                    const highlightsContainer = document.getElementById('report-highlights');
+                    highlightsContainer.innerHTML = '';
+
+                    data.report.highlights.forEach(h => {
+                        highlightsContainer.innerHTML += `<div class="highlight-item">✓ ${h}</div>`;
+                    });
+
+                    data.report.areasToImprove.forEach(a => {
+                        highlightsContainer.innerHTML += `<div class="improve-item">↗ ${a}</div>`;
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load weekly report:', e);
+            }
+        }
+
+        async function shareWeeklyReport() {
+            try {
+                const res = await fetch(`${API_BASE}/report/send`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    await navigator.clipboard.writeText(data.reportText);
+                    addMessage('Weekly report copied to clipboard!', false);
+                }
+            } catch (e) {
+                console.error('Failed to share report:', e);
+            }
+        }
+
+        // ============ TIME BLOCKING ============
+
+        async function loadTimeBlocking() {
+            try {
+                const res = await fetch(`${API_BASE}/timeblocking/suggestions`);
+                const data = await res.json();
+
+                if (data.success && data.suggestions.length > 0) {
+                    document.getElementById('timeblock-section').style.display = 'block';
+                    document.getElementById('timeblock-workload').textContent =
+                        `${data.workload.recommendedEmailTime} for emails`;
+                    renderTimeBlocks(data.suggestions);
+                }
+            } catch (e) {
+                console.error('Failed to load time blocking:', e);
+            }
+        }
+
+        function renderTimeBlocks(suggestions) {
+            const container = document.getElementById('timeblock-list');
+            const icons = {
+                'email_processing': '📧',
+                'focus_time': '🎯',
+                'review': '📋'
+            };
+
+            container.innerHTML = suggestions.map(s => {
+                const time = s.suggestedTime ? new Date(s.suggestedTime).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit'
+                }) : 'No slot found';
+
+                return `
+                    <div class="timeblock-item">
+                        <div class="timeblock-icon ${s.type}">${icons[s.type] || '📅'}</div>
+                        <div class="timeblock-info">
+                            <div class="timeblock-title">${escapeHtml(s.title)}</div>
+                            <div class="timeblock-meta">${s.duration} min · ${s.reason}</div>
+                        </div>
+                        <div class="timeblock-time">${time}</div>
+                        ${s.suggestedTime ? `<button class="timeblock-add" onclick="addTimeBlock('${escapeHtml(s.title)}', '${s.suggestedTime}', ${s.duration})">Add</button>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function addTimeBlock(title, startTime, duration) {
+            try {
+                const res = await fetch(`${API_BASE}/timeblocking/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, startTime, duration })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    addMessage(`Time block "${title}" added to your calendar!`, false);
+                    loadCalendar();
+                }
+            } catch (e) {
+                console.error('Failed to add time block:', e);
+            }
+        }
+
+        // ============ INTEGRATIONS ============
+
+        async function checkIntegrations() {
+            // Check Notion
+            try {
+                const notionRes = await fetch(`${API_BASE}/notion/status`);
+                const notionData = await notionRes.json();
+                const notionStatus = document.getElementById('notion-status');
+                if (notionData.connected) {
+                    notionStatus.textContent = 'Connected';
+                    notionStatus.classList.remove('disconnected');
+                    notionStatus.classList.add('connected');
+                }
+            } catch (e) {}
+
+            // Check Linear
+            try {
+                const linearRes = await fetch(`${API_BASE}/linear/status`);
+                const linearData = await linearRes.json();
+                const linearStatus = document.getElementById('linear-status');
+                if (linearData.connected) {
+                    linearStatus.textContent = 'Connected';
+                    linearStatus.classList.remove('disconnected');
+                    linearStatus.classList.add('connected');
+                }
+            } catch (e) {}
+
+            // Check webhooks count
+            try {
+                const whRes = await fetch(`${API_BASE}/webhooks`);
+                const whData = await whRes.json();
+                document.getElementById('webhook-count').textContent =
+                    `${whData.webhooks?.length || 0} webhooks`;
+            } catch (e) {}
+        }
+
+        // Notion
+        function connectNotion() {
+            document.getElementById('notion-modal').classList.add('show');
+        }
+
+        function closeNotionModal() {
+            document.getElementById('notion-modal').classList.remove('show');
+        }
+
+        async function saveNotionConfig() {
+            const token = document.getElementById('notion-token').value.trim();
+            const databaseId = document.getElementById('notion-database').value.trim();
+
+            if (!token || !databaseId) {
+                addMessage('Please enter both token and database ID.', false);
+                return;
+            }
+
+            try {
+                await fetch(`${API_BASE}/notion/connect`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, databaseId })
+                });
+
+                closeNotionModal();
+                addMessage('Notion connected! You can now create tasks from emails.', false);
+                checkIntegrations();
+            } catch (e) {
+                console.error('Failed to connect Notion:', e);
+            }
+        }
+
+        // Linear
+        function connectLinear() {
+            document.getElementById('linear-modal').classList.add('show');
+        }
+
+        function closeLinearModal() {
+            document.getElementById('linear-modal').classList.remove('show');
+        }
+
+        async function saveLinearConfig() {
+            const token = document.getElementById('linear-token').value.trim();
+            const teamId = document.getElementById('linear-team').value.trim();
+
+            if (!token || !teamId) {
+                addMessage('Please enter both API key and team ID.', false);
+                return;
+            }
+
+            try {
+                await fetch(`${API_BASE}/linear/connect`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, teamId })
+                });
+
+                closeLinearModal();
+                addMessage('Linear connected! You can now create issues from emails.', false);
+                checkIntegrations();
+            } catch (e) {
+                console.error('Failed to connect Linear:', e);
+            }
+        }
+
+        // GitHub
+        function showGitHubHelp() {
+            addMessage('To use GitHub Issues, set GITHUB_TOKEN environment variable before starting the server.', false);
+        }
+
+        // Webhooks
+        function showWebhooksModal() {
+            document.getElementById('webhooks-modal').classList.add('show');
+            loadWebhooksList();
+        }
+
+        function closeWebhooksModal() {
+            document.getElementById('webhooks-modal').classList.remove('show');
+        }
+
+        async function loadWebhooksList() {
+            try {
+                const res = await fetch(`${API_BASE}/webhooks`);
+                const data = await res.json();
+
+                const container = document.getElementById('webhooks-list');
+                if (data.webhooks?.length === 0) {
+                    container.innerHTML = '<p style="font-size: 12px; color: var(--text-muted);">No webhooks configured yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = data.webhooks.map(w => `
+                    <div class="webhook-item">
+                        <span style="flex: 1;">${escapeHtml(w.name)}</span>
+                        <span class="webhook-trigger">${w.trigger}</span>
+                        <button onclick="testWebhook(${w.id})" style="padding: 2px 8px; background: var(--bg-elevated); border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Test</button>
+                        <button onclick="deleteWebhook(${w.id})" style="padding: 2px 8px; background: none; border: none; color: var(--accent-danger); cursor: pointer;">✕</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load webhooks:', e);
+            }
+        }
+
+        async function addWebhook() {
+            const name = document.getElementById('webhook-name').value.trim();
+            const url = document.getElementById('webhook-url').value.trim();
+            const trigger = document.getElementById('webhook-trigger').value;
+
+            if (!name || !url) {
+                addMessage('Please enter webhook name and URL.', false);
+                return;
+            }
+
+            try {
+                await fetch(`${API_BASE}/webhooks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, url, trigger })
+                });
+
+                document.getElementById('webhook-name').value = '';
+                document.getElementById('webhook-url').value = '';
+                loadWebhooksList();
+                checkIntegrations();
+                addMessage(`Webhook "${name}" added!`, false);
+            } catch (e) {
+                console.error('Failed to add webhook:', e);
+            }
+        }
+
+        async function testWebhook(id) {
+            try {
+                await fetch(`${API_BASE}/webhooks/${id}/test`, { method: 'POST' });
+                addMessage('Test webhook sent!', false);
+            } catch (e) {
+                console.error('Failed to test webhook:', e);
+            }
+        }
+
+        async function deleteWebhook(id) {
+            try {
+                await fetch(`${API_BASE}/webhooks/${id}`, { method: 'DELETE' });
+                loadWebhooksList();
+                checkIntegrations();
+            } catch (e) {
+                console.error('Failed to delete webhook:', e);
+            }
+        }
+
+        // Create Task from Email
+        function createTaskFromPreview() {
+            if (!previewEmail) return;
+
+            document.getElementById('task-title').value = `Follow up: ${previewEmail.subject || 'Email'}`;
+            document.getElementById('task-email-subject').value = previewEmail.subject || '';
+            document.getElementById('task-email-sender').value = previewEmail.sender || '';
+            document.getElementById('create-task-modal').classList.add('show');
+
+            // Show/hide GitHub repo field based on selection
+            document.getElementById('task-destination').addEventListener('change', (e) => {
+                document.getElementById('github-repo-field').style.display =
+                    e.target.value === 'github' ? 'block' : 'none';
+            });
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('create-task-modal').classList.remove('show');
+        }
+
+        async function createTaskFromEmail() {
+            const title = document.getElementById('task-title').value.trim();
+            const destination = document.getElementById('task-destination').value;
+            const emailSubject = document.getElementById('task-email-subject').value;
+            const emailSender = document.getElementById('task-email-sender').value;
+
+            if (!title) {
+                addMessage('Please enter a task title.', false);
+                return;
+            }
+
+            try {
+                let res;
+                if (destination === 'notion') {
+                    res = await fetch(`${API_BASE}/notion/create-task`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, emailSubject, emailSender })
+                    });
+                } else if (destination === 'linear') {
+                    res = await fetch(`${API_BASE}/linear/create-issue`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title,
+                            description: `From email: ${emailSubject}\nSender: ${emailSender}`
+                        })
+                    });
+                } else if (destination === 'github') {
+                    const repo = document.getElementById('task-repo').value.trim();
+                    if (!repo) {
+                        addMessage('Please enter a GitHub repo.', false);
+                        return;
+                    }
+                    res = await fetch(`${API_BASE}/github/create-issue`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            repo,
+                            title,
+                            body: `From email: ${emailSubject}\nSender: ${emailSender}\n\nCreated via Felix`
+                        })
+                    });
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    closeCreateTaskModal();
+                    closeEmailPreview();
+                    addMessage(`Task created in ${destination}!`, false);
+                } else {
+                    addMessage(`Failed: ${data.error}`, false);
+                }
+            } catch (e) {
+                console.error('Failed to create task:', e);
+                addMessage('Failed to create task. Check integration settings.', false);
+            }
+        }
+
         // ============ LOAD ALL NEW FEATURES ============
 
         async function loadAllNewFeatures() {
@@ -5554,7 +6472,11 @@
                 loadAttachments(),
                 loadResponseInsights(),
                 loadVIPs(),
-                loadMeetingPrep()
+                loadMeetingPrep(),
+                loadProductivityScore(),
+                loadWeeklyReport(),
+                loadTimeBlocking(),
+                checkIntegrations()
             ]);
         }
 
