@@ -3391,6 +3391,391 @@
             background: var(--bg-elevated);
         }
 
+        /* ============ UX POLISH: SEARCH ============ */
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-neumorphic);
+            padding: 4px;
+        }
+
+        .search-icon {
+            padding: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px 12px 0;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-filters-btn {
+            padding: 8px 14px;
+            margin-right: 4px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .search-clear-btn {
+            padding: 8px;
+            margin-right: 4px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-clear-btn.visible {
+            display: block;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            margin-top: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-subject {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .search-result-subject mark {
+            background: rgba(245, 158, 11, 0.3);
+            color: inherit;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .search-result-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .search-result-count {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        /* Saved Searches */
+        .saved-searches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .saved-search-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            box-shadow: var(--shadow-neumorphic);
+            transition: all 0.2s;
+        }
+
+        .saved-search-chip:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        .saved-search-chip .icon {
+            font-size: 14px;
+        }
+
+        /* ============ UX POLISH: DRAGGABLE DASHBOARD ============ */
+
+        .widget-draggable {
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .widget-draggable.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        .widget-drag-handle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px;
+            cursor: grab;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .widget-draggable:hover .widget-drag-handle {
+            opacity: 1;
+        }
+
+        .widget-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .widget-collapse-btn {
+            position: absolute;
+            top: 12px;
+            right: 40px;
+            padding: 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+        }
+
+        .widget-draggable:hover .widget-collapse-btn {
+            opacity: 1;
+        }
+
+        .widget-collapsed .widget-content {
+            display: none;
+        }
+
+        .widget-collapsed .widget-collapse-btn svg {
+            transform: rotate(180deg);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--accent-warm);
+            border-radius: var(--radius-lg);
+            background: rgba(184, 147, 90, 0.05);
+            min-height: 60px;
+            margin: 8px 0;
+            display: none;
+        }
+
+        .drop-zone.active {
+            display: block;
+        }
+
+        /* Layout Customizer */
+        .layout-customizer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .layout-toggle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-warm);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 20px rgba(184, 147, 90, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .layout-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .layout-panel {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            width: 280px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 16px;
+            display: none;
+        }
+
+        .layout-panel.show {
+            display: block;
+        }
+
+        .layout-panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .layout-widget-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .layout-widget-item:last-child {
+            border-bottom: none;
+        }
+
+        .layout-widget-name {
+            flex: 1;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        /* ============ UX POLISH: EMAIL TEMPLATES ============ */
+
+        .templates-panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .template-card {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            background: var(--bg-elevated);
+            transform: translateY(-2px);
+        }
+
+        .template-card-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .template-card-preview {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .template-card-shortcut {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 2px 6px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            font-size: 10px;
+            color: var(--accent-warm);
+            font-family: monospace;
+        }
+
+        .template-insert-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+        }
+
+        .template-insert-popup.show {
+            display: block;
+        }
+
+        .template-popup-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: background 0.15s;
+        }
+
+        .template-popup-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .template-popup-hint {
+            padding: 8px 14px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+        }
+
         /* Install PWA button */
         .install-pwa {
             display: none;
@@ -3770,6 +4155,24 @@
                 <span style="font-size: 20px;">🌴</span>
                 <p><strong>Weekend Mode Active</strong> — Only showing urgent items. Non-critical emails queued for Monday.</p>
                 <button onclick="disableWeekendMode()">Disable</button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container" id="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="global-search" placeholder="Search emails... (⌘K)" onkeyup="handleSearchInput(event)">
+                    <button class="search-clear-btn" id="search-clear" onclick="clearSearch()">✕</button>
+                    <button class="search-filters-btn" onclick="toggleSearchFilters()">Filters</button>
+                </div>
+                <div class="search-results" id="search-results">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Saved Searches -->
+            <div class="saved-searches" id="saved-searches">
+                <!-- Saved searches will be populated here -->
             </div>
 
             <!-- Meeting Prep Card -->
@@ -4843,6 +5246,75 @@
             <div class="modal-footer">
                 <button class="modal-btn secondary" onclick="closeFollowupModal()">Cancel</button>
                 <button class="modal-btn primary" onclick="createFollowup()">Set Reminder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout Customizer -->
+    <div class="layout-customizer" id="layout-customizer">
+        <div class="layout-panel" id="layout-panel">
+            <div class="layout-panel-title">Customize Layout</div>
+            <div id="layout-widgets-list">
+                <!-- Widget toggles will be populated here -->
+            </div>
+            <button class="btn-secondary" onclick="resetLayout()" style="width: 100%; margin-top: 12px;">Reset to Default</button>
+        </div>
+        <button class="layout-toggle-btn" onclick="toggleLayoutPanel()" title="Customize Dashboard">
+            ⚙️
+        </button>
+    </div>
+
+    <!-- Templates Modal -->
+    <div class="modal-overlay" id="templates-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Email Templates</h3>
+                <button class="modal-close" onclick="closeTemplatesModal()">✕</button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                <div class="template-grid" id="templates-grid">
+                    <!-- Templates will be loaded here -->
+                </div>
+                <button class="btn-secondary" onclick="showAddTemplateForm()" style="width: 100%; margin-top: 16px;">+ Add New Template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Template Modal -->
+    <div class="modal-overlay" id="add-template-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create Template</h3>
+                <button class="modal-close" onclick="closeAddTemplateModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Template Name</label>
+                    <input type="text" class="schedule-form-input" id="new-template-name" placeholder="e.g., Quick Thanks">
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Shortcut (optional)</label>
+                    <input type="text" class="schedule-form-input" id="new-template-shortcut" placeholder="e.g., ty" maxlength="10">
+                    <small style="color: var(--text-muted); font-size: 11px;">Type /shortcut in compose to quickly insert</small>
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Category</label>
+                    <select class="schedule-form-input" id="new-template-category">
+                        <option value="general">General</option>
+                        <option value="meeting">Meeting</option>
+                        <option value="followup">Follow-up</option>
+                        <option value="sales">Sales</option>
+                        <option value="support">Support</option>
+                    </select>
+                </div>
+                <div class="schedule-form-group">
+                    <label class="schedule-form-label">Template Body</label>
+                    <textarea class="schedule-form-textarea" id="new-template-body" placeholder="Write your template..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeAddTemplateModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveNewTemplate()">Save Template</button>
             </div>
         </div>
     </div>
@@ -8399,6 +8871,422 @@
             setInterval(checkAutomationDue, 300000);
         }
 
+        // ============ UX POLISH FEATURES ============
+
+        let searchDebounceTimer = null;
+        let layoutEditMode = false;
+
+        // Full-Text Search
+        function handleSearchInput(event) {
+            const query = event.target.value.trim();
+            const clearBtn = document.getElementById('search-clear');
+
+            clearBtn.classList.toggle('visible', query.length > 0);
+
+            if (query.length < 2) {
+                document.getElementById('search-results').classList.remove('show');
+                return;
+            }
+
+            // Debounce search
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => performSearch(query), 300);
+        }
+
+        async function performSearch(query) {
+            try {
+                const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&limit=20`);
+                const data = await res.json();
+
+                if (data.success) {
+                    showSearchResults(data.results, query);
+                }
+            } catch (e) {
+                console.error('Search error:', e);
+            }
+        }
+
+        function showSearchResults(results, query) {
+            const container = document.getElementById('search-results');
+
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="search-result-count">No results for "${query}"</div>
+                `;
+                container.classList.add('show');
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="search-result-count">${results.length} result${results.length !== 1 ? 's' : ''}</div>
+                ${results.map(r => `
+                    <div class="search-result-item" onclick="openEmailFromSearch(${r.id})">
+                        <div class="search-result-subject">${r.subjectHighlight || r.subject || 'No subject'}</div>
+                        <div class="search-result-meta">
+                            From: ${r.senderHighlight || r.sender || 'Unknown'} · ${formatDate(r.received)}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+            container.classList.add('show');
+        }
+
+        function clearSearch() {
+            document.getElementById('global-search').value = '';
+            document.getElementById('search-results').classList.remove('show');
+            document.getElementById('search-clear').classList.remove('visible');
+        }
+
+        function openEmailFromSearch(emailId) {
+            clearSearch();
+            // Find the email and open preview
+            const email = currentEmails.find(e => e.id === emailId);
+            if (email) {
+                openEmailPreview(email);
+            }
+        }
+
+        function toggleSearchFilters() {
+            // Could expand to show advanced filters
+            addMessage('Advanced filters coming soon! For now, type sender:name or subject:text', false);
+        }
+
+        // Keyboard shortcut for search (Cmd+K)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('global-search').focus();
+            }
+            if (e.key === 'Escape') {
+                clearSearch();
+            }
+        });
+
+        // Click outside to close search
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('search-container');
+            if (!container.contains(e.target)) {
+                document.getElementById('search-results').classList.remove('show');
+            }
+        });
+
+        // Saved Searches
+        async function loadSavedSearches() {
+            try {
+                const res = await fetch(`${API_BASE}/searches`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const container = document.getElementById('saved-searches');
+                    container.innerHTML = data.searches.map(s => `
+                        <div class="saved-search-chip" onclick="runSavedSearch(${JSON.stringify(s.query).replace(/"/g, '&quot;')})">
+                            <span class="icon">${s.icon}</span>
+                            <span>${s.name}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load saved searches:', e);
+            }
+        }
+
+        async function runSavedSearch(query) {
+            const searchInput = document.getElementById('global-search');
+
+            if (query.q) {
+                searchInput.value = query.q;
+                performSearch(query.q);
+            } else if (query.sender) {
+                searchInput.value = `from:${query.sender}`;
+                try {
+                    const res = await fetch(`${API_BASE}/search?sender=${encodeURIComponent(query.sender)}&limit=20`);
+                    const data = await res.json();
+                    if (data.success) {
+                        showSearchResults(data.results, query.sender);
+                    }
+                } catch (e) {
+                    console.error('Search error:', e);
+                }
+            }
+        }
+
+        async function saveCurrentSearch() {
+            const query = document.getElementById('global-search').value.trim();
+            if (!query) return;
+
+            const name = prompt('Name this search:');
+            if (!name) return;
+
+            try {
+                await fetch(`${API_BASE}/searches`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, query: { q: query }, icon: '🔍' })
+                });
+                loadSavedSearches();
+                addMessage(`Search "${name}" saved!`, false);
+            } catch (e) {
+                console.error('Failed to save search:', e);
+            }
+        }
+
+        // Dashboard Layout
+        async function loadDashboardLayout() {
+            try {
+                const res = await fetch(`${API_BASE}/layout`);
+                const data = await res.json();
+
+                if (data.success) {
+                    applyLayout(data.layout);
+                    populateLayoutPanel(data.layout);
+                }
+            } catch (e) {
+                console.error('Failed to load layout:', e);
+            }
+        }
+
+        function applyLayout(layout) {
+            const main = document.querySelector('.main-content');
+
+            layout.widgets.forEach(widget => {
+                const el = document.getElementById(widget.id);
+                if (el) {
+                    el.style.order = widget.order;
+                    el.style.display = widget.visible ? '' : 'none';
+                    if (widget.collapsed) {
+                        el.classList.add('widget-collapsed');
+                    } else {
+                        el.classList.remove('widget-collapsed');
+                    }
+                }
+            });
+        }
+
+        function populateLayoutPanel(layout) {
+            const container = document.getElementById('layout-widgets-list');
+
+            const widgetNames = {
+                'priority-inbox': 'Priority Inbox',
+                'calendar-section': 'Calendar',
+                'files-section': 'Files',
+                'unsubscribe-section': 'Unsubscribe',
+                'goals-section': 'Daily Goals',
+                'rules-section': 'Email Rules',
+                'timeblocking-section': 'Time Blocking',
+                'report-section': 'Weekly Report',
+                'integrations-section': 'Integrations',
+                'ai-features-section': 'Advanced AI',
+                'automation-section': 'Automation'
+            };
+
+            container.innerHTML = layout.widgets.map(w => `
+                <div class="layout-widget-item">
+                    <label class="toggle-switch" style="transform: scale(0.8);">
+                        <input type="checkbox" ${w.visible ? 'checked' : ''} onchange="toggleWidgetVisibility('${w.id}', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="layout-widget-name">${widgetNames[w.id] || w.id}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleLayoutPanel() {
+            document.getElementById('layout-panel').classList.toggle('show');
+        }
+
+        async function toggleWidgetVisibility(widgetId, visible) {
+            try {
+                await fetch(`${API_BASE}/layout/widget/${widgetId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ visible })
+                });
+
+                const el = document.getElementById(widgetId);
+                if (el) {
+                    el.style.display = visible ? '' : 'none';
+                }
+            } catch (e) {
+                console.error('Failed to update widget:', e);
+            }
+        }
+
+        async function resetLayout() {
+            if (!confirm('Reset dashboard to default layout?')) return;
+
+            try {
+                // Delete layout file by saving default
+                const defaultLayout = {
+                    widgets: [
+                        { id: 'priority-inbox', order: 1, visible: true, collapsed: false },
+                        { id: 'calendar-section', order: 2, visible: true, collapsed: false },
+                        { id: 'files-section', order: 3, visible: true, collapsed: false },
+                        { id: 'unsubscribe-section', order: 4, visible: true, collapsed: false },
+                        { id: 'goals-section', order: 5, visible: true, collapsed: false },
+                        { id: 'rules-section', order: 6, visible: true, collapsed: false },
+                        { id: 'timeblocking-section', order: 7, visible: true, collapsed: false },
+                        { id: 'report-section', order: 8, visible: true, collapsed: false },
+                        { id: 'integrations-section', order: 9, visible: true, collapsed: false },
+                        { id: 'ai-features-section', order: 10, visible: true, collapsed: false },
+                        { id: 'automation-section', order: 11, visible: true, collapsed: false }
+                    ]
+                };
+
+                await fetch(`${API_BASE}/layout`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(defaultLayout)
+                });
+
+                location.reload();
+            } catch (e) {
+                console.error('Failed to reset layout:', e);
+            }
+        }
+
+        // Email Templates
+        async function loadTemplatesList() {
+            try {
+                const res = await fetch(`${API_BASE}/templates`);
+                const data = await res.json();
+
+                if (data.success) {
+                    return data.templates;
+                }
+            } catch (e) {
+                console.error('Failed to load templates:', e);
+            }
+            return [];
+        }
+
+        function showTemplatesModal() {
+            loadAndShowTemplates();
+            document.getElementById('templates-modal').classList.add('show');
+        }
+
+        function closeTemplatesModal() {
+            document.getElementById('templates-modal').classList.remove('show');
+        }
+
+        async function loadAndShowTemplates() {
+            const templates = await loadTemplatesList();
+            const grid = document.getElementById('templates-grid');
+
+            grid.innerHTML = templates.map(t => `
+                <div class="template-card" onclick="useTemplate(${t.id})">
+                    <div class="template-card-name">${t.name}</div>
+                    <div class="template-card-preview">${t.body.substring(0, 50)}...</div>
+                    ${t.shortcut ? `<span class="template-card-shortcut">/${t.shortcut}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function useTemplate(templateId) {
+            try {
+                // Mark as used
+                await fetch(`${API_BASE}/templates/${templateId}/use`, { method: 'POST' });
+
+                const templates = await loadTemplatesList();
+                const template = templates.find(t => t.id === templateId);
+
+                if (template) {
+                    // Insert into reply input if open, or copy to clipboard
+                    const replyInput = document.getElementById('reply-input');
+                    if (replyInput && replyInput.offsetParent !== null) {
+                        replyInput.value = template.body;
+                        replyInput.focus();
+                    } else {
+                        navigator.clipboard.writeText(template.body);
+                        addMessage(`Template "${template.name}" copied to clipboard!`, false);
+                    }
+                    closeTemplatesModal();
+                }
+            } catch (e) {
+                console.error('Failed to use template:', e);
+            }
+        }
+
+        function showAddTemplateForm() {
+            closeTemplatesModal();
+            document.getElementById('new-template-name').value = '';
+            document.getElementById('new-template-shortcut').value = '';
+            document.getElementById('new-template-body').value = '';
+            document.getElementById('new-template-category').value = 'general';
+            document.getElementById('add-template-modal').classList.add('show');
+        }
+
+        function closeAddTemplateModal() {
+            document.getElementById('add-template-modal').classList.remove('show');
+        }
+
+        async function saveNewTemplate() {
+            const name = document.getElementById('new-template-name').value.trim();
+            const shortcut = document.getElementById('new-template-shortcut').value.trim();
+            const category = document.getElementById('new-template-category').value;
+            const body = document.getElementById('new-template-body').value.trim();
+
+            if (!name || !body) {
+                addMessage('Please enter a name and template body.', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/templates`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, shortcut, category, body })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeAddTemplateModal();
+                    addMessage(`Template "${name}" created!`, false);
+                }
+            } catch (e) {
+                console.error('Failed to save template:', e);
+            }
+        }
+
+        // Template shortcut handler (type /shortcut in compose)
+        function initTemplateShortcuts(inputElement) {
+            if (!inputElement) return;
+
+            inputElement.addEventListener('input', async (e) => {
+                const value = e.target.value;
+                const match = value.match(/\/(\w+)$/);
+
+                if (match) {
+                    const shortcut = match[1];
+                    try {
+                        const res = await fetch(`${API_BASE}/templates/shortcut/${shortcut}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.success) {
+                                // Replace /shortcut with template body
+                                e.target.value = value.replace(`/${shortcut}`, data.template.body);
+                                // Track usage
+                                fetch(`${API_BASE}/templates/${data.template.id}/use`, { method: 'POST' });
+                            }
+                        }
+                    } catch (err) {
+                        // Shortcut not found, ignore
+                    }
+                }
+            });
+        }
+
+        // Initialize UX features
+        function initUXPolish() {
+            loadSavedSearches();
+            loadDashboardLayout();
+
+            // Initialize template shortcuts on reply inputs
+            const replyInput = document.getElementById('reply-input');
+            if (replyInput) {
+                initTemplateShortcuts(replyInput);
+            }
+        }
+
         // ============ LOAD ALL NEW FEATURES ============
 
         async function loadAllNewFeatures() {
@@ -8424,6 +9312,9 @@
 
             // Initialize Automation features
             setTimeout(initAutomation, 600);
+
+            // Initialize UX Polish features
+            setTimeout(initUXPolish, 700);
         }
 
         // ============ UPDATE INIT ============

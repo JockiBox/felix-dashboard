@@ -1171,62 +1171,6 @@ app.get('/api/analytics/response-times', (req, res) => {
     }
 });
 
-// ============ QUICK REPLY TEMPLATES ============
-
-const TEMPLATES_FILE = path.join(__dirname, 'reply-templates.json');
-
-function loadTemplates() {
-    try {
-        if (fs.existsSync(TEMPLATES_FILE)) {
-            return JSON.parse(fs.readFileSync(TEMPLATES_FILE, 'utf-8'));
-        }
-    } catch (e) {}
-    return {
-        templates: [
-            { id: 1, name: 'Acknowledge', subject: 'Re: {{subject}}', body: 'Thanks for reaching out. I\'ve received your message and will get back to you shortly.' },
-            { id: 2, name: 'Not Interested', subject: 'Re: {{subject}}', body: 'Thank you for thinking of me, but I\'m not interested at this time.' },
-            { id: 3, name: 'Schedule Call', subject: 'Re: {{subject}}', body: 'Thanks for your message. I\'d be happy to discuss this further. Would you have time for a quick call this week?' },
-            { id: 4, name: 'Need More Info', subject: 'Re: {{subject}}', body: 'Thanks for reaching out. Could you provide more details about what you\'re looking for?' },
-            { id: 5, name: 'Following Up', subject: 'Following up: {{subject}}', body: 'I wanted to follow up on my previous message. Please let me know if you have any questions.' },
-            { id: 6, name: 'Thank You', subject: 'Re: {{subject}}', body: 'Thank you! I appreciate your help with this.' }
-        ]
-    };
-}
-
-function saveTemplates(templates) {
-    fs.writeFileSync(TEMPLATES_FILE, JSON.stringify(templates, null, 2));
-}
-
-app.get('/api/templates', (req, res) => {
-    const data = loadTemplates();
-    res.json({ success: true, templates: data.templates });
-});
-
-app.post('/api/templates', (req, res) => {
-    try {
-        const { name, subject, body } = req.body;
-        const data = loadTemplates();
-        const newId = Math.max(...data.templates.map(t => t.id), 0) + 1;
-        data.templates.push({ id: newId, name, subject, body });
-        saveTemplates(data);
-        res.json({ success: true, template: { id: newId, name, subject, body } });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.delete('/api/templates/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const data = loadTemplates();
-        data.templates = data.templates.filter(t => t.id !== id);
-        saveTemplates(data);
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
 // ============ SMART SCHEDULING ============
 
 app.get('/api/scheduling/suggestions', (req, res) => {
@@ -4660,6 +4604,377 @@ app.delete('/api/batch/filters/:id', (req, res) => {
     res.json({ success: true });
 });
 
+// ============ UX: FULL-TEXT SEARCH ============
+
+app.get('/api/search', (req, res) => {
+    const { q, sender, subject, hasAttachment, unreadOnly, limit = 50 } = req.query;
+
+    if (!q && !sender && !subject) {
+        return res.status(400).json({ success: false, error: 'Search query required' });
+    }
+
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        let query = `
+            SELECT
+                m.ROWID as id,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject,
+                a.address as sender,
+                m.read,
+                m.flagged,
+                m.date_received as timestamp
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.deleted = 0
+        `;
+
+        const params = [];
+
+        // Full-text search on subject
+        if (q) {
+            query += ` AND (s.subject LIKE ? OR a.address LIKE ?)`;
+            params.push(`%${q}%`, `%${q}%`);
+        }
+
+        if (sender) {
+            query += ` AND a.address LIKE ?`;
+            params.push(`%${sender}%`);
+        }
+
+        if (subject) {
+            query += ` AND s.subject LIKE ?`;
+            params.push(`%${subject}%`);
+        }
+
+        if (unreadOnly === 'true') {
+            query += ` AND m.read = 0`;
+        }
+
+        query += ` ORDER BY m.date_received DESC LIMIT ?`;
+        params.push(parseInt(limit));
+
+        const results = db.prepare(query).all(...params);
+        db.close();
+
+        // Highlight matches in results
+        const highlighted = results.map(r => ({
+            ...r,
+            subjectHighlight: q ? highlightMatch(r.subject, q) : r.subject,
+            senderHighlight: q ? highlightMatch(r.sender, q) : r.sender
+        }));
+
+        res.json({
+            success: true,
+            results: highlighted,
+            count: results.length,
+            query: { q, sender, subject }
+        });
+
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function highlightMatch(text, query) {
+    if (!text || !query) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+// ============ UX: SAVED SEARCHES ============
+
+const SAVED_SEARCHES_FILE = path.join(__dirname, 'saved-searches.json');
+
+function loadSavedSearches() {
+    try {
+        if (fs.existsSync(SAVED_SEARCHES_FILE)) {
+            return JSON.parse(fs.readFileSync(SAVED_SEARCHES_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        searches: [
+            { id: 1, name: 'Unread from VIPs', query: { unreadOnly: 'true' }, icon: '⭐' },
+            { id: 2, name: 'GitHub Notifications', query: { sender: 'github.com' }, icon: '🐙' },
+            { id: 3, name: 'Financial Emails', query: { q: 'payment OR invoice OR bank' }, icon: '💰' },
+            { id: 4, name: 'This Week', query: { daysBack: 7 }, icon: '📅' }
+        ]
+    };
+}
+
+function saveSavedSearches(data) {
+    fs.writeFileSync(SAVED_SEARCHES_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/searches', (req, res) => {
+    const data = loadSavedSearches();
+    res.json({ success: true, searches: data.searches });
+});
+
+app.post('/api/searches', (req, res) => {
+    const { name, query, icon } = req.body;
+
+    if (!name || !query) {
+        return res.status(400).json({ success: false, error: 'Name and query required' });
+    }
+
+    const data = loadSavedSearches();
+    const search = {
+        id: Date.now(),
+        name,
+        query,
+        icon: icon || '🔍'
+    };
+
+    data.searches.push(search);
+    saveSavedSearches(data);
+
+    res.json({ success: true, search });
+});
+
+app.delete('/api/searches/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadSavedSearches();
+    data.searches = data.searches.filter(s => s.id !== id);
+    saveSavedSearches(data);
+    res.json({ success: true });
+});
+
+// ============ UX: DASHBOARD LAYOUT ============
+
+const LAYOUT_FILE = path.join(__dirname, 'dashboard-layout.json');
+
+function loadLayout() {
+    try {
+        if (fs.existsSync(LAYOUT_FILE)) {
+            return JSON.parse(fs.readFileSync(LAYOUT_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        widgets: [
+            { id: 'priority-inbox', order: 1, visible: true, collapsed: false },
+            { id: 'calendar-section', order: 2, visible: true, collapsed: false },
+            { id: 'files-section', order: 3, visible: true, collapsed: false },
+            { id: 'unsubscribe-section', order: 4, visible: true, collapsed: false },
+            { id: 'goals-section', order: 5, visible: true, collapsed: false },
+            { id: 'rules-section', order: 6, visible: true, collapsed: false },
+            { id: 'timeblocking-section', order: 7, visible: true, collapsed: false },
+            { id: 'report-section', order: 8, visible: true, collapsed: false },
+            { id: 'integrations-section', order: 9, visible: true, collapsed: false },
+            { id: 'ai-features-section', order: 10, visible: true, collapsed: false },
+            { id: 'automation-section', order: 11, visible: true, collapsed: false }
+        ],
+        sidebarWidgets: [
+            { id: 'briefing', order: 1, visible: true },
+            { id: 'weather', order: 2, visible: true },
+            { id: 'productivity', order: 3, visible: true },
+            { id: 'quick-actions', order: 4, visible: true }
+        ]
+    };
+}
+
+function saveLayout(data) {
+    fs.writeFileSync(LAYOUT_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/layout', (req, res) => {
+    const layout = loadLayout();
+    res.json({ success: true, layout });
+});
+
+app.put('/api/layout', (req, res) => {
+    const { widgets, sidebarWidgets } = req.body;
+
+    const layout = loadLayout();
+    if (widgets) layout.widgets = widgets;
+    if (sidebarWidgets) layout.sidebarWidgets = sidebarWidgets;
+
+    saveLayout(layout);
+    res.json({ success: true, layout });
+});
+
+app.put('/api/layout/widget/:id', (req, res) => {
+    const { id } = req.params;
+    const { visible, collapsed, order } = req.body;
+
+    const layout = loadLayout();
+    const widget = layout.widgets.find(w => w.id === id);
+
+    if (!widget) {
+        return res.status(404).json({ success: false, error: 'Widget not found' });
+    }
+
+    if (visible !== undefined) widget.visible = visible;
+    if (collapsed !== undefined) widget.collapsed = collapsed;
+    if (order !== undefined) widget.order = order;
+
+    saveLayout(layout);
+    res.json({ success: true, widget });
+});
+
+// ============ UX: EMAIL TEMPLATES (ENHANCED) ============
+
+const TEMPLATES_FILE = path.join(__dirname, 'reply-templates.json');
+
+function loadTemplatesData() {
+    try {
+        if (fs.existsSync(TEMPLATES_FILE)) {
+            return JSON.parse(fs.readFileSync(TEMPLATES_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        templates: [
+            {
+                id: 1,
+                name: 'Quick Thanks',
+                body: 'Thank you for your email. I appreciate you reaching out.',
+                category: 'general',
+                shortcut: 'ty',
+                usageCount: 0
+            },
+            {
+                id: 2,
+                name: 'Will Review',
+                body: 'Thanks for sending this over. I\'ll review it and get back to you shortly.',
+                category: 'general',
+                shortcut: 'wr',
+                usageCount: 0
+            },
+            {
+                id: 3,
+                name: 'Schedule Meeting',
+                body: 'I\'d love to discuss this further. Would you be available for a quick call this week? Here are some times that work for me:\n\n- \n- \n\nLet me know what works best for you.',
+                category: 'meeting',
+                shortcut: 'sm',
+                usageCount: 0
+            },
+            {
+                id: 4,
+                name: 'Follow Up',
+                body: 'I wanted to follow up on my previous email. Have you had a chance to review it?\n\nPlease let me know if you have any questions.',
+                category: 'followup',
+                shortcut: 'fu',
+                usageCount: 0
+            },
+            {
+                id: 5,
+                name: 'Out of Office',
+                body: 'Thank you for your email. I\'m currently out of the office with limited access to email. I\'ll respond to your message when I return.\n\nFor urgent matters, please contact [alternate contact].',
+                category: 'general',
+                shortcut: 'ooo',
+                usageCount: 0
+            },
+            {
+                id: 6,
+                name: 'Decline Politely',
+                body: 'Thank you for thinking of me. Unfortunately, I\'m not able to take this on at the moment due to other commitments.\n\nI appreciate your understanding and wish you the best with this.',
+                category: 'general',
+                shortcut: 'dp',
+                usageCount: 0
+            }
+        ],
+        categories: ['general', 'meeting', 'followup', 'sales', 'support']
+    };
+}
+
+function saveTemplatesData(data) {
+    fs.writeFileSync(TEMPLATES_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/templates', (req, res) => {
+    const data = loadTemplatesData();
+    res.json({ success: true, templates: data.templates, categories: data.categories });
+});
+
+app.post('/api/templates', (req, res) => {
+    const { name, body, category, shortcut } = req.body;
+
+    if (!name || !body) {
+        return res.status(400).json({ success: false, error: 'Name and body required' });
+    }
+
+    const data = loadTemplatesData();
+
+    // Check for duplicate shortcut
+    if (shortcut && data.templates.some(t => t.shortcut === shortcut)) {
+        return res.status(400).json({ success: false, error: 'Shortcut already in use' });
+    }
+
+    const template = {
+        id: Date.now(),
+        name,
+        body,
+        category: category || 'general',
+        shortcut: shortcut || '',
+        usageCount: 0,
+        createdAt: new Date().toISOString()
+    };
+
+    data.templates.push(template);
+    saveTemplatesData(data);
+
+    res.json({ success: true, template });
+});
+
+app.put('/api/templates/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name, body, category, shortcut } = req.body;
+
+    const data = loadTemplatesData();
+    const template = data.templates.find(t => t.id === id);
+
+    if (!template) {
+        return res.status(404).json({ success: false, error: 'Template not found' });
+    }
+
+    if (name) template.name = name;
+    if (body) template.body = body;
+    if (category) template.category = category;
+    if (shortcut !== undefined) template.shortcut = shortcut;
+
+    saveTemplatesData(data);
+    res.json({ success: true, template });
+});
+
+app.delete('/api/templates/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadTemplatesData();
+    data.templates = data.templates.filter(t => t.id !== id);
+    saveTemplatesData(data);
+    res.json({ success: true });
+});
+
+app.post('/api/templates/:id/use', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = loadTemplatesData();
+    const template = data.templates.find(t => t.id === id);
+
+    if (!template) {
+        return res.status(404).json({ success: false, error: 'Template not found' });
+    }
+
+    template.usageCount++;
+    template.lastUsed = new Date().toISOString();
+    saveTemplatesData(data);
+
+    res.json({ success: true, template });
+});
+
+app.get('/api/templates/shortcut/:shortcut', (req, res) => {
+    const { shortcut } = req.params;
+    const data = loadTemplatesData();
+    const template = data.templates.find(t => t.shortcut === shortcut);
+
+    if (!template) {
+        return res.status(404).json({ success: false, error: 'Shortcut not found' });
+    }
+
+    res.json({ success: true, template });
+});
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
@@ -4669,8 +4984,8 @@ app.listen(PORT, () => {
 ║     FELIX — Your Chief of Staff                       ║
 ║     Dashboard running at http://localhost:${PORT}       ║
 ║                                                       ║
-║     Automation: Follow-ups, Sequences, Scheduled,     ║
-║     Batch Operations                                  ║
+║     UX: Search, Saved Searches, Draggable Layout,     ║
+║     Email Templates                                   ║
 ║     Press Ctrl+C to stop                              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
