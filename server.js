@@ -3462,6 +3462,507 @@ app.post('/api/webhooks/:id/test', async (req, res) => {
     }
 });
 
+// ============ ADVANCED AI: THREAD SUMMARIZER ============
+
+app.post('/api/ai/summarize-thread', async (req, res) => {
+    const { emails } = req.body;
+
+    if (!emails || emails.length === 0) {
+        return res.status(400).json({ success: false, error: 'No emails provided' });
+    }
+
+    const settings = loadSettings();
+    if (!settings.claudeApiKey) {
+        // Return a mock summary if no API key
+        const participantSet = new Set();
+        emails.forEach(e => {
+            if (e.sender) participantSet.add(e.sender.split('@')[0]);
+        });
+
+        return res.json({
+            success: true,
+            summary: {
+                headline: `Thread with ${emails.length} messages`,
+                keyPoints: [
+                    'Multiple exchanges between participants',
+                    emails[0]?.subject || 'Discussion thread',
+                    `Last message: ${emails[emails.length - 1]?.preview || 'Recent reply'}`
+                ],
+                participants: Array.from(participantSet).slice(0, 5),
+                sentiment: 'neutral',
+                actionItems: [],
+                timeline: `${emails.length} messages over the conversation`
+            }
+        });
+    }
+
+    try {
+        const threadText = emails.map((e, i) =>
+            `[${i + 1}] From: ${e.sender}\nDate: ${e.received}\nSubject: ${e.subject}\n${e.preview || e.body || ''}`
+        ).join('\n\n---\n\n');
+
+        const response = await callClaudeAPI(settings.claudeApiKey, [
+            {
+                role: 'user',
+                content: `Summarize this email thread concisely. Return JSON with:
+- headline: One sentence summary (max 15 words)
+- keyPoints: Array of 3-5 bullet points
+- participants: Array of participant names
+- sentiment: "positive", "negative", "neutral", or "urgent"
+- actionItems: Array of action items mentioned
+- timeline: Brief timeline description
+
+Thread:
+${threadText}`
+            }
+        ], 'Return only valid JSON, no markdown.');
+
+        const content = response.content[0].text;
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        const summary = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+
+        res.json({ success: true, summary });
+
+    } catch (error) {
+        console.error('Thread summarize error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ ADVANCED AI: SMART COMPOSE ============
+
+app.post('/api/ai/smart-compose', async (req, res) => {
+    const { partialText, context, emailSubject, emailSender } = req.body;
+
+    if (!partialText || partialText.length < 5) {
+        return res.json({ success: true, suggestions: [] });
+    }
+
+    const settings = loadSettings();
+    if (!settings.claudeApiKey) {
+        // Smart local completions based on common patterns
+        const completions = getLocalCompletions(partialText);
+        return res.json({ success: true, suggestions: completions });
+    }
+
+    try {
+        const response = await callClaudeAPI(settings.claudeApiKey, [
+            {
+                role: 'user',
+                content: `Complete this email reply naturally. Context: replying to "${emailSubject}" from ${emailSender}.
+
+Partial text: "${partialText}"
+
+Provide 3 different completions. Return JSON array with objects containing:
+- completion: The rest of the sentence/paragraph (not the original text)
+- style: "formal", "casual", or "concise"`
+            }
+        ], 'Return only valid JSON array, no markdown. Keep completions under 50 words each.');
+
+        const content = response.content[0].text;
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        const suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+        res.json({ success: true, suggestions });
+
+    } catch (error) {
+        console.error('Smart compose error:', error);
+        res.json({ success: true, suggestions: getLocalCompletions(partialText) });
+    }
+});
+
+function getLocalCompletions(text) {
+    const lower = text.toLowerCase().trim();
+    const completions = [];
+
+    // Common email starters
+    if (lower.startsWith('thank')) {
+        completions.push(
+            { completion: ' you for getting back to me. I appreciate your quick response.', style: 'formal' },
+            { completion: ' you! That makes sense.', style: 'casual' },
+            { completion: ' you for the update.', style: 'concise' }
+        );
+    } else if (lower.startsWith('i wanted to')) {
+        completions.push(
+            { completion: ' follow up on our previous conversation.', style: 'formal' },
+            { completion: ' check in and see how things are going.', style: 'casual' },
+            { completion: ' confirm the details we discussed.', style: 'concise' }
+        );
+    } else if (lower.startsWith('just')) {
+        completions.push(
+            { completion: ' wanted to circle back on this.', style: 'formal' },
+            { completion: ' checking in!', style: 'casual' },
+            { completion: ' following up.', style: 'concise' }
+        );
+    } else if (lower.startsWith('let me')) {
+        completions.push(
+            { completion: ' know if you have any questions.', style: 'formal' },
+            { completion: ' know what you think!', style: 'casual' },
+            { completion: ' know.', style: 'concise' }
+        );
+    } else if (lower.startsWith('i\'ll')) {
+        completions.push(
+            { completion: ' get back to you by end of day.', style: 'formal' },
+            { completion: ' send that over shortly.', style: 'casual' },
+            { completion: ' follow up soon.', style: 'concise' }
+        );
+    } else if (lower.startsWith('sounds')) {
+        completions.push(
+            { completion: ' good. I\'ll proceed with the plan we discussed.', style: 'formal' },
+            { completion: ' great! Let\'s do it.', style: 'casual' },
+            { completion: ' good.', style: 'concise' }
+        );
+    } else if (lower.startsWith('please')) {
+        completions.push(
+            { completion: ' let me know if you need any additional information.', style: 'formal' },
+            { completion: ' feel free to reach out with questions.', style: 'casual' },
+            { completion: ' advise.', style: 'concise' }
+        );
+    } else if (lower.includes('attach')) {
+        completions.push(
+            { completion: 'ed is the document you requested.', style: 'formal' },
+            { completion: 'ed! Let me know if you need anything else.', style: 'casual' },
+            { completion: 'ed for your review.', style: 'concise' }
+        );
+    } else {
+        // Generic completions
+        completions.push(
+            { completion: ' Please let me know your thoughts.', style: 'formal' },
+            { completion: ' What do you think?', style: 'casual' },
+            { completion: '', style: 'concise' }
+        );
+    }
+
+    return completions;
+}
+
+// ============ ADVANCED AI: SENTIMENT ANALYSIS ============
+
+app.post('/api/ai/analyze-sentiment', async (req, res) => {
+    const { emails } = req.body;
+
+    if (!emails || emails.length === 0) {
+        return res.status(400).json({ success: false, error: 'No emails provided' });
+    }
+
+    const settings = loadSettings();
+
+    // Analyze sentiment locally using keyword matching
+    const analyzed = emails.map(email => {
+        const text = `${email.subject || ''} ${email.preview || email.body || ''}`.toLowerCase();
+
+        let sentiment = 'neutral';
+        let confidence = 0.7;
+        let indicators = [];
+
+        // Urgent indicators
+        const urgentWords = ['urgent', 'asap', 'immediately', 'critical', 'deadline', 'overdue', 'final notice', 'action required'];
+        const urgentCount = urgentWords.filter(w => text.includes(w)).length;
+
+        // Positive indicators
+        const positiveWords = ['thank', 'great', 'excellent', 'happy', 'pleased', 'appreciate', 'congratulations', 'wonderful', 'good news'];
+        const positiveCount = positiveWords.filter(w => text.includes(w)).length;
+
+        // Negative indicators
+        const negativeWords = ['sorry', 'unfortunately', 'issue', 'problem', 'failed', 'error', 'complaint', 'disappointed', 'concerned', 'urgent'];
+        const negativeCount = negativeWords.filter(w => text.includes(w)).length;
+
+        // Formal indicators
+        const formalWords = ['dear', 'sincerely', 'regards', 'pursuant', 'hereby', 'attached please find'];
+        const formalCount = formalWords.filter(w => text.includes(w)).length;
+
+        if (urgentCount >= 2 || text.includes('!!!') || text.includes('URGENT')) {
+            sentiment = 'urgent';
+            confidence = 0.9;
+            indicators = urgentWords.filter(w => text.includes(w));
+        } else if (positiveCount > negativeCount && positiveCount >= 2) {
+            sentiment = 'positive';
+            confidence = 0.6 + (positiveCount * 0.1);
+            indicators = positiveWords.filter(w => text.includes(w));
+        } else if (negativeCount > positiveCount && negativeCount >= 2) {
+            sentiment = 'negative';
+            confidence = 0.6 + (negativeCount * 0.1);
+            indicators = negativeWords.filter(w => text.includes(w));
+        }
+
+        // Tone detection
+        let tone = 'standard';
+        if (formalCount >= 2) tone = 'formal';
+        else if (text.includes('!') && !text.includes('urgent')) tone = 'enthusiastic';
+        else if (text.match(/\?{2,}/)) tone = 'questioning';
+
+        return {
+            id: email.id,
+            subject: email.subject,
+            sender: email.sender,
+            sentiment,
+            confidence: Math.min(confidence, 0.95),
+            tone,
+            indicators: indicators.slice(0, 3),
+            emoji: getSentimentEmoji(sentiment)
+        };
+    });
+
+    // Calculate overall stats
+    const stats = {
+        total: analyzed.length,
+        urgent: analyzed.filter(e => e.sentiment === 'urgent').length,
+        positive: analyzed.filter(e => e.sentiment === 'positive').length,
+        negative: analyzed.filter(e => e.sentiment === 'negative').length,
+        neutral: analyzed.filter(e => e.sentiment === 'neutral').length
+    };
+
+    res.json({
+        success: true,
+        emails: analyzed,
+        stats,
+        insight: generateSentimentInsight(stats)
+    });
+});
+
+function getSentimentEmoji(sentiment) {
+    switch (sentiment) {
+        case 'urgent': return '🚨';
+        case 'positive': return '😊';
+        case 'negative': return '😟';
+        default: return '📧';
+    }
+}
+
+function generateSentimentInsight(stats) {
+    if (stats.urgent > 0) {
+        return `⚠️ ${stats.urgent} urgent email${stats.urgent > 1 ? 's' : ''} need${stats.urgent === 1 ? 's' : ''} immediate attention`;
+    }
+    if (stats.negative > stats.positive) {
+        return `📉 More negative than positive emails today. Consider addressing concerns first.`;
+    }
+    if (stats.positive > stats.negative) {
+        return `📈 Inbox is looking positive! ${stats.positive} email${stats.positive > 1 ? 's' : ''} with good news.`;
+    }
+    return `📊 Inbox is mostly neutral. Business as usual.`;
+}
+
+// ============ ADVANCED AI: AUTO-CATEGORIZATION ============
+
+const CATEGORY_FILE = path.join(__dirname, 'email-categories.json');
+
+function loadCategories() {
+    try {
+        if (fs.existsSync(CATEGORY_FILE)) {
+            return JSON.parse(fs.readFileSync(CATEGORY_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return {
+        categories: [
+            { id: 1, name: 'Work', color: '#3b82f6', keywords: ['meeting', 'project', 'deadline', 'report', 'team'], folder: 'Work' },
+            { id: 2, name: 'Finance', color: '#10b981', keywords: ['payment', 'invoice', 'bank', 'transaction', 'credit'], folder: 'Finance' },
+            { id: 3, name: 'Shopping', color: '#f59e0b', keywords: ['order', 'shipping', 'delivery', 'purchase', 'receipt'], folder: 'Shopping' },
+            { id: 4, name: 'Social', color: '#ec4899', keywords: ['invitation', 'party', 'birthday', 'event', 'rsvp'], folder: 'Social' },
+            { id: 5, name: 'Development', color: '#8b5cf6', keywords: ['github', 'deploy', 'build', 'error', 'commit', 'pr', 'merge'], folder: 'Dev' },
+            { id: 6, name: 'Newsletters', color: '#6b7280', keywords: ['unsubscribe', 'newsletter', 'digest', 'weekly', 'update'], folder: 'Newsletters' }
+        ],
+        learned: {}
+    };
+}
+
+function saveCategories(data) {
+    fs.writeFileSync(CATEGORY_FILE, JSON.stringify(data, null, 2));
+}
+
+app.get('/api/ai/categories', (req, res) => {
+    const data = loadCategories();
+    res.json({ success: true, categories: data.categories });
+});
+
+app.post('/api/ai/categories', (req, res) => {
+    const { name, color, keywords, folder } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ success: false, error: 'Name required' });
+    }
+
+    const data = loadCategories();
+    const newCategory = {
+        id: Date.now(),
+        name,
+        color: color || '#6b7280',
+        keywords: keywords || [],
+        folder: folder || name
+    };
+
+    data.categories.push(newCategory);
+    saveCategories(data);
+
+    res.json({ success: true, category: newCategory });
+});
+
+app.post('/api/ai/categorize', async (req, res) => {
+    const { emails } = req.body;
+
+    if (!emails || emails.length === 0) {
+        return res.status(400).json({ success: false, error: 'No emails provided' });
+    }
+
+    const data = loadCategories();
+    const settings = loadSettings();
+
+    const categorized = emails.map(email => {
+        const text = `${email.subject || ''} ${email.sender || ''} ${email.preview || ''}`.toLowerCase();
+
+        // Check learned patterns first
+        const senderDomain = (email.sender || '').split('@')[1];
+        if (senderDomain && data.learned[senderDomain]) {
+            const learnedCat = data.categories.find(c => c.id === data.learned[senderDomain]);
+            if (learnedCat) {
+                return {
+                    ...email,
+                    category: learnedCat,
+                    confidence: 0.95,
+                    reason: 'Learned from previous actions'
+                };
+            }
+        }
+
+        // Score each category
+        let bestMatch = null;
+        let bestScore = 0;
+
+        for (const category of data.categories) {
+            let score = 0;
+            const matchedKeywords = [];
+
+            for (const keyword of category.keywords) {
+                if (text.includes(keyword.toLowerCase())) {
+                    score += 1;
+                    matchedKeywords.push(keyword);
+                }
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = { category, matchedKeywords };
+            }
+        }
+
+        if (bestMatch && bestScore >= 1) {
+            return {
+                ...email,
+                category: bestMatch.category,
+                confidence: Math.min(0.5 + (bestScore * 0.15), 0.9),
+                reason: `Matched: ${bestMatch.matchedKeywords.join(', ')}`
+            };
+        }
+
+        return {
+            ...email,
+            category: null,
+            confidence: 0,
+            reason: 'No category match'
+        };
+    });
+
+    // Calculate stats
+    const stats = {};
+    for (const cat of data.categories) {
+        stats[cat.name] = categorized.filter(e => e.category?.id === cat.id).length;
+    }
+    stats['Uncategorized'] = categorized.filter(e => !e.category).length;
+
+    res.json({
+        success: true,
+        emails: categorized,
+        stats,
+        suggestions: generateCategorySuggestions(categorized, data.categories)
+    });
+});
+
+app.post('/api/ai/learn-category', (req, res) => {
+    const { senderDomain, categoryId } = req.body;
+
+    if (!senderDomain || !categoryId) {
+        return res.status(400).json({ success: false, error: 'Sender domain and category required' });
+    }
+
+    const data = loadCategories();
+    data.learned[senderDomain] = categoryId;
+    saveCategories(data);
+
+    res.json({ success: true, message: `Learned: emails from ${senderDomain} → category ${categoryId}` });
+});
+
+app.post('/api/ai/apply-category', (req, res) => {
+    const { emailId, categoryId, folderName } = req.body;
+
+    try {
+        // Move email to folder using AppleScript
+        const script = `
+            tell application "Mail"
+                set targetMailbox to mailbox "${folderName}" of account 1
+                set theMessages to (messages of inbox whose id is ${emailId})
+                repeat with theMessage in theMessages
+                    move theMessage to targetMailbox
+                end repeat
+            end tell
+        `;
+
+        // For now, just log the action (AppleScript mail moving can be tricky)
+        console.log(`Would move email ${emailId} to folder ${folderName}`);
+
+        res.json({ success: true, message: `Email would be moved to ${folderName}` });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+function generateCategorySuggestions(emails, categories) {
+    const suggestions = [];
+    const uncategorized = emails.filter(e => !e.category);
+
+    // Find common patterns in uncategorized emails
+    const senderPatterns = {};
+    for (const email of uncategorized) {
+        const domain = (email.sender || '').split('@')[1];
+        if (domain) {
+            senderPatterns[domain] = (senderPatterns[domain] || 0) + 1;
+        }
+    }
+
+    // Suggest new categories for frequent senders
+    for (const [domain, count] of Object.entries(senderPatterns)) {
+        if (count >= 3) {
+            suggestions.push({
+                type: 'new_category',
+                suggestion: `Create category for ${domain} (${count} emails)`
+            });
+        }
+    }
+
+    // Suggest keywords to add
+    const allWords = uncategorized
+        .flatMap(e => (e.subject || '').toLowerCase().split(/\s+/))
+        .filter(w => w.length > 4);
+
+    const wordFreq = {};
+    for (const word of allWords) {
+        wordFreq[word] = (wordFreq[word] || 0) + 1;
+    }
+
+    const topWords = Object.entries(wordFreq)
+        .filter(([_, count]) => count >= 3)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+    for (const [word, count] of topWords) {
+        suggestions.push({
+            type: 'add_keyword',
+            suggestion: `Add keyword "${word}" to a category (appears ${count} times)`
+        });
+    }
+
+    return suggestions;
+}
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
@@ -3471,7 +3972,8 @@ app.listen(PORT, () => {
 ║     FELIX — Your Chief of Staff                       ║
 ║     Dashboard running at http://localhost:${PORT}       ║
 ║                                                       ║
-║     All features enabled: AI, Slack, Notion, Linear   ║
+║     Advanced AI: Thread Summary, Smart Compose,       ║
+║     Sentiment Analysis, Auto-Categorization           ║
 ║     Press Ctrl+C to stop                              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝

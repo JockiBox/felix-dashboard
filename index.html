@@ -2668,6 +2668,339 @@
             color: var(--text-muted);
         }
 
+        /* ============ ADVANCED AI SECTION ============ */
+
+        .ai-features-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .ai-feature-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .ai-feature-header .ai-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .ai-feature-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .ai-feature-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Sentiment Analysis */
+        .sentiment-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .sentiment-stat {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+
+        .sentiment-stat .emoji {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .sentiment-stat .count {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sentiment-stat .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sentiment-insight {
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .email-sentiment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .email-sentiment-badge.urgent {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .email-sentiment-badge.positive {
+            background: rgba(34, 197, 94, 0.15);
+            color: #16a34a;
+        }
+
+        .email-sentiment-badge.negative {
+            background: rgba(249, 115, 22, 0.15);
+            color: #ea580c;
+        }
+
+        .email-sentiment-badge.neutral {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        /* Auto-Categorization */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .category-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-chip:hover {
+            background: var(--bg-elevated);
+        }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .category-name {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .category-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        .category-suggestions {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-top: 12px;
+        }
+
+        .category-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .category-suggestion::before {
+            content: '💡';
+        }
+
+        /* Thread Summarizer */
+        .thread-summary-panel {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .thread-headline {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .thread-key-points {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .thread-key-points li {
+            padding: 6px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        .thread-key-points li::before {
+            content: '•';
+            color: #8b5cf6;
+            margin-right: 8px;
+        }
+
+        .thread-participants {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .thread-participant {
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .thread-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .thread-action-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            color: #8b5cf6;
+        }
+
+        /* Smart Compose */
+        .smart-compose-suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 8px;
+            overflow: hidden;
+            display: none;
+            z-index: 100;
+        }
+
+        .smart-compose-suggestions.show {
+            display: block;
+        }
+
+        .compose-suggestion {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: background 0.15s;
+        }
+
+        .compose-suggestion:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .compose-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .compose-suggestion-text {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .compose-suggestion-style {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            text-transform: capitalize;
+        }
+
+        .compose-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .compose-hint kbd {
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        /* AI Features Toggle */
+        .ai-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .ai-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-toggle-icon {
+            font-size: 16px;
+        }
+
+        .ai-toggle-text {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .ai-toggle-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
         /* Install PWA button */
         .install-pwa {
             display: none;
@@ -3388,6 +3721,136 @@
                         <div class="integration-status" id="webhook-count">0 webhooks</div>
                     </div>
                     <button class="integration-btn connect" onclick="showWebhooksModal()">Manage</button>
+                </div>
+            </section>
+
+            <!-- Advanced AI Section -->
+            <section class="ai-features-section" id="ai-features-section">
+                <div class="ai-feature-header">
+                    <div class="ai-icon">🧠</div>
+                    <div>
+                        <div class="ai-feature-title">Advanced AI</div>
+                        <div class="ai-feature-subtitle">Powered by Claude</div>
+                    </div>
+                </div>
+
+                <!-- Sentiment Analysis -->
+                <div class="panel-section">
+                    <h4 class="section-subtitle">Inbox Sentiment</h4>
+                    <div class="sentiment-overview" id="sentiment-overview">
+                        <div class="sentiment-stat">
+                            <div class="emoji">🚨</div>
+                            <div class="count" id="sentiment-urgent">0</div>
+                            <div class="label">Urgent</div>
+                        </div>
+                        <div class="sentiment-stat">
+                            <div class="emoji">😊</div>
+                            <div class="count" id="sentiment-positive">0</div>
+                            <div class="label">Positive</div>
+                        </div>
+                        <div class="sentiment-stat">
+                            <div class="emoji">😟</div>
+                            <div class="count" id="sentiment-negative">0</div>
+                            <div class="label">Negative</div>
+                        </div>
+                        <div class="sentiment-stat">
+                            <div class="emoji">📧</div>
+                            <div class="count" id="sentiment-neutral">0</div>
+                            <div class="label">Neutral</div>
+                        </div>
+                    </div>
+                    <div class="sentiment-insight" id="sentiment-insight">
+                        Analyzing inbox sentiment...
+                    </div>
+                </div>
+
+                <!-- Auto-Categorization -->
+                <div class="panel-section" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 class="section-subtitle">Smart Categories</h4>
+                        <button class="btn-secondary" onclick="runAutoCategorization()" style="font-size: 11px; padding: 4px 10px;">
+                            ✨ Analyze
+                        </button>
+                    </div>
+                    <div class="category-grid" id="category-grid">
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #3b82f6;"></div>
+                            <span class="category-name">Work</span>
+                            <span class="category-count">-</span>
+                        </div>
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #10b981;"></div>
+                            <span class="category-name">Finance</span>
+                            <span class="category-count">-</span>
+                        </div>
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #f59e0b;"></div>
+                            <span class="category-name">Shopping</span>
+                            <span class="category-count">-</span>
+                        </div>
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #ec4899;"></div>
+                            <span class="category-name">Social</span>
+                            <span class="category-count">-</span>
+                        </div>
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #8b5cf6;"></div>
+                            <span class="category-name">Dev</span>
+                            <span class="category-count">-</span>
+                        </div>
+                        <div class="category-chip">
+                            <div class="category-dot" style="background: #6b7280;"></div>
+                            <span class="category-name">Newsletters</span>
+                            <span class="category-count">-</span>
+                        </div>
+                    </div>
+                    <div class="category-suggestions" id="category-suggestions" style="display: none;">
+                        <div class="category-suggestion">Loading suggestions...</div>
+                    </div>
+                </div>
+
+                <!-- AI Features Toggle -->
+                <div class="panel-section" style="margin-top: 20px;">
+                    <h4 class="section-subtitle">AI Features</h4>
+                    <div class="ai-toggle-row">
+                        <div class="ai-toggle-label">
+                            <span class="ai-toggle-icon">✍️</span>
+                            <div>
+                                <div class="ai-toggle-text">Smart Compose</div>
+                                <div class="ai-toggle-desc">AI auto-complete while typing</div>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="smart-compose-toggle" checked onchange="toggleSmartCompose(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="ai-toggle-row">
+                        <div class="ai-toggle-label">
+                            <span class="ai-toggle-icon">📊</span>
+                            <div>
+                                <div class="ai-toggle-text">Sentiment Badges</div>
+                                <div class="ai-toggle-desc">Show mood on emails</div>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sentiment-badges-toggle" checked onchange="toggleSentimentBadges(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="ai-toggle-row" style="border-bottom: none;">
+                        <div class="ai-toggle-label">
+                            <span class="ai-toggle-icon">📑</span>
+                            <div>
+                                <div class="ai-toggle-text">Thread Summary</div>
+                                <div class="ai-toggle-desc">Summarize email chains</div>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="thread-summary-toggle" checked onchange="toggleThreadSummary(this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
             </section>
         </main>
@@ -6459,6 +6922,377 @@
             }
         }
 
+        // ============ ADVANCED AI FEATURES ============
+
+        let smartComposeEnabled = true;
+        let sentimentBadgesEnabled = true;
+        let threadSummaryEnabled = true;
+        let emailSentiments = {};
+        let composeDebounceTimer = null;
+
+        function toggleSmartCompose(enabled) {
+            smartComposeEnabled = enabled;
+            localStorage.setItem('felix-smart-compose', enabled);
+        }
+
+        function toggleSentimentBadges(enabled) {
+            sentimentBadgesEnabled = enabled;
+            localStorage.setItem('felix-sentiment-badges', enabled);
+            if (enabled) {
+                loadSentimentAnalysis();
+            } else {
+                // Remove badges from emails
+                document.querySelectorAll('.email-sentiment-badge').forEach(b => b.remove());
+            }
+        }
+
+        function toggleThreadSummary(enabled) {
+            threadSummaryEnabled = enabled;
+            localStorage.setItem('felix-thread-summary', enabled);
+        }
+
+        // Load AI settings from localStorage
+        function loadAISettings() {
+            const smartCompose = localStorage.getItem('felix-smart-compose');
+            const sentimentBadges = localStorage.getItem('felix-sentiment-badges');
+            const threadSummary = localStorage.getItem('felix-thread-summary');
+
+            if (smartCompose !== null) {
+                smartComposeEnabled = smartCompose === 'true';
+                document.getElementById('smart-compose-toggle').checked = smartComposeEnabled;
+            }
+            if (sentimentBadges !== null) {
+                sentimentBadgesEnabled = sentimentBadges === 'true';
+                document.getElementById('sentiment-badges-toggle').checked = sentimentBadgesEnabled;
+            }
+            if (threadSummary !== null) {
+                threadSummaryEnabled = threadSummary === 'true';
+                document.getElementById('thread-summary-toggle').checked = threadSummaryEnabled;
+            }
+        }
+
+        // Sentiment Analysis
+        async function loadSentimentAnalysis() {
+            if (!sentimentBadgesEnabled) return;
+
+            try {
+                // Get emails from the priority list
+                const emailElements = document.querySelectorAll('.email-item');
+                const emails = [];
+
+                emailElements.forEach(el => {
+                    const id = el.dataset.id;
+                    const subject = el.querySelector('.email-subject')?.textContent || '';
+                    const sender = el.querySelector('.email-sender')?.textContent || '';
+                    const preview = el.querySelector('.email-preview')?.textContent || '';
+                    emails.push({ id, subject, sender, preview });
+                });
+
+                if (emails.length === 0) return;
+
+                const res = await fetch(`${API_BASE}/ai/analyze-sentiment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emails })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Update stats
+                    document.getElementById('sentiment-urgent').textContent = data.stats.urgent;
+                    document.getElementById('sentiment-positive').textContent = data.stats.positive;
+                    document.getElementById('sentiment-negative').textContent = data.stats.negative;
+                    document.getElementById('sentiment-neutral').textContent = data.stats.neutral;
+                    document.getElementById('sentiment-insight').textContent = data.insight;
+
+                    // Store sentiments for later use
+                    data.emails.forEach(e => {
+                        emailSentiments[e.id] = e;
+                    });
+
+                    // Add badges to emails
+                    if (sentimentBadgesEnabled) {
+                        addSentimentBadges(data.emails);
+                    }
+                }
+            } catch (e) {
+                console.error('Sentiment analysis error:', e);
+            }
+        }
+
+        function addSentimentBadges(emails) {
+            emails.forEach(email => {
+                if (email.sentiment === 'neutral') return; // Skip neutral
+
+                const emailEl = document.querySelector(`.email-item[data-id="${email.id}"]`);
+                if (!emailEl) return;
+
+                // Remove existing badge
+                const existing = emailEl.querySelector('.email-sentiment-badge');
+                if (existing) existing.remove();
+
+                // Add new badge
+                const badge = document.createElement('span');
+                badge.className = `email-sentiment-badge ${email.sentiment}`;
+                badge.innerHTML = `${email.emoji} ${email.sentiment}`;
+
+                const meta = emailEl.querySelector('.email-meta');
+                if (meta) {
+                    meta.appendChild(badge);
+                }
+            });
+        }
+
+        // Auto-Categorization
+        async function runAutoCategorization() {
+            try {
+                const emailElements = document.querySelectorAll('.email-item');
+                const emails = [];
+
+                emailElements.forEach(el => {
+                    const id = el.dataset.id;
+                    const subject = el.querySelector('.email-subject')?.textContent || '';
+                    const sender = el.querySelector('.email-sender')?.textContent || '';
+                    const preview = el.querySelector('.email-preview')?.textContent || '';
+                    emails.push({ id, subject, sender, preview });
+                });
+
+                if (emails.length === 0) {
+                    addMessage('No emails to categorize.', false);
+                    return;
+                }
+
+                addMessage('Analyzing email categories...', false);
+
+                const res = await fetch(`${API_BASE}/ai/categorize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emails })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    updateCategoryGrid(data.stats);
+                    showCategorySuggestions(data.suggestions);
+
+                    const categorized = data.emails.filter(e => e.category).length;
+                    addMessage(`Categorized ${categorized}/${emails.length} emails. ${data.stats['Uncategorized']} remain uncategorized.`, false);
+                }
+            } catch (e) {
+                console.error('Categorization error:', e);
+                addMessage('Failed to categorize emails.', false);
+            }
+        }
+
+        function updateCategoryGrid(stats) {
+            const grid = document.getElementById('category-grid');
+            const chips = grid.querySelectorAll('.category-chip');
+
+            chips.forEach(chip => {
+                const name = chip.querySelector('.category-name').textContent;
+                const count = stats[name] || 0;
+                chip.querySelector('.category-count').textContent = count;
+            });
+        }
+
+        function showCategorySuggestions(suggestions) {
+            const container = document.getElementById('category-suggestions');
+
+            if (!suggestions || suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            container.innerHTML = suggestions.map(s =>
+                `<div class="category-suggestion">${s.suggestion}</div>`
+            ).join('');
+        }
+
+        // Thread Summarizer
+        async function summarizeThread(emails) {
+            if (!threadSummaryEnabled) return null;
+
+            try {
+                const res = await fetch(`${API_BASE}/ai/summarize-thread`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emails })
+                });
+
+                const data = await res.json();
+                return data.success ? data.summary : null;
+
+            } catch (e) {
+                console.error('Thread summarize error:', e);
+                return null;
+            }
+        }
+
+        function showThreadSummary(summary, container) {
+            if (!summary) return;
+
+            const html = `
+                <div class="thread-summary-panel">
+                    <div class="thread-headline">${summary.headline}</div>
+                    <ul class="thread-key-points">
+                        ${summary.keyPoints.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                    ${summary.participants ? `
+                        <div class="thread-participants">
+                            ${summary.participants.map(p => `<span class="thread-participant">${p}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${summary.actionItems && summary.actionItems.length > 0 ? `
+                        <div class="thread-actions">
+                            ${summary.actionItems.map(a => `<div class="thread-action-item">☑️ ${a}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        // Smart Compose
+        function initSmartCompose(inputElement) {
+            if (!inputElement) return;
+
+            // Create suggestions container
+            let suggestionsContainer = inputElement.parentElement.querySelector('.smart-compose-suggestions');
+            if (!suggestionsContainer) {
+                suggestionsContainer = document.createElement('div');
+                suggestionsContainer.className = 'smart-compose-suggestions';
+                inputElement.parentElement.style.position = 'relative';
+                inputElement.parentElement.appendChild(suggestionsContainer);
+            }
+
+            inputElement.addEventListener('input', async (e) => {
+                if (!smartComposeEnabled) return;
+
+                const text = e.target.value;
+                if (text.length < 10) {
+                    suggestionsContainer.classList.remove('show');
+                    return;
+                }
+
+                // Debounce
+                clearTimeout(composeDebounceTimer);
+                composeDebounceTimer = setTimeout(async () => {
+                    await getSmartComposeSuggestions(text, suggestionsContainer, inputElement);
+                }, 500);
+            });
+
+            // Handle Tab to accept suggestion
+            inputElement.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && suggestionsContainer.classList.contains('show')) {
+                    e.preventDefault();
+                    const firstSuggestion = suggestionsContainer.querySelector('.compose-suggestion');
+                    if (firstSuggestion) {
+                        const completion = firstSuggestion.dataset.completion;
+                        inputElement.value += completion;
+                        suggestionsContainer.classList.remove('show');
+                    }
+                } else if (e.key === 'Escape') {
+                    suggestionsContainer.classList.remove('show');
+                }
+            });
+
+            // Close on blur
+            inputElement.addEventListener('blur', () => {
+                setTimeout(() => suggestionsContainer.classList.remove('show'), 200);
+            });
+        }
+
+        async function getSmartComposeSuggestions(text, container, input) {
+            try {
+                const res = await fetch(`${API_BASE}/ai/smart-compose`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        partialText: text,
+                        emailSubject: currentPreviewEmail?.subject || '',
+                        emailSender: currentPreviewEmail?.sender || ''
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success && data.suggestions.length > 0) {
+                    container.innerHTML = `
+                        <div class="compose-hint">
+                            <span>Press</span> <kbd>Tab</kbd> <span>to accept</span>
+                        </div>
+                        ${data.suggestions.map(s => `
+                            <div class="compose-suggestion" data-completion="${escapeHtml(s.completion)}" onclick="acceptComposeSuggestion(this, '${input.id}')">
+                                <div class="compose-suggestion-text">${escapeHtml(text)}${escapeHtml(s.completion)}</div>
+                                <div class="compose-suggestion-style">${s.style}</div>
+                            </div>
+                        `).join('')}
+                    `;
+                    container.classList.add('show');
+                } else {
+                    container.classList.remove('show');
+                }
+            } catch (e) {
+                console.error('Smart compose error:', e);
+            }
+        }
+
+        function acceptComposeSuggestion(element, inputId) {
+            const completion = element.dataset.completion;
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value += completion;
+                input.focus();
+            }
+            element.closest('.smart-compose-suggestions').classList.remove('show');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Add categories endpoint
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_BASE}/ai/categories`);
+                const data = await res.json();
+                if (data.success) {
+                    return data.categories;
+                }
+            } catch (e) {
+                console.error('Failed to load categories:', e);
+            }
+            return [];
+        }
+
+        // Learn category from user action
+        async function learnCategory(senderDomain, categoryId) {
+            try {
+                await fetch(`${API_BASE}/ai/learn-category`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senderDomain, categoryId })
+                });
+            } catch (e) {
+                console.error('Failed to learn category:', e);
+            }
+        }
+
+        // Initialize AI features
+        function initAdvancedAI() {
+            loadAISettings();
+            loadSentimentAnalysis();
+
+            // Initialize smart compose on reply input if it exists
+            const replyInput = document.getElementById('reply-input');
+            if (replyInput) {
+                initSmartCompose(replyInput);
+            }
+        }
+
         // ============ LOAD ALL NEW FEATURES ============
 
         async function loadAllNewFeatures() {
@@ -6478,6 +7312,9 @@
                 loadTimeBlocking(),
                 checkIntegrations()
             ]);
+
+            // Initialize Advanced AI after emails are loaded
+            setTimeout(initAdvancedAI, 500);
         }
 
         // ============ UPDATE INIT ============
