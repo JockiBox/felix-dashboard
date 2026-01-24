@@ -32,6 +32,11 @@
   },
   "recentActions": [
     {
+      "emailId": 69034,
+      "action": "read",
+      "timestamp": "2026-01-24T21:36:41.021Z"
+    },
+    {
       "emailId": 69189,
       "sender": "onlinebanking@ealerts.bankofamerica.com",
       "subject": "Credit card transaction exceeds alert limit you set",
