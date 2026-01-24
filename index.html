@@ -628,6 +628,204 @@
             height: 12px;
         }
 
+        /* Enhanced Email Actions */
+        .email-actions-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .email-item:hover .email-actions-row {
+            opacity: 1;
+        }
+
+        .email-action-btn.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .email-action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .email-action-btn.archive {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .email-action-btn.archive:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .email-action-btn.reply {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .email-action-btn.reply:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .email-action-btn.forward {
+            background: rgba(139, 92, 246, 0.1);
+            color: #7c3aed;
+        }
+
+        .email-action-btn.forward:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .email-action-btn.rule {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .email-action-btn.rule:hover {
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        /* Simplified View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+
+        .view-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .view-toggle-btn.active {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Unread Email List */
+        .unread-email-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .unread-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+        }
+
+        .unread-stats .unread-count {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .unread-stats .unread-showing {
+            color: var(--text-muted);
+        }
+
+        .unread-stat {
+            text-align: center;
+        }
+
+        .unread-stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .unread-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .load-more-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px dashed var(--bg-elevated);
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .load-more-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+        }
+
+        /* Rule Dropdown */
+        .rule-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .rule-dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            min-width: 180px;
+            z-index: 100;
+            margin-bottom: 4px;
+        }
+
+        .rule-dropdown:hover .rule-dropdown-content {
+            display: block;
+        }
+
+        .rule-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .rule-dropdown-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .rule-dropdown-item:first-child {
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .rule-dropdown-item:last-child {
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
         .email-action-btn.archive:hover { background: rgba(74, 122, 154, 0.2); color: var(--accent-info); }
         .email-action-btn.delete:hover { background: rgba(196, 90, 90, 0.2); color: var(--accent-danger); }
         .email-action-btn.star:hover { background: rgba(196, 146, 42, 0.2); color: var(--accent-warning); }
@@ -4188,11 +4386,15 @@
                 <div class="meeting-prep-emails" id="meeting-prep-emails"></div>
             </div>
 
-            <!-- Priority Emails -->
-            <section class="priority-section">
+            <!-- Unread Emails -->
+            <section class="priority-section" id="priority-inbox">
                 <div class="priority-header">
-                    <h3 class="section-title">Priority Inbox</h3>
+                    <h3 class="section-title">Unread Emails</h3>
                     <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="view-toggle">
+                            <button class="view-toggle-btn active" onclick="setEmailView('unread')" id="view-unread">All Unread</button>
+                            <button class="view-toggle-btn" onclick="setEmailView('priority')" id="view-priority">Priority</button>
+                        </div>
                         <div class="priority-count" id="priority-count">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
@@ -4209,23 +4411,28 @@
                         </button>
                     </div>
                 </div>
-                <!-- AI Summary -->
-                <div class="ai-summary" id="ai-summary" style="display: none;">
-                    <div class="ai-summary-header">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 3 3v1a2 2 0 0 1-2 2h-1v5a4 4 0 0 1-8 0v-5H7a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3V6a4 4 0 0 1 4-4z"/>
-                            <circle cx="9" cy="10" r="1"/>
-                            <circle cx="15" cy="10" r="1"/>
-                        </svg>
-                        <span>Felix's Take</span>
+
+                <!-- Unread Stats -->
+                <div class="unread-stats" id="unread-stats">
+                    <div class="unread-stat">
+                        <div class="unread-stat-value" id="total-unread">-</div>
+                        <div class="unread-stat-label">Total Unread</div>
                     </div>
-                    <p id="ai-summary-text"></p>
+                    <div class="unread-stat">
+                        <div class="unread-stat-value" id="showing-count">-</div>
+                        <div class="unread-stat-label">Showing</div>
+                    </div>
                 </div>
-                <div class="email-list" id="email-list">
+
+                <div class="email-list unread-email-list" id="email-list">
                     <div class="skeleton" style="height: 80px;"></div>
                     <div class="skeleton" style="height: 80px;"></div>
                     <div class="skeleton" style="height: 80px;"></div>
                 </div>
+
+                <button class="load-more-btn" id="load-more-btn" onclick="loadMoreEmails()" style="display: none;">
+                    Load More Emails
+                </button>
             </section>
 
             <!-- Calendar -->
@@ -5340,7 +5547,7 @@
             if (isConnected) {
                 await loadLearnedActions();
                 await Promise.all([
-                    loadEmails(),
+                    loadUnreadEmails(),
                     loadCalendar(),
                     loadFiles(),
                     loadBriefing(),
@@ -5382,6 +5589,72 @@
 
         // ============ DATA LOADING ============
 
+        // Email view state
+        let currentEmailView = 'unread'; // 'unread' or 'priority'
+        let emailOffset = 0;
+        let totalUnreadCount = 0;
+        const EMAIL_PAGE_SIZE = 50;
+
+        function setEmailView(view) {
+            currentEmailView = view;
+            emailOffset = 0;
+
+            // Update toggle buttons
+            document.querySelectorAll('.view-toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+
+            // Load appropriate data
+            if (view === 'unread') {
+                loadUnreadEmails();
+            } else {
+                loadEmails();
+            }
+        }
+
+        async function loadUnreadEmails() {
+            try {
+                const res = await fetch(`${API_BASE}/emails/unread?limit=${EMAIL_PAGE_SIZE}&offset=${emailOffset}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    if (emailOffset === 0) {
+                        currentEmails = data.emails;
+                    } else {
+                        currentEmails = [...currentEmails, ...data.emails];
+                    }
+                    totalUnreadCount = data.total;
+
+                    renderEmails(currentEmails);
+
+                    // Update stats
+                    const statsEl = document.getElementById('unread-stats');
+                    if (statsEl) {
+                        statsEl.innerHTML = `
+                            <span class="unread-count">${data.total} unread</span>
+                            <span class="unread-showing">Showing ${currentEmails.length}</span>
+                        `;
+                    }
+
+                    // Show/hide load more button
+                    const loadMoreBtn = document.getElementById('load-more-btn');
+                    if (loadMoreBtn) {
+                        loadMoreBtn.style.display = currentEmails.length < data.total ? 'block' : 'none';
+                        loadMoreBtn.textContent = `Load More (${data.total - currentEmails.length} remaining)`;
+                    }
+
+                    document.querySelector('#priority-count span').textContent =
+                        `${data.total} unread emails`;
+                }
+            } catch (e) {
+                console.error('Failed to load unread emails:', e);
+            }
+        }
+
+        function loadMoreEmails() {
+            emailOffset += EMAIL_PAGE_SIZE;
+            loadUnreadEmails();
+        }
+
         async function loadEmails() {
             try {
                 const res = await fetch(`${API_BASE}/emails/priority`);
@@ -5392,9 +5665,75 @@
                     renderEmails(data.emails);
                     document.querySelector('#priority-count span').textContent =
                         `${data.count} need attention`;
+
+                    // Hide load more for priority view
+                    const loadMoreBtn = document.getElementById('load-more-btn');
+                    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+
+                    // Hide unread stats for priority view
+                    const statsEl = document.getElementById('unread-stats');
+                    if (statsEl) statsEl.innerHTML = '';
                 }
             } catch (e) {
                 console.error('Failed to load emails:', e);
+            }
+        }
+
+        // ============ QUICK RULES ============
+
+        async function createQuickRule(emailId, sender, ruleType) {
+            try {
+                const res = await fetch(`${API_BASE}/rules/quick/${ruleType}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId, sender })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const ruleNames = {
+                        'auto-delete': 'Auto-delete',
+                        'auto-archive': 'Auto-archive',
+                        'unsubscribe': 'Unsubscribe'
+                    };
+                    addMessage(`Rule created: ${ruleNames[ruleType]} future emails from ${sender}`, false);
+
+                    // Refresh emails
+                    if (currentEmailView === 'unread') {
+                        emailOffset = 0;
+                        loadUnreadEmails();
+                    } else {
+                        loadEmails();
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to create rule:', e);
+                addMessage('Failed to create rule. Please try again.', false);
+            }
+        }
+
+        async function forwardEmail(emailId, subject) {
+            const toAddress = prompt('Forward to (email address):');
+            if (!toAddress) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/emails/forward`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId, toAddress })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    addMessage(`Email forwarded to ${toAddress}`, false);
+                } else {
+                    addMessage(data.message || 'Failed to forward email', false);
+                }
+            } catch (e) {
+                console.error('Failed to forward email:', e);
+                addMessage('Failed to forward email. Please try again.', false);
             }
         }
 
@@ -5521,13 +5860,16 @@
             generateAISummary(emails);
 
             if (!emails.length) {
+                const emptyMsg = currentEmailView === 'unread'
+                    ? 'Inbox zero! No unread emails.'
+                    : 'All caught up! No priority emails.';
                 container.innerHTML = `
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                             <polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
-                        <p>All caught up! No priority emails.</p>
+                        <p>${emptyMsg}</p>
                     </div>
                 `;
                 return;
@@ -5550,47 +5892,73 @@
                             <span class="email-time">${formatEmailTime(email.received)}</span>
                             ${email.tags.map(tag => `<span class="email-tag tag-${tag}">${tag}</span>`).join('')}
                         </div>
-                        <div class="email-actions">
-                            <button class="email-action-btn archive ${suggestedAction === 'archive' ? (isAuto ? 'auto' : 'suggested') : ''}"
-                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'archive')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="21 8 21 21 3 21 3 8"/>
-                                    <rect x="1" y="3" width="22" height="5"/>
-                                    <line x1="10" y1="12" x2="14" y2="12"/>
-                                </svg>
-                                Archive${isAuto && suggestedAction === 'archive' ? '<span class="learned-badge">Auto</span>' : ''}
-                            </button>
-                            <button class="email-action-btn delete ${suggestedAction === 'delete' ? (isAuto ? 'auto' : 'suggested') : ''}"
-                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'delete')">
+                        <div class="email-actions-row">
+                            <button class="email-action-btn delete"
+                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'delete')"
+                                    title="Delete">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"/>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                 </svg>
-                                Delete${isAuto && suggestedAction === 'delete' ? '<span class="learned-badge">Auto</span>' : ''}
+                                Delete
                             </button>
-                            <button class="email-action-btn star ${suggestedAction === 'star' ? (isAuto ? 'auto' : 'suggested') : ''}"
-                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'star')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                </svg>
-                                Star
-                            </button>
-                            <button class="email-action-btn reply ${suggestedAction === 'reply' ? (isAuto ? 'auto' : 'suggested') : ''}"
-                                    onclick="openAIDraftForEmail(event, ${email.id})" title="AI Draft Reply (r)">
+                            <button class="email-action-btn reply"
+                                    onclick="openAIDraftForEmail(event, ${email.id})"
+                                    title="Reply with AI">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="9 17 4 12 9 7"/>
                                     <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
                                 </svg>
                                 Reply
                             </button>
-                            <button class="email-action-btn snooze"
-                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'snooze')">
+                            <button class="email-action-btn forward"
+                                    onclick="event.stopPropagation(); forwardEmail(${email.id}, '${escapeHtml(email.subject)}')"
+                                    title="Forward">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12 6 12 12 16 14"/>
+                                    <polyline points="15 17 20 12 15 7"/>
+                                    <path d="M4 18v-2a4 4 0 0 1 4-4h12"/>
                                 </svg>
-                                Snooze
+                                Forward
                             </button>
+                            <button class="email-action-btn archive"
+                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'archive')"
+                                    title="Archive">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="21 8 21 21 3 21 3 8"/>
+                                    <rect x="1" y="3" width="22" height="5"/>
+                                    <line x1="10" y1="12" x2="14" y2="12"/>
+                                </svg>
+                                Archive
+                            </button>
+                            <div class="rule-dropdown" onclick="event.stopPropagation()">
+                                <button class="email-action-btn rule" title="Create Rule">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                    </svg>
+                                    Rules
+                                </button>
+                                <div class="rule-dropdown-content">
+                                    <button class="rule-dropdown-item" onclick="createQuickRule(${email.id}, '${escapeHtml(email.sender)}', 'auto-delete')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                                            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                        </svg>
+                                        Auto-delete future
+                                    </button>
+                                    <button class="rule-dropdown-item" onclick="createQuickRule(${email.id}, '${escapeHtml(email.sender)}', 'auto-archive')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                                            <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+                                        </svg>
+                                        Auto-archive future
+                                    </button>
+                                    <button class="rule-dropdown-item" onclick="createQuickRule(${email.id}, '${escapeHtml(email.sender)}', 'unsubscribe')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>
+                                        </svg>
+                                        Unsubscribe
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5950,8 +6318,10 @@
         }
 
         async function refreshAll() {
+            // Refresh emails based on current view
+            const emailLoader = currentEmailView === 'unread' ? loadUnreadEmails() : loadEmails();
             await Promise.all([
-                loadEmails(),
+                emailLoader,
                 loadCalendar(),
                 loadFiles(),
                 loadBriefing(),

@@ -187,6 +187,194 @@ app.get('/api/emails/stats', (req, res) => {
     }
 });
 
+// Get ALL unread emails
+app.get('/api/emails/unread', (req, res) => {
+    try {
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+        const limit = parseInt(req.query.limit) || 100;
+        const offset = parseInt(req.query.offset) || 0;
+
+        const emails = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject,
+                a.address as sender,
+                m.read,
+                m.flagged,
+                m.date_received as timestamp
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.read = 0
+            AND m.deleted = 0
+            ORDER BY m.date_received DESC
+            LIMIT ? OFFSET ?
+        `).all(limit, offset);
+
+        const countResult = db.prepare(`
+            SELECT COUNT(*) as total
+            FROM messages
+            WHERE read = 0 AND deleted = 0
+        `).get();
+
+        db.close();
+
+        const formattedEmails = emails.map(email => {
+            const senderDomain = (email.sender || '').split('@')[1] || '';
+            const subject = (email.subject || '').toLowerCase();
+            const sender = (email.sender || '').toLowerCase();
+
+            // Categorize email
+            let category = 'default';
+            if (subject.includes('invoice') || subject.includes('receipt') || subject.includes('payment')) {
+                category = 'financial';
+            } else if (subject.includes('confirm') || subject.includes('verify') || subject.includes('activate')) {
+                category = 'action';
+            } else if (subject.includes('ship') || subject.includes('deliver') || subject.includes('track')) {
+                category = 'shipping';
+            } else if (sender.includes('noreply') || sender.includes('newsletter') || sender.includes('marketing')) {
+                category = 'newsletter';
+            }
+
+            // Generate tags
+            const tags = [];
+            if (email.flagged) tags.push('starred');
+            if (subject.includes('urgent') || subject.includes('asap') || subject.includes('important')) tags.push('urgent');
+            if (subject.includes('meeting') || subject.includes('invite') || subject.includes('calendar')) tags.push('meeting');
+            if (sender.includes('noreply') || sender.includes('newsletter')) tags.push('newsletter');
+
+            return {
+                ...email,
+                senderName: extractBrandName(email.sender),
+                senderDomain,
+                initials: getInitials(email.sender),
+                category,
+                tags
+            };
+        });
+
+        res.json({
+            success: true,
+            emails: formattedEmails,
+            total: countResult.total,
+            showing: emails.length,
+            hasMore: offset + emails.length < countResult.total
+        });
+
+    } catch (error) {
+        console.error('Unread emails error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Quick rule creation endpoints
+app.post('/api/rules/quick/auto-delete', (req, res) => {
+    const { sender, senderDomain, senderEmail } = req.body;
+    const senderValue = sender || senderDomain || senderEmail;
+
+    if (!senderValue) {
+        return res.status(400).json({ success: false, error: 'Sender required' });
+    }
+
+    // Extract domain from email address if full email provided
+    const domain = senderValue.includes('@') ? senderValue.split('@')[1] : senderValue;
+
+    const rulesData = loadRules();
+    const rule = {
+        id: Date.now(),
+        name: `Auto-delete from ${domain}`,
+        condition: { field: 'sender', operator: 'contains', value: domain },
+        action: 'delete',
+        enabled: true,
+        createdAt: new Date().toISOString()
+    };
+
+    rulesData.rules.push(rule);
+    saveRules(rulesData);
+
+    res.json({ success: true, rule, message: `Will auto-delete emails from ${domain}` });
+});
+
+app.post('/api/rules/quick/auto-archive', (req, res) => {
+    const { sender, senderDomain, senderEmail } = req.body;
+    const senderValue = sender || senderDomain || senderEmail;
+
+    if (!senderValue) {
+        return res.status(400).json({ success: false, error: 'Sender required' });
+    }
+
+    const domain = senderValue.includes('@') ? senderValue.split('@')[1] : senderValue;
+
+    const rulesData = loadRules();
+    const rule = {
+        id: Date.now(),
+        name: `Auto-archive from ${domain}`,
+        condition: { field: 'sender', operator: 'contains', value: domain },
+        action: 'archive',
+        enabled: true,
+        createdAt: new Date().toISOString()
+    };
+
+    rulesData.rules.push(rule);
+    saveRules(rulesData);
+
+    res.json({ success: true, rule, message: `Will auto-archive emails from ${domain}` });
+});
+
+app.post('/api/rules/quick/unsubscribe', (req, res) => {
+    const { sender, senderDomain, senderEmail } = req.body;
+    const senderValue = sender || senderDomain || senderEmail;
+
+    if (!senderValue) {
+        return res.status(400).json({ success: false, error: 'Sender required' });
+    }
+
+    const domain = senderValue.includes('@') ? senderValue.split('@')[1] : senderValue;
+
+    const rulesData = loadRules();
+    const rule = {
+        id: Date.now(),
+        name: `Unsubscribe & delete from ${domain}`,
+        condition: { field: 'sender', operator: 'contains', value: domain },
+        action: 'delete',
+        enabled: true,
+        isUnsubscribe: true,
+        createdAt: new Date().toISOString()
+    };
+
+    rulesData.rules.push(rule);
+    saveRules(rulesData);
+
+    res.json({ success: true, rule, message: `Unsubscribed from ${domain}` });
+});
+
+// Forward email
+app.post('/api/emails/forward', (req, res) => {
+    const { emailId, toAddress, subject } = req.body;
+
+    if (!emailId || !toAddress) {
+        return res.status(400).json({ success: false, error: 'Email ID and recipient required' });
+    }
+
+    try {
+        const script = `
+            tell application "Mail"
+                set theMessage to first message of inbox whose id is ${emailId}
+                set fwdMessage to forward theMessage with opening window
+                tell fwdMessage
+                    make new to recipient at end of to recipients with properties {address:"${toAddress}"}
+                end tell
+                activate
+            end tell
+        `;
+        runAppleScript(script);
+        res.json({ success: true, message: 'Forward window opened in Mail' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // ============ CALENDAR ENDPOINTS ============
 
 app.get('/api/calendar/upcoming', (req, res) => {
