@@ -306,38 +306,29 @@
         let total = 0;
         let pending = null;
 
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', init);
-
-        function init() {
+        // Direct initialization (script is at end of body, DOM is ready)
+        (function() {
             console.log('Felix initializing...');
 
-            // Input event listeners
+            // Input - handle Enter key
             const inputEl = document.getElementById('input');
-            if (inputEl) {
-                inputEl.addEventListener('keydown', e => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        send();
-                    }
-                });
-                inputEl.focus();
-            }
+            inputEl.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    send();
+                    return false;
+                }
+            };
 
             // Filter buttons
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.addEventListener('click', () => setFilter(b.dataset.f));
+            document.querySelectorAll('.filter-btn').forEach(function(b) {
+                b.onclick = function() { setFilter(this.dataset.f); };
             });
 
             updateTime();
             setInterval(updateTime, 1000);
             loadEmails();
-        }
-
-        // Also run init if DOM already loaded
-        if (document.readyState !== 'loading') {
-            init();
-        }
+        })();
 
         function updateTime() {
             const now = new Date();
