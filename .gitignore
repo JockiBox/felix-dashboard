@@ -14,3 +14,11 @@ slack-config.json
 felix-settings.json
 sender-reputation.json
 reply-templates.json
+followup-reminders.json
+email-sequences.json
+scheduled-emails.json
+batch-filters.json
+saved-searches.json
+dashboard-layout.json
+email-categories.json
+webhooks.json
