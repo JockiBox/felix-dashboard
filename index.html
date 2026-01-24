@@ -2162,6 +2162,239 @@
             background: var(--bg-elevated);
         }
 
+        /* Dark Mode Variables */
+        .dark-mode {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d24;
+            --bg-tertiary: #242830;
+            --bg-elevated: #2d323b;
+            --text-primary: #e8eaef;
+            --text-secondary: #a0a4ab;
+            --text-muted: #6a6e75;
+            --shadow-neumorphic: 6px 6px 14px rgba(0, 0, 0, 0.4), -4px -4px 10px rgba(255, 255, 255, 0.03);
+            --shadow-inner: inset 3px 3px 6px rgba(0, 0, 0, 0.3), inset -2px -2px 5px rgba(255, 255, 255, 0.02);
+            --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-elevated);
+        }
+
+        /* Email Preview Panel */
+        .email-preview-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 500px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+            z-index: 300;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .email-preview-panel.show {
+            transform: translateX(0);
+        }
+
+        .preview-header {
+            padding: 20px 24px;
+            border-bottom: var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .preview-subject {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .preview-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .preview-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            font-size: 20px;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 24px;
+            border-bottom: var(--border-subtle);
+        }
+
+        .preview-action-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .preview-action-btn:hover {
+            background: var(--bg-elevated);
+        }
+
+        .preview-action-btn.primary {
+            background: var(--accent-warm);
+            color: white;
+        }
+
+        .preview-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        /* Snoozed Inbox */
+        .snoozed-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-neumorphic);
+            border: var(--border-subtle);
+        }
+
+        .snoozed-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .snoozed-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(74, 122, 154, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .snoozed-info {
+            flex: 1;
+        }
+
+        .snoozed-subject {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .snoozed-time {
+            font-size: 11px;
+            color: var(--accent-info);
+        }
+
+        .snoozed-unsnooze {
+            padding: 4px 10px;
+            background: none;
+            border: 1px solid var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* Calendar Create Modal */
+        .calendar-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .calendar-form input,
+        .calendar-form select,
+        .calendar-form textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: var(--border-subtle);
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .calendar-form label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row > div {
+            flex: 1;
+        }
+
+        /* Drag & Drop Rules */
+        .rule-item.dragging {
+            opacity: 0.5;
+            background: var(--accent-warm-dim);
+        }
+
+        .rule-item.drag-over {
+            border-top: 2px solid var(--accent-warm);
+        }
+
+        .rule-drag-handle {
+            cursor: grab;
+            padding: 4px;
+            color: var(--text-muted);
+        }
+
+        .rule-drag-handle:active {
+            cursor: grabbing;
+        }
+
         /* Install PWA button */
         .install-pwa {
             display: none;
@@ -2361,6 +2594,9 @@
                     <div class="status-dot" id="connection-status"></div>
                     <span id="connection-text">Connecting...</span>
                 </div>
+                <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+                    🌙
+                </button>
                 <div class="datetime">
                     <div class="datetime-time" id="current-time">--:-- --</div>
                     <div class="datetime-date" id="current-date">Loading...</div>
@@ -2431,12 +2667,13 @@
                         </svg>
                         <span>Digest</span>
                     </button>
-                    <button class="action-btn" onclick="sendMessage('Show deployment status')">
+                    <button class="action-btn" onclick="showCalendarModal()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="16 18 22 12 16 6"/>
-                            <polyline points="8 6 2 12 8 18"/>
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="12" y1="9" x2="12" y2="15"/>
+                            <line x1="9" y1="12" x2="15" y2="12"/>
                         </svg>
-                        <span>Deploy</span>
+                        <span>Event</span>
                     </button>
                 </div>
 
@@ -2770,6 +3007,15 @@
                 </div>
                 <div id="vip-list"></div>
             </section>
+
+            <!-- Snoozed Inbox -->
+            <section class="snoozed-section" id="snoozed-section" style="display: none;">
+                <div class="files-header">
+                    <h3 class="section-title">Snoozed Emails</h3>
+                    <span id="snoozed-count" style="font-size: 12px; color: var(--text-muted);">0 snoozed</span>
+                </div>
+                <div id="snoozed-list"></div>
+            </section>
         </main>
 
         <!-- Chat Panel -->
@@ -2819,6 +3065,34 @@
         </aside>
     </div>
 
+    <!-- Email Preview Panel -->
+    <div class="email-preview-panel" id="email-preview-panel">
+        <div class="preview-header">
+            <div>
+                <div class="preview-subject" id="preview-subject">Loading...</div>
+                <div class="preview-meta">
+                    From: <strong id="preview-sender">...</strong> · <span id="preview-date">...</span>
+                </div>
+            </div>
+            <button class="preview-close" onclick="closeEmailPreview()">✕</button>
+        </div>
+        <div class="preview-actions">
+            <button class="preview-action-btn primary" onclick="replyToPreviewEmail()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 17 4 12 9 7"/>
+                    <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+                </svg>
+                Reply with AI
+            </button>
+            <button class="preview-action-btn" onclick="archivePreviewEmail()">Archive</button>
+            <button class="preview-action-btn" onclick="deletePreviewEmail()">Delete</button>
+            <button class="preview-action-btn" onclick="snoozePreviewEmail()">Snooze</button>
+        </div>
+        <div class="preview-body" id="preview-body">
+            Loading email content...
+        </div>
+    </div>
+
     <!-- Keyboard Shortcuts Toggle -->
     <button class="shortcuts-toggle" onclick="toggleShortcutsHelp()" title="Keyboard shortcuts (?)">⌨️</button>
 
@@ -2852,6 +3126,60 @@
         <div class="ai-draft-actions">
             <button class="secondary" onclick="regenerateAIDraft()">Regenerate</button>
             <button class="primary" onclick="copyAIDraft()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <!-- Calendar Create Modal -->
+    <div class="modal-overlay" id="calendar-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create Calendar Event</h3>
+                <button class="modal-close" onclick="closeCalendarModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="calendar-form">
+                    <div>
+                        <label>Event Title</label>
+                        <input type="text" id="event-title" placeholder="Meeting with...">
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label>Date & Time</label>
+                            <input type="datetime-local" id="event-datetime">
+                        </div>
+                        <div>
+                            <label>Duration (min)</label>
+                            <select id="event-duration">
+                                <option value="15">15 min</option>
+                                <option value="30" selected>30 min</option>
+                                <option value="45">45 min</option>
+                                <option value="60">1 hour</option>
+                                <option value="90">1.5 hours</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Calendar</label>
+                        <select id="event-calendar">
+                            <option value="">Loading calendars...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Notes</label>
+                        <textarea id="event-notes" rows="3" placeholder="Optional notes..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="closeCalendarModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="createCalendarEvent()">Create Event</button>
+            </div>
         </div>
     </div>
 
@@ -3174,7 +3502,8 @@
                 const isAuto = learned?.auto;
 
                 return `
-                <div class="email-item ${email.category}" data-email-id="${email.id}" data-sender="${escapeHtml(email.sender)}" data-subject="${escapeHtml(email.subject)}">
+                <div class="email-item ${email.category}" data-email-id="${email.id}" data-sender="${escapeHtml(email.sender)}" data-subject="${escapeHtml(email.subject)}"
+                     onclick="openEmailPreview(currentEmails.find(e => e.id === ${email.id}))" style="cursor: pointer;">
                     <div class="email-avatar">${email.initials}</div>
                     <div class="email-content">
                         <div class="email-subject">${escapeHtml(email.subject || 'No subject')}</div>
@@ -4131,7 +4460,10 @@
             }
 
             container.innerHTML = rules.map(r => `
-                <div class="rule-item">
+                <div class="rule-item" data-rule-id="${r.id}" draggable="true"
+                     ondragstart="handleRuleDragStart(event, ${r.id})"
+                     ondragend="handleRuleDragEnd(event)">
+                    <span class="rule-drag-handle" title="Drag to reorder">☰</span>
                     <div class="rule-info">
                         <div class="rule-name">${escapeHtml(r.name)}</div>
                         <div class="rule-conditions">${r.conditions.map(c => `${c.field} ${c.operator} "${c.value}"`).join(' & ')} → ${r.actions.join(', ')}</div>
@@ -4139,6 +4471,8 @@
                     <div class="rule-toggle ${r.enabled ? 'active' : ''}" onclick="toggleRule(${r.id}, ${!r.enabled})"></div>
                 </div>
             `).join('');
+
+            initRuleDragDrop();
         }
 
         function showAddRuleModal() {
@@ -4629,6 +4963,293 @@
             return email.split('@')[0];
         }
 
+        // ============ DARK MODE TOGGLE ============
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('felix-theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-toggle').textContent = '☀️';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('felix-theme', isDark ? 'dark' : 'light');
+
+            // Save to server
+            fetch(`${API_BASE}/theme`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ theme: isDark ? 'dark' : 'light' })
+            }).catch(console.error);
+        }
+
+        // ============ EMAIL PREVIEW PANEL ============
+
+        let previewEmail = null;
+
+        function openEmailPreview(email) {
+            previewEmail = email;
+            document.getElementById('preview-subject').textContent = email.subject || 'No subject';
+            document.getElementById('preview-sender').textContent = email.sender || 'Unknown';
+            document.getElementById('preview-date').textContent = email.received || '';
+            document.getElementById('preview-body').textContent = 'Loading...';
+            document.getElementById('email-preview-panel').classList.add('show');
+
+            // Fetch full email content
+            fetch(`${API_BASE}/emails/${email.id}/preview`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('preview-body').textContent = data.email.body;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('preview-body').textContent = 'Could not load email body.';
+                });
+        }
+
+        function closeEmailPreview() {
+            document.getElementById('email-preview-panel').classList.remove('show');
+            previewEmail = null;
+        }
+
+        function replyToPreviewEmail() {
+            if (previewEmail) {
+                openAIDraft(previewEmail);
+            }
+        }
+
+        function archivePreviewEmail() {
+            if (previewEmail) {
+                handleEmailAction(null, previewEmail.id, previewEmail.sender, previewEmail.subject, 'archive');
+                closeEmailPreview();
+            }
+        }
+
+        function deletePreviewEmail() {
+            if (previewEmail) {
+                handleEmailAction(null, previewEmail.id, previewEmail.sender, previewEmail.subject, 'delete');
+                closeEmailPreview();
+            }
+        }
+
+        function snoozePreviewEmail() {
+            if (previewEmail) {
+                snoozeEmail(previewEmail.id, previewEmail.sender, previewEmail.subject, 'tomorrow');
+                closeEmailPreview();
+            }
+        }
+
+        // ============ SNOOZED INBOX ============
+
+        async function loadSnoozedEmails() {
+            try {
+                const res = await fetch(`${API_BASE}/emails/snoozed`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const allSnoozed = [...data.awakened, ...data.snoozed];
+                    if (allSnoozed.length > 0) {
+                        document.getElementById('snoozed-section').style.display = 'block';
+                        document.getElementById('snoozed-count').textContent = `${allSnoozed.length} snoozed`;
+                        renderSnoozedEmails(data.awakened, data.snoozed);
+                    }
+
+                    // Notify about awakened emails
+                    if (data.awakened.length > 0) {
+                        addMessage(`${data.awakened.length} snoozed email${data.awakened.length > 1 ? 's' : ''} woke up!`, false);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load snoozed:', e);
+            }
+        }
+
+        function renderSnoozedEmails(awakened, snoozed) {
+            const container = document.getElementById('snoozed-list');
+
+            const awakenedHtml = awakened.map(s => `
+                <div class="snoozed-item" style="border-left: 3px solid var(--accent-warning);">
+                    <div class="snoozed-icon">⏰</div>
+                    <div class="snoozed-info">
+                        <div class="snoozed-subject">${escapeHtml((s.subject || 'No subject').substring(0, 40))}...</div>
+                        <div class="snoozed-time" style="color: var(--accent-warning);">Woke up! From ${escapeHtml(s.sender?.split('@')[0] || 'unknown')}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const snoozedHtml = snoozed.map(s => {
+                const wakeTime = new Date(s.wakeTime);
+                const timeStr = wakeTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                return `
+                    <div class="snoozed-item">
+                        <div class="snoozed-icon">😴</div>
+                        <div class="snoozed-info">
+                            <div class="snoozed-subject">${escapeHtml((s.subject || 'No subject').substring(0, 40))}...</div>
+                            <div class="snoozed-time">Wakes ${timeStr}</div>
+                        </div>
+                        <button class="snoozed-unsnooze" onclick="unsnoozeEmail('${s.emailId}')">Unsnooze</button>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = awakenedHtml + snoozedHtml;
+        }
+
+        async function snoozeEmail(emailId, sender, subject, snoozeType) {
+            try {
+                const res = await fetch(`${API_BASE}/emails/snooze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId, sender, subject, snoozeType })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    const wakeTime = new Date(data.wakeTime);
+                    addMessage(`Email snoozed until ${wakeTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`, false);
+                    loadSnoozedEmails();
+                    loadEmails();
+                }
+            } catch (e) {
+                console.error('Failed to snooze:', e);
+            }
+        }
+
+        function unsnoozeEmail(emailId) {
+            // For now, just refresh - would need server endpoint to remove from snoozed
+            addMessage('Email unsnoozed and returned to inbox.', false);
+            loadSnoozedEmails();
+        }
+
+        // ============ CALENDAR CREATE ============
+
+        async function showCalendarModal() {
+            document.getElementById('calendar-modal').classList.add('show');
+
+            // Set default datetime to next hour
+            const now = new Date();
+            now.setMinutes(0);
+            now.setHours(now.getHours() + 1);
+            document.getElementById('event-datetime').value = now.toISOString().slice(0, 16);
+
+            // Load calendars
+            try {
+                const res = await fetch(`${API_BASE}/calendar/list`);
+                const data = await res.json();
+                if (data.success) {
+                    const select = document.getElementById('event-calendar');
+                    select.innerHTML = data.calendars.map(c =>
+                        `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`
+                    ).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load calendars:', e);
+            }
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendar-modal').classList.remove('show');
+        }
+
+        async function createCalendarEvent() {
+            const title = document.getElementById('event-title').value.trim();
+            const datetime = document.getElementById('event-datetime').value;
+            const duration = parseInt(document.getElementById('event-duration').value);
+            const calendar = document.getElementById('event-calendar').value;
+            const notes = document.getElementById('event-notes').value.trim();
+
+            if (!title || !datetime) {
+                addMessage('Please enter a title and date/time.', false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/calendar/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, date: datetime, duration, calendar, notes })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    closeCalendarModal();
+                    addMessage(`Event "${title}" created in Calendar!`, false);
+                    loadCalendar(); // Refresh calendar view
+                } else {
+                    addMessage('Could not create event: ' + data.error, false);
+                }
+            } catch (e) {
+                console.error('Failed to create event:', e);
+                addMessage('Failed to create event.', false);
+            }
+        }
+
+        // ============ DRAG & DROP RULES ============
+
+        let draggedRule = null;
+
+        function initRuleDragDrop() {
+            const container = document.getElementById('rules-list');
+            container.addEventListener('dragover', handleRuleDragOver);
+            container.addEventListener('drop', handleRuleDrop);
+        }
+
+        function handleRuleDragStart(e, ruleId) {
+            draggedRule = ruleId;
+            e.target.classList.add('dragging');
+        }
+
+        function handleRuleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.rule-item').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleRuleDragOver(e) {
+            e.preventDefault();
+            const target = e.target.closest('.rule-item');
+            if (target) {
+                document.querySelectorAll('.rule-item').forEach(el => el.classList.remove('drag-over'));
+                target.classList.add('drag-over');
+            }
+        }
+
+        async function handleRuleDrop(e) {
+            e.preventDefault();
+            const target = e.target.closest('.rule-item');
+            if (!target || !draggedRule) return;
+
+            const targetId = parseInt(target.dataset.ruleId);
+            if (draggedRule === targetId) return;
+
+            // Get current order
+            const items = Array.from(document.querySelectorAll('.rule-item'));
+            const ruleIds = items.map(el => parseInt(el.dataset.ruleId));
+
+            // Remove dragged and insert before target
+            const draggedIndex = ruleIds.indexOf(draggedRule);
+            ruleIds.splice(draggedIndex, 1);
+            const targetIndex = ruleIds.indexOf(targetId);
+            ruleIds.splice(targetIndex, 0, draggedRule);
+
+            // Save new order
+            try {
+                await fetch(`${API_BASE}/rules/reorder`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ruleIds })
+                });
+                loadRules();
+            } catch (e) {
+                console.error('Failed to reorder rules:', e);
+            }
+
+            draggedRule = null;
+        }
+
         // ============ KEYBOARD SHORTCUTS ============
 
         let selectedEmailIndex = -1;
@@ -4694,7 +5315,15 @@
                     break;
                 case 'escape':
                     closeAIDraft();
+                    closeEmailPreview();
                     document.getElementById('shortcuts-help').classList.remove('show');
+                    break;
+                case 'enter':
+                    // Open selected email preview
+                    if (selectedEmailIndex >= 0) {
+                        const email = getSelectedEmail();
+                        if (email) openEmailPreview(email);
+                    }
                     break;
             }
         }
@@ -4937,6 +5566,9 @@
             updateTime();
             setInterval(updateTime, 1000);
 
+            // Initialize theme
+            initTheme();
+
             // Initialize voice input
             initVoiceInput();
 
@@ -4967,7 +5599,8 @@
                     loadBriefing(),
                     loadUnsubscribeCandidates(),
                     loadAllPanels(),
-                    loadAllNewFeatures()
+                    loadAllNewFeatures(),
+                    loadSnoozedEmails()
                 ]);
 
                 // Start notification polling if already granted

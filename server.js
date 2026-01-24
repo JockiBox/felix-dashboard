@@ -2501,6 +2501,154 @@ app.get('/sw.js', (req, res) => {
     `);
 });
 
+// ============ EMAIL PREVIEW (Full Body) ============
+
+app.get('/api/emails/:id/preview', (req, res) => {
+    try {
+        const emailId = parseInt(req.params.id);
+        const db = new Database(MAIL_DB_PATH, { readonly: true });
+
+        // Get email with full details
+        const email = db.prepare(`
+            SELECT
+                m.ROWID as id,
+                datetime(m.date_received, 'unixepoch', 'localtime') as received,
+                s.subject,
+                a.address as sender,
+                m.read,
+                m.flagged,
+                m.snippet
+            FROM messages m
+            LEFT JOIN subjects s ON m.subject = s.ROWID
+            LEFT JOIN addresses a ON m.sender = a.ROWID
+            WHERE m.ROWID = ?
+        `).get(emailId);
+
+        db.close();
+
+        if (!email) {
+            return res.status(404).json({ success: false, error: 'Email not found' });
+        }
+
+        // The snippet field contains preview text
+        // For full body, we'd need to access the actual message files
+        // For now, return what we have
+        res.json({
+            success: true,
+            email: {
+                ...email,
+                body: email.snippet || '(Email body not available in database. Open in Mail app for full content.)',
+                bodyHtml: null
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ CALENDAR CREATE ============
+
+app.post('/api/calendar/create', (req, res) => {
+    try {
+        const { title, date, duration = 60, notes = '', calendar = '' } = req.body;
+
+        // Format date for AppleScript
+        const eventDate = new Date(date);
+        const endDate = new Date(eventDate.getTime() + duration * 60000);
+
+        const script = `
+            set eventTitle to "${title.replace(/"/g, '\\"')}"
+            set eventNotes to "${notes.replace(/"/g, '\\"')}"
+            set startDate to date "${eventDate.toLocaleString('en-US')}"
+            set endDate to date "${endDate.toLocaleString('en-US')}"
+
+            tell application "Calendar"
+                tell calendar "${calendar || 'Calendar'}"
+                    set newEvent to make new event with properties {summary:eventTitle, start date:startDate, end date:endDate, description:eventNotes}
+                end tell
+            end tell
+            return "success"
+        `;
+
+        const result = runAppleScript(script);
+
+        res.json({
+            success: result.includes('success'),
+            message: 'Event created in Calendar',
+            event: { title, date, duration }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get available calendars
+app.get('/api/calendar/list', (req, res) => {
+    try {
+        const script = `
+            set calList to ""
+            tell application "Calendar"
+                repeat with cal in calendars
+                    set calList to calList & name of cal & "|||"
+                end repeat
+            end tell
+            return calList
+        `;
+
+        const result = runAppleScript(script);
+        const calendars = result.split('|||').filter(c => c.trim());
+
+        res.json({ success: true, calendars });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ REORDER RULES ============
+
+app.put('/api/rules/reorder', (req, res) => {
+    try {
+        const { ruleIds } = req.body; // Array of IDs in new order
+        const data = loadRules();
+
+        // Reorder rules based on provided IDs
+        const reordered = ruleIds.map(id => data.rules.find(r => r.id === id)).filter(Boolean);
+
+        // Add any rules not in the list (shouldn't happen, but safety)
+        const remaining = data.rules.filter(r => !ruleIds.includes(r.id));
+
+        data.rules = [...reordered, ...remaining];
+        saveRules(data);
+
+        res.json({ success: true, rules: data.rules });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ THEME SETTINGS ============
+
+app.get('/api/theme', (req, res) => {
+    const settings = loadSettings();
+    res.json({ success: true, theme: settings.theme || 'light' });
+});
+
+app.put('/api/theme', (req, res) => {
+    try {
+        const { theme } = req.body;
+        const settings = loadSettings();
+        settings.theme = theme;
+        saveSettings(settings);
+        res.json({ success: true, theme });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
