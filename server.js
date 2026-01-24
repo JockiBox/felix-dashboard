@@ -375,6 +375,177 @@ app.post('/api/emails/forward', (req, res) => {
     }
 });
 
+// ============ FELIX NATURAL LANGUAGE COMMANDS ============
+
+app.post('/api/felix/command', (req, res) => {
+    const { command } = req.body;
+    const lowerCmd = (command || '').toLowerCase();
+
+    // Parse natural language commands
+    const rulesData = loadRules();
+    let response = '';
+    let ruleCreated = false;
+    let actionsPerformed = false;
+
+    // Auto-delete patterns
+    if (lowerCmd.includes('auto-delete') || lowerCmd.includes('auto delete') ||
+        (lowerCmd.includes('delete') && lowerCmd.includes('from'))) {
+
+        // Extract sender/domain
+        const fromMatch = lowerCmd.match(/from\s+([^\s,]+)/i);
+        if (fromMatch) {
+            const sender = fromMatch[1].replace(/['"]/g, '');
+            const rule = {
+                id: Date.now(),
+                name: `Auto-delete from ${sender}`,
+                condition: { field: 'sender', operator: 'contains', value: sender },
+                action: 'delete',
+                enabled: true,
+                createdAt: new Date().toISOString()
+            };
+            rulesData.rules.push(rule);
+            saveRules(rulesData);
+            response = `Done! I'll automatically delete future emails from "${sender}".`;
+            ruleCreated = true;
+        }
+    }
+
+    // Auto-archive patterns
+    else if (lowerCmd.includes('auto-archive') || lowerCmd.includes('auto archive') ||
+             (lowerCmd.includes('archive') && lowerCmd.includes('from'))) {
+
+        const fromMatch = lowerCmd.match(/from\s+([^\s,]+)/i);
+        if (fromMatch) {
+            const sender = fromMatch[1].replace(/['"]/g, '');
+            const rule = {
+                id: Date.now(),
+                name: `Auto-archive from ${sender}`,
+                condition: { field: 'sender', operator: 'contains', value: sender },
+                action: 'archive',
+                enabled: true,
+                createdAt: new Date().toISOString()
+            };
+            rulesData.rules.push(rule);
+            saveRules(rulesData);
+            response = `Done! I'll automatically archive future emails from "${sender}".`;
+            ruleCreated = true;
+        }
+    }
+
+    // Delete all newsletters
+    else if (lowerCmd.includes('delete') && (lowerCmd.includes('newsletter') || lowerCmd.includes('newsletters'))) {
+        const rule = {
+            id: Date.now(),
+            name: 'Auto-delete newsletters',
+            condition: { field: 'sender', operator: 'contains', value: 'newsletter' },
+            action: 'delete',
+            enabled: true,
+            createdAt: new Date().toISOString()
+        };
+        rulesData.rules.push(rule);
+        saveRules(rulesData);
+        response = "Done! I'll automatically delete emails from senders containing 'newsletter'. I've also set up rules for common newsletter patterns.";
+        ruleCreated = true;
+
+        // Add common newsletter patterns
+        const patterns = ['noreply', 'marketing', 'promo', 'digest'];
+        patterns.forEach(p => {
+            rulesData.rules.push({
+                id: Date.now() + Math.random(),
+                name: `Auto-delete ${p}`,
+                condition: { field: 'sender', operator: 'contains', value: p },
+                action: 'delete',
+                enabled: true,
+                createdAt: new Date().toISOString()
+            });
+        });
+        saveRules(rulesData);
+    }
+
+    // Block promos
+    else if ((lowerCmd.includes('block') || lowerCmd.includes('delete')) &&
+             (lowerCmd.includes('promo') || lowerCmd.includes('promotion'))) {
+        const rule = {
+            id: Date.now(),
+            name: 'Auto-delete promotions',
+            condition: { field: 'sender', operator: 'contains', value: 'promo' },
+            action: 'delete',
+            enabled: true,
+            createdAt: new Date().toISOString()
+        };
+        rulesData.rules.push(rule);
+        saveRules(rulesData);
+        response = "Done! I'll automatically delete promotional emails.";
+        ruleCreated = true;
+    }
+
+    // Archive read emails
+    else if (lowerCmd.includes('archive') && lowerCmd.includes('read')) {
+        response = "To archive read emails, click the checkbox next to each email you want to archive, or use the archive button. I can't bulk archive without your confirmation to protect important emails.";
+    }
+
+    // Show what needs response
+    else if (lowerCmd.includes('response') || lowerCmd.includes('respond') || lowerCmd.includes('reply')) {
+        response = "To see emails that need a response, tag them with 'Respond Today' using the tag button on each email. Then use the 'Respond Today' filter to see them all in one place.";
+    }
+
+    // Unsubscribe
+    else if (lowerCmd.includes('unsubscribe')) {
+        const fromMatch = lowerCmd.match(/from\s+([^\s,]+)/i);
+        if (fromMatch) {
+            const sender = fromMatch[1].replace(/['"]/g, '');
+            const rule = {
+                id: Date.now(),
+                name: `Unsubscribe from ${sender}`,
+                condition: { field: 'sender', operator: 'contains', value: sender },
+                action: 'delete',
+                enabled: true,
+                isUnsubscribe: true,
+                createdAt: new Date().toISOString()
+            };
+            rulesData.rules.push(rule);
+            saveRules(rulesData);
+            response = `Done! I'll automatically delete future emails from "${sender}" (unsubscribed).`;
+            ruleCreated = true;
+        } else {
+            response = "Tell me who to unsubscribe from. For example: 'unsubscribe from marketing@example.com'";
+        }
+    }
+
+    // List rules
+    else if (lowerCmd.includes('show') && lowerCmd.includes('rule')) {
+        if (rulesData.rules.length === 0) {
+            response = "You don't have any rules set up yet. Tell me what to do with your emails, like 'auto-delete emails from newsletters'.";
+        } else {
+            response = `You have ${rulesData.rules.length} active rules:\n` +
+                rulesData.rules.map((r, i) => `${i + 1}. ${r.name}`).join('\n');
+        }
+    }
+
+    // Help
+    else if (lowerCmd.includes('help') || lowerCmd.includes('what can you')) {
+        response = `I can help you manage your emails! Try saying:\n
+• "Auto-delete emails from [sender]"
+• "Auto-archive emails from LinkedIn"
+• "Delete all newsletters"
+• "Block promotional emails"
+• "Unsubscribe from [sender]"
+• "Show my rules"`;
+    }
+
+    // Default response
+    else {
+        response = "I'm not sure what you want me to do. Try something like:\n• 'Auto-delete emails from newsletters'\n• 'Auto-archive emails from LinkedIn'\n• 'Block promotional emails'";
+    }
+
+    res.json({
+        success: true,
+        response,
+        ruleCreated,
+        actionsPerformed
+    });
+});
+
 // ============ CALENDAR ENDPOINTS ============
 
 app.get('/api/calendar/upcoming', (req, res) => {
