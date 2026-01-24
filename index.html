@@ -306,13 +306,38 @@
         let total = 0;
         let pending = null;
 
-        // Init
-        document.getElementById('input').addEventListener('keypress', e => { if (e.key === 'Enter') send(); });
-        document.querySelectorAll('.filter-btn').forEach(b => b.onclick = () => setFilter(b.dataset.f));
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', init);
 
-        updateTime();
-        setInterval(updateTime, 1000);
-        loadEmails();
+        function init() {
+            console.log('Felix initializing...');
+
+            // Input event listeners
+            const inputEl = document.getElementById('input');
+            if (inputEl) {
+                inputEl.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        send();
+                    }
+                });
+                inputEl.focus();
+            }
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.addEventListener('click', () => setFilter(b.dataset.f));
+            });
+
+            updateTime();
+            setInterval(updateTime, 1000);
+            loadEmails();
+        }
+
+        // Also run init if DOM already loaded
+        if (document.readyState !== 'loading') {
+            init();
+        }
 
         function updateTime() {
             const now = new Date();
@@ -322,6 +347,7 @@
 
         async function loadEmails() {
             try {
+                addFelix("Loading your emails...");
                 const r = await fetch(`${API}/emails/unread?limit=100&offset=0`);
                 const d = await r.json();
                 if (d.success) {
@@ -329,11 +355,14 @@
                     total = d.total;
                     render();
                     updateStats();
-                    // Felix always analyzes and suggests
-                    setTimeout(suggestCleanup, 600);
+                    // Clear loading message and show suggestions
+                    document.getElementById('chat').innerHTML = '';
+                    setTimeout(suggestCleanup, 300);
                 }
             } catch (e) {
-                addFelix("I can't connect to the email server. Make sure the Felix server is running.");
+                console.error('Email load error:', e);
+                document.getElementById('chat').innerHTML = '';
+                addFelix("I can't connect to the email server. Make sure the Felix server is running on port 3847.");
             }
         }
 
@@ -534,16 +563,29 @@
             const input = document.getElementById('input');
             const text = input.value.trim();
             if (!text) return;
+
+            console.log('Sending:', text);
             input.value = '';
             addUser(text);
             addThinking();
-            const response = await understand(text);
-            removeThinking();
-            if (response.actions) {
-                addFelixWithActions(response.text, response.actions);
-            } else {
-                addFelix(response.text || response);
+
+            try {
+                const response = await understand(text);
+                removeThinking();
+                if (response && response.actions) {
+                    addFelixWithActions(response.text, response.actions);
+                } else if (response) {
+                    addFelix(response.text || response);
+                } else {
+                    addFelix("I processed your request.");
+                }
+            } catch (err) {
+                console.error('Error in understand:', err);
+                removeThinking();
+                addFelix("Sorry, something went wrong. Try again.");
             }
+
+            input.focus();
         }
 
         // Smart NLU - handles many variations
