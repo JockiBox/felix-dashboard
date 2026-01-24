@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#b8935a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Felix">
+    <link rel="manifest" href="/manifest.json">
     <title>Felix — Your Chief of Staff</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1959,6 +1964,223 @@
             cursor: pointer;
         }
 
+        /* Keyboard Shortcuts Help */
+        .shortcuts-help {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-soft);
+            z-index: 100;
+            max-width: 280px;
+            display: none;
+        }
+
+        .shortcuts-help.show {
+            display: block;
+        }
+
+        .shortcuts-help h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .shortcut-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border: 1px solid var(--bg-elevated);
+        }
+
+        .shortcuts-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: none;
+            box-shadow: var(--shadow-neumorphic);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 99;
+        }
+
+        /* AI Draft Panel */
+        .ai-draft-panel {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 400px;
+            max-height: 500px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            box-shadow: var(--shadow-soft);
+            z-index: 200;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .ai-draft-panel.show {
+            transform: translateY(0);
+        }
+
+        .ai-draft-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: var(--border-subtle);
+        }
+
+        .ai-draft-header h3 {
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-draft-header h3::before {
+            content: '✨';
+        }
+
+        .ai-draft-body {
+            padding: 16px 20px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .ai-draft-context {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+
+        .ai-draft-output {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        .ai-draft-output.loading {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .ai-draft-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: var(--border-subtle);
+        }
+
+        .ai-draft-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .ai-draft-actions .primary {
+            background: var(--accent-warm);
+            color: white;
+        }
+
+        .ai-draft-actions .secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* Slack Integration */
+        .slack-widget {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            margin-top: 12px;
+        }
+
+        .slack-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .slack-status {
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .slack-status.connected {
+            color: var(--accent-success);
+        }
+
+        .slack-status.disconnected {
+            color: var(--text-muted);
+        }
+
+        /* Email selection highlight */
+        .email-item.selected {
+            outline: 2px solid var(--accent-warm);
+            outline-offset: -2px;
+        }
+
+        .email-item.focused {
+            background: var(--bg-elevated);
+        }
+
+        /* Install PWA button */
+        .install-pwa {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--accent-warm);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .install-pwa.show {
+            display: flex;
+        }
+
         /* Snooze Options */
         .snooze-menu {
             position: absolute;
@@ -2260,6 +2482,25 @@
                     </div>
                 </div>
                 <div id="system-alerts"></div>
+
+                <!-- Slack Integration -->
+                <div class="slack-widget" id="slack-widget">
+                    <svg class="slack-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#E01E5A"/>
+                    </svg>
+                    <div class="slack-status disconnected" id="slack-status">Not connected</div>
+                    <button onclick="connectSlack()" style="padding: 4px 10px; font-size: 11px; background: var(--bg-elevated); border: none; border-radius: 4px; cursor: pointer;">Connect</button>
+                </div>
+
+                <!-- Install PWA -->
+                <button class="install-pwa" id="install-pwa" onclick="installPWA()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Install App
+                </button>
             </div>
         </aside>
 
@@ -2578,6 +2819,42 @@
         </aside>
     </div>
 
+    <!-- Keyboard Shortcuts Toggle -->
+    <button class="shortcuts-toggle" onclick="toggleShortcutsHelp()" title="Keyboard shortcuts (?)">⌨️</button>
+
+    <!-- Keyboard Shortcuts Help -->
+    <div class="shortcuts-help" id="shortcuts-help">
+        <h4>Keyboard Shortcuts</h4>
+        <div class="shortcut-row"><span>Navigate emails</span><span class="shortcut-key">j</span> <span class="shortcut-key">k</span></div>
+        <div class="shortcut-row"><span>Archive</span><span class="shortcut-key">a</span></div>
+        <div class="shortcut-row"><span>Delete</span><span class="shortcut-key">d</span></div>
+        <div class="shortcut-row"><span>Star</span><span class="shortcut-key">s</span></div>
+        <div class="shortcut-row"><span>Reply with AI</span><span class="shortcut-key">r</span></div>
+        <div class="shortcut-row"><span>Snooze</span><span class="shortcut-key">z</span></div>
+        <div class="shortcut-row"><span>Focus mode</span><span class="shortcut-key">f</span></div>
+        <div class="shortcut-row"><span>Search</span><span class="shortcut-key">/</span></div>
+        <div class="shortcut-row"><span>Help</span><span class="shortcut-key">?</span></div>
+    </div>
+
+    <!-- AI Draft Panel -->
+    <div class="ai-draft-panel" id="ai-draft-panel">
+        <div class="ai-draft-header">
+            <h3>AI Draft Reply</h3>
+            <button onclick="closeAIDraft()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">✕</button>
+        </div>
+        <div class="ai-draft-body">
+            <div class="ai-draft-context" id="ai-draft-context">
+                Replying to: <strong id="ai-draft-subject">...</strong><br>
+                From: <span id="ai-draft-sender">...</span>
+            </div>
+            <div class="ai-draft-output" id="ai-draft-output">Click "Generate" to create an AI-powered reply...</div>
+        </div>
+        <div class="ai-draft-actions">
+            <button class="secondary" onclick="regenerateAIDraft()">Regenerate</button>
+            <button class="primary" onclick="copyAIDraft()">Copy to Clipboard</button>
+        </div>
+    </div>
+
     <!-- Rule Modal -->
     <div class="modal-overlay" id="rule-modal">
         <div class="modal">
@@ -2745,6 +3022,7 @@
                 const data = await res.json();
 
                 if (data.success) {
+                    currentEmails = data.emails; // Store for keyboard navigation
                     renderEmails(data.emails);
                     document.querySelector('#priority-count span').textContent =
                         `${data.count} need attention`;
@@ -2931,7 +3209,7 @@
                                 Star
                             </button>
                             <button class="email-action-btn reply ${suggestedAction === 'reply' ? (isAuto ? 'auto' : 'suggested') : ''}"
-                                    onclick="handleEmailAction(event, ${email.id}, '${escapeHtml(email.sender)}', '${escapeHtml(email.subject)}', 'reply')">
+                                    onclick="openAIDraftForEmail(event, ${email.id})" title="AI Draft Reply (r)">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="9 17 4 12 9 7"/>
                                     <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
@@ -4351,6 +4629,289 @@
             return email.split('@')[0];
         }
 
+        // ============ KEYBOARD SHORTCUTS ============
+
+        let selectedEmailIndex = -1;
+        let emailElements = [];
+
+        function initKeyboardShortcuts() {
+            document.addEventListener('keydown', handleKeyboardShortcut);
+        }
+
+        function handleKeyboardShortcut(e) {
+            // Ignore if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            switch (key) {
+                case 'j': // Next email
+                    navigateEmail(1);
+                    break;
+                case 'k': // Previous email
+                    navigateEmail(-1);
+                    break;
+                case 'a': // Archive
+                    if (selectedEmailIndex >= 0) {
+                        const email = getSelectedEmail();
+                        if (email) handleEmailAction(null, email.id, email.sender, email.subject, 'archive');
+                    }
+                    break;
+                case 'd': // Delete
+                    if (selectedEmailIndex >= 0) {
+                        const email = getSelectedEmail();
+                        if (email) handleEmailAction(null, email.id, email.sender, email.subject, 'delete');
+                    }
+                    break;
+                case 's': // Star
+                    if (selectedEmailIndex >= 0) {
+                        const email = getSelectedEmail();
+                        if (email) handleEmailAction(null, email.id, email.sender, email.subject, 'star');
+                    }
+                    break;
+                case 'r': // Reply with AI
+                    if (selectedEmailIndex >= 0) {
+                        const email = getSelectedEmail();
+                        if (email) openAIDraft(email);
+                    }
+                    break;
+                case 'z': // Snooze
+                    if (selectedEmailIndex >= 0) {
+                        addMessage('Snooze: Use the snooze button on the email for options.', false);
+                    }
+                    break;
+                case 'f': // Focus mode
+                    toggleFocusMode();
+                    break;
+                case '/': // Search
+                    e.preventDefault();
+                    document.getElementById('chat-input').focus();
+                    break;
+                case '?': // Help
+                    toggleShortcutsHelp();
+                    break;
+                case 'escape':
+                    closeAIDraft();
+                    document.getElementById('shortcuts-help').classList.remove('show');
+                    break;
+            }
+        }
+
+        function navigateEmail(direction) {
+            emailElements = document.querySelectorAll('.email-item');
+            if (emailElements.length === 0) return;
+
+            // Remove previous selection
+            emailElements.forEach(el => el.classList.remove('selected'));
+
+            // Update index
+            selectedEmailIndex += direction;
+            if (selectedEmailIndex < 0) selectedEmailIndex = 0;
+            if (selectedEmailIndex >= emailElements.length) selectedEmailIndex = emailElements.length - 1;
+
+            // Add selection
+            const selected = emailElements[selectedEmailIndex];
+            selected.classList.add('selected');
+            selected.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function getSelectedEmail() {
+            if (selectedEmailIndex < 0 || !currentEmails || selectedEmailIndex >= currentEmails.length) return null;
+            return currentEmails[selectedEmailIndex];
+        }
+
+        let currentEmails = [];
+
+        function toggleShortcutsHelp() {
+            document.getElementById('shortcuts-help').classList.toggle('show');
+        }
+
+        // ============ AI DRAFT REPLIES ============
+
+        let currentDraftEmail = null;
+        let currentDraft = '';
+
+        function openAIDraft(email) {
+            currentDraftEmail = email;
+            document.getElementById('ai-draft-subject').textContent = email.subject || 'No subject';
+            document.getElementById('ai-draft-sender').textContent = email.sender || 'Unknown';
+            document.getElementById('ai-draft-output').textContent = 'Generating AI reply...';
+            document.getElementById('ai-draft-output').classList.add('loading');
+            document.getElementById('ai-draft-panel').classList.add('show');
+
+            generateAIDraft();
+        }
+
+        function closeAIDraft() {
+            document.getElementById('ai-draft-panel').classList.remove('show');
+            currentDraftEmail = null;
+            currentDraft = '';
+        }
+
+        async function generateAIDraft() {
+            if (!currentDraftEmail) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/ai/draft-reply`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        originalEmail: {
+                            sender: currentDraftEmail.sender,
+                            subject: currentDraftEmail.subject,
+                            body: currentDraftEmail.preview || ''
+                        },
+                        tone: 'professional'
+                    })
+                });
+
+                const data = await res.json();
+                const output = document.getElementById('ai-draft-output');
+                output.classList.remove('loading');
+
+                if (data.success) {
+                    currentDraft = data.draft;
+                    output.textContent = data.draft;
+                } else {
+                    output.textContent = data.fallback || 'Could not generate draft. Please try again.';
+                }
+            } catch (e) {
+                console.error('AI draft error:', e);
+                const output = document.getElementById('ai-draft-output');
+                output.classList.remove('loading');
+                output.textContent = 'Could not connect to AI. Make sure ANTHROPIC_API_KEY is set.';
+            }
+        }
+
+        function regenerateAIDraft() {
+            document.getElementById('ai-draft-output').textContent = 'Regenerating...';
+            document.getElementById('ai-draft-output').classList.add('loading');
+            generateAIDraft();
+        }
+
+        function copyAIDraft() {
+            if (!currentDraft) {
+                addMessage('No draft to copy yet.', false);
+                return;
+            }
+
+            navigator.clipboard.writeText(currentDraft).then(() => {
+                addMessage('Draft copied to clipboard! Paste it in your email client.', false);
+                closeAIDraft();
+            }).catch(err => {
+                console.error('Copy failed:', err);
+            });
+        }
+
+        function openAIDraftForEmail(event, emailId) {
+            if (event) event.stopPropagation();
+            const email = currentEmails.find(e => e.id === emailId);
+            if (email) {
+                openAIDraft(email);
+            } else {
+                addMessage('Could not find email data. Try refreshing.', false);
+            }
+        }
+
+        // ============ SLACK INTEGRATION ============
+
+        async function checkSlackStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/slack/status`);
+                const data = await res.json();
+                const statusEl = document.getElementById('slack-status');
+
+                if (data.connected) {
+                    statusEl.textContent = 'Connected';
+                    statusEl.classList.remove('disconnected');
+                    statusEl.classList.add('connected');
+                }
+            } catch (e) {
+                console.error('Slack status check failed:', e);
+            }
+        }
+
+        function connectSlack() {
+            const token = prompt('Enter your Slack User OAuth Token (xoxp-...):\n\nGet it from api.slack.com/apps → Your App → OAuth & Permissions');
+            if (!token) return;
+
+            fetch(`${API_BASE}/slack/connect`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    addMessage('Slack connected! Felix can now sync your status.', false);
+                    checkSlackStatus();
+                }
+            }).catch(err => {
+                console.error('Slack connect error:', err);
+            });
+        }
+
+        async function syncSlackWithCalendar() {
+            try {
+                const res = await fetch(`${API_BASE}/slack/sync-calendar`);
+                const data = await res.json();
+
+                if (data.success && data.status === 'in_meeting') {
+                    // Auto-set Slack status
+                    await fetch(`${API_BASE}/slack/set-status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            status: data.suggestedStatus,
+                            emoji: ':calendar:'
+                        })
+                    });
+                }
+            } catch (e) {
+                console.error('Slack sync error:', e);
+            }
+        }
+
+        // ============ PWA INSTALLATION ============
+
+        let deferredPrompt = null;
+
+        function initPWA() {
+            // Register service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service worker registered'))
+                    .catch(err => console.error('SW registration failed:', err));
+            }
+
+            // Handle install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-pwa').classList.add('show');
+            });
+
+            // Handle successful install
+            window.addEventListener('appinstalled', () => {
+                document.getElementById('install-pwa').classList.remove('show');
+                addMessage('Felix installed! You can now launch it from your dock.', false);
+            });
+        }
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                addMessage('App already installed or not available for installation.', false);
+                return;
+            }
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                deferredPrompt = null;
+            }
+        }
+
         // ============ LOAD ALL NEW FEATURES ============
 
         async function loadAllNewFeatures() {
@@ -4379,6 +4940,12 @@
             // Initialize voice input
             initVoiceInput();
 
+            // Initialize keyboard shortcuts
+            initKeyboardShortcuts();
+
+            // Initialize PWA
+            initPWA();
+
             // Check notification permission
             checkNotificationPermission();
 
@@ -4388,6 +4955,9 @@
             if (isConnected) {
                 // Check weekend mode first
                 await checkWeekendMode();
+
+                // Check Slack status
+                checkSlackStatus();
 
                 await loadLearnedActions();
                 await Promise.all([
@@ -4406,6 +4976,9 @@
                     // Check VIP emails every 2 minutes
                     setInterval(checkVIPEmails, 120000);
                 }
+
+                // Sync Slack with calendar every 5 minutes
+                setInterval(syncSlackWithCalendar, 300000);
 
                 // Send initial greeting
                 setTimeout(() => {

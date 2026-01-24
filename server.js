@@ -5,6 +5,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const https = require('https');
 
 const app = express();
 const PORT = 3847;
@@ -2164,6 +2165,342 @@ app.get('/api/meetings/prep', (req, res) => {
     }
 });
 
+// ============ AI-POWERED RESPONSES (Claude API) ============
+
+async function callClaude(prompt, context = '') {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+        throw new Error('ANTHROPIC_API_KEY not set');
+    }
+
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            messages: [
+                {
+                    role: 'user',
+                    content: `You are Felix, an AI executive assistant helping compose professional email responses. Be concise, professional, and match the tone of the original email. ${context}\n\n${prompt}`
+                }
+            ]
+        });
+
+        const options = {
+            hostname: 'api.anthropic.com',
+            port: 443,
+            path: '/v1/messages',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(body);
+                    if (response.content && response.content[0]) {
+                        resolve(response.content[0].text);
+                    } else {
+                        reject(new Error(response.error?.message || 'Unknown API error'));
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.write(data);
+        req.end();
+    });
+}
+
+// Draft an email reply
+app.post('/api/ai/draft-reply', async (req, res) => {
+    try {
+        const { originalEmail, tone = 'professional', instruction = '' } = req.body;
+
+        const prompt = `Draft a reply to this email:
+
+From: ${originalEmail.sender}
+Subject: ${originalEmail.subject}
+Body: ${originalEmail.body || '(Email body not available)'}
+
+${instruction ? `Additional instruction: ${instruction}` : ''}
+Tone: ${tone}
+
+Write only the reply body, no subject line or signature.`;
+
+        const draft = await callClaude(prompt);
+        res.json({ success: true, draft });
+
+    } catch (error) {
+        console.error('AI draft error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            fallback: "I'd be happy to help draft a response. Could you tell me the key points you'd like to address?"
+        });
+    }
+});
+
+// Summarize an email thread
+app.post('/api/ai/summarize', async (req, res) => {
+    try {
+        const { emails } = req.body;
+
+        const prompt = `Summarize this email thread in 2-3 bullet points. Focus on key decisions, action items, and deadlines:
+
+${emails.map((e, i) => `Email ${i + 1}:\nFrom: ${e.sender}\nSubject: ${e.subject}\n${e.body || ''}`).join('\n\n')}`;
+
+        const summary = await callClaude(prompt);
+        res.json({ success: true, summary });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Suggest quick actions for an email
+app.post('/api/ai/suggest-action', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const prompt = `Based on this email, suggest the best action (reply, archive, delete, schedule meeting, create task, or forward). Respond with JSON: {"action": "...", "reason": "...", "urgency": "high/medium/low"}
+
+From: ${email.sender}
+Subject: ${email.subject}
+Preview: ${(email.body || '').substring(0, 200)}`;
+
+        const response = await callClaude(prompt);
+        const suggestion = JSON.parse(response);
+        res.json({ success: true, suggestion });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ SLACK INTEGRATION ============
+
+const SLACK_FILE = path.join(__dirname, 'slack-config.json');
+
+function loadSlackConfig() {
+    try {
+        if (fs.existsSync(SLACK_FILE)) {
+            return JSON.parse(fs.readFileSync(SLACK_FILE, 'utf-8'));
+        }
+    } catch (e) {}
+    return { token: null, userId: null, connected: false };
+}
+
+function saveSlackConfig(config) {
+    fs.writeFileSync(SLACK_FILE, JSON.stringify(config, null, 2));
+}
+
+// Connect Slack
+app.post('/api/slack/connect', (req, res) => {
+    try {
+        const { token } = req.body;
+        const config = { token, connected: true, connectedAt: new Date().toISOString() };
+        saveSlackConfig(config);
+        res.json({ success: true, message: 'Slack connected' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get Slack status
+app.get('/api/slack/status', (req, res) => {
+    const config = loadSlackConfig();
+    res.json({ success: true, connected: config.connected });
+});
+
+// Set Slack status based on calendar/focus mode
+app.post('/api/slack/set-status', async (req, res) => {
+    try {
+        const config = loadSlackConfig();
+        if (!config.token) {
+            return res.json({ success: false, error: 'Slack not connected' });
+        }
+
+        const { status, emoji, expiration } = req.body;
+
+        const data = JSON.stringify({
+            profile: {
+                status_text: status,
+                status_emoji: emoji || ':calendar:',
+                status_expiration: expiration || 0
+            }
+        });
+
+        const options = {
+            hostname: 'slack.com',
+            port: 443,
+            path: '/api/users.profile.set',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.token}`,
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const slackReq = https.request(options, (slackRes) => {
+            let body = '';
+            slackRes.on('data', chunk => body += chunk);
+            slackRes.on('end', () => {
+                const response = JSON.parse(body);
+                res.json({ success: response.ok, response });
+            });
+        });
+
+        slackReq.on('error', (e) => {
+            res.status(500).json({ success: false, error: e.message });
+        });
+
+        slackReq.write(data);
+        slackReq.end();
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get recent Slack DMs
+app.get('/api/slack/messages', async (req, res) => {
+    try {
+        const config = loadSlackConfig();
+        if (!config.token) {
+            return res.json({ success: false, error: 'Slack not connected', messages: [] });
+        }
+
+        // This would fetch from Slack API - simplified for now
+        res.json({
+            success: true,
+            messages: [],
+            note: 'Connect Slack with OAuth to see DMs'
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Auto-sync status with calendar
+app.get('/api/slack/sync-calendar', async (req, res) => {
+    try {
+        const config = loadSlackConfig();
+        if (!config.token) {
+            return res.json({ success: false, error: 'Slack not connected' });
+        }
+
+        // Check current calendar
+        const script = `
+            set now to current date
+            set inMeeting to false
+            set meetingName to ""
+            tell application "Calendar"
+                repeat with cal in calendars
+                    try
+                        set evts to (every event of cal whose start date <= now and end date >= now)
+                        if (count of evts) > 0 then
+                            set inMeeting to true
+                            set meetingName to summary of item 1 of evts
+                        end if
+                    end try
+                end repeat
+            end tell
+            if inMeeting then
+                return "IN_MEETING:" & meetingName
+            else
+                return "AVAILABLE"
+            end if
+        `;
+
+        const result = runAppleScript(script);
+
+        if (result.startsWith('IN_MEETING:')) {
+            const meetingName = result.replace('IN_MEETING:', '');
+            // Set Slack status to in meeting
+            res.json({
+                success: true,
+                status: 'in_meeting',
+                meeting: meetingName,
+                suggestedStatus: `In a meeting: ${meetingName.substring(0, 30)}`
+            });
+        } else {
+            res.json({ success: true, status: 'available' });
+        }
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============ PWA SUPPORT ============
+
+// Serve manifest
+app.get('/manifest.json', (req, res) => {
+    res.json({
+        name: 'Felix - AI Chief of Staff',
+        short_name: 'Felix',
+        description: 'Your local AI executive assistant',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#f8f9fc',
+        theme_color: '#b8935a',
+        icons: [
+            {
+                src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23b8935a" width="100" height="100" rx="20"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white" font-family="serif">F</text></svg>',
+                sizes: '192x192',
+                type: 'image/svg+xml',
+                purpose: 'any maskable'
+            }
+        ]
+    });
+});
+
+// Service worker
+app.get('/sw.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.send(`
+        const CACHE_NAME = 'felix-v1';
+        const ASSETS = ['/', '/index.html'];
+
+        self.addEventListener('install', (e) => {
+            e.waitUntil(
+                caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+            );
+        });
+
+        self.addEventListener('fetch', (e) => {
+            // Network first, fallback to cache
+            e.respondWith(
+                fetch(e.request)
+                    .catch(() => caches.match(e.request))
+            );
+        });
+
+        self.addEventListener('push', (e) => {
+            const data = e.data?.json() || { title: 'Felix', body: 'New notification' };
+            e.waitUntil(
+                self.registration.showNotification(data.title, {
+                    body: data.body,
+                    icon: '/manifest.json',
+                    badge: '/manifest.json'
+                })
+            );
+        });
+    `);
+});
+
 // ============ START SERVER ============
 
 app.listen(PORT, () => {
@@ -2173,6 +2510,7 @@ app.listen(PORT, () => {
 ║     FELIX — Your Chief of Staff                       ║
 ║     Dashboard running at http://localhost:${PORT}       ║
 ║                                                       ║
+║     Features: AI Replies, Slack, PWA, Shortcuts       ║
 ║     Press Ctrl+C to stop                              ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝

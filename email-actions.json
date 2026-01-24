@@ -1,0 +1,56 @@
+{
+  "senderActions": {
+    "support@novamane.com": {
+      "action": "archive",
+      "count": 1,
+      "autoApply": false
+    },
+    "no-reply@doordash.com": {
+      "action": "delete",
+      "count": 1,
+      "autoApply": false
+    },
+    "onlinebanking@ealerts.bankofamerica.com": {
+      "action": "archive",
+      "count": 1,
+      "autoApply": false
+    }
+  },
+  "subjectPatterns": {
+    "order": {
+      "action": "archive",
+      "count": 1
+    },
+    "confirmation": {
+      "action": "delete",
+      "count": 1
+    },
+    "alert": {
+      "action": "archive",
+      "count": 1
+    }
+  },
+  "recentActions": [
+    {
+      "emailId": 69189,
+      "sender": "onlinebanking@ealerts.bankofamerica.com",
+      "subject": "Credit card transaction exceeds alert limit you set",
+      "action": "archive",
+      "timestamp": "2026-01-24T20:08:11.668Z"
+    },
+    {
+      "emailId": 69130,
+      "sender": "no-reply@doordash.com",
+      "subject": "Order Confirmation for Owen from Jack in the Box",
+      "action": "delete",
+      "timestamp": "2026-01-24T20:08:08.742Z"
+    },
+    {
+      "emailId": 69187,
+      "sender": "support@novamane.com",
+      "subject": "Order #NM1118137 confirmed",
+      "action": "archive",
+      "timestamp": "2026-01-24T20:08:02.966Z"
+    }
+  ]
+}
