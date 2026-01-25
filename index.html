@@ -122,12 +122,12 @@
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: 340px 1fr 380px;
+            grid-template-columns: 280px 1fr 320px;
             grid-template-rows: auto 1fr;
-            gap: 24px;
-            padding: 24px;
+            gap: 16px;
+            padding: 16px;
             min-height: 100vh;
-            max-width: 1800px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -237,13 +237,13 @@
         .cliff-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
 
         .cliff-card {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 28px;
+            border-radius: var(--radius-lg);
+            padding: 16px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
             text-align: center;
@@ -251,9 +251,9 @@
 
         .cliff-avatar-container {
             position: relative;
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 20px;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px;
         }
 
         .cliff-avatar-ring {
@@ -286,17 +286,17 @@
 
         .cliff-name {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .cliff-title {
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .cliff-status {
@@ -332,35 +332,35 @@
         /* Quick Actions */
         .quick-actions {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 14px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
         }
 
         .section-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             color: var(--text-primary);
         }
 
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 8px;
         }
 
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            padding: 16px 12px;
+            gap: 4px;
+            padding: 10px 8px;
             background: var(--bg-tertiary);
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-neumorphic);
@@ -377,13 +377,13 @@
         }
 
         .action-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             color: var(--accent-warm);
         }
 
         .action-btn span {
-            font-size: 11px;
+            font-size: 9px;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -393,14 +393,14 @@
         .main-content {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
 
         /* Priority Cards */
         .priority-section {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 14px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
         }
@@ -409,7 +409,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .priority-count {
@@ -448,19 +448,19 @@
 
         /* AI Summary */
         .ai-summary {
-            padding: 14px 16px;
+            padding: 10px 12px;
             background: linear-gradient(135deg, var(--accent-warm-dim) 0%, rgba(74, 122, 154, 0.08) 100%);
-            border-radius: var(--radius-md);
-            margin-bottom: 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
             border-left: 3px solid var(--accent-warm);
         }
 
         .ai-summary-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 11px;
+            gap: 6px;
+            margin-bottom: 4px;
+            font-size: 10px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -468,8 +468,8 @@
         }
 
         .ai-summary p {
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 12px;
+            line-height: 1.4;
             color: var(--text-primary);
             margin: 0;
         }
@@ -477,18 +477,18 @@
         .email-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 400px;
+            gap: 6px;
+            max-height: 320px;
             overflow-y: auto;
         }
 
         .email-item {
             display: flex;
             align-items: flex-start;
-            gap: 14px;
-            padding: 16px;
+            gap: 10px;
+            padding: 10px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
@@ -516,14 +516,14 @@
         }
 
         .email-avatar {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--accent-warm);
             flex-shrink: 0;
@@ -535,37 +535,37 @@
         }
 
         .email-subject {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .email-sender {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .email-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .email-time {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
         .email-tag {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -637,8 +637,8 @@
         /* Calendar Section */
         .calendar-section {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 14px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
         }
@@ -647,37 +647,37 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .calendar-events {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 300px;
+            gap: 6px;
+            max-height: 200px;
             overflow-y: auto;
         }
 
         .calendar-day {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .calendar-day-label {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             padding-left: 4px;
         }
 
         .calendar-event {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
+            gap: 10px;
+            padding: 8px 10px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             transition: all 0.3s ease;
         }
 
@@ -687,9 +687,9 @@
 
         .event-time {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
+            font-size: 14px;
             color: var(--accent-warm);
-            min-width: 80px;
+            min-width: 60px;
         }
 
         .event-details {
@@ -723,23 +723,23 @@
             display: flex;
             flex-direction: column;
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
             overflow: hidden;
         }
 
         .chat-header {
-            padding: 20px 24px;
+            padding: 12px 14px;
             border-bottom: var(--border-subtle);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .chat-header-avatar {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-warm) 0%, #a88a5c 100%);
             display: flex;
@@ -748,36 +748,36 @@
         }
 
         .chat-header-avatar svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             color: var(--bg-primary);
         }
 
         .chat-header-info h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 500;
         }
 
         .chat-header-info span {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--accent-success);
         }
 
         .chat-messages {
             flex: 1;
-            padding: 20px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            min-height: 400px;
-            max-height: 500px;
+            gap: 10px;
+            min-height: 280px;
+            max-height: 350px;
         }
 
         .message {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             animation: messageIn 0.4s ease-out;
         }
 
@@ -793,8 +793,8 @@
         }
 
         .message-avatar {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: var(--bg-tertiary);
             display: flex;
@@ -808,8 +808,8 @@
         }
 
         .message-avatar svg {
-            width: 16px;
-            height: 16px;
+            width: 12px;
+            height: 12px;
             color: var(--text-secondary);
         }
 
@@ -822,46 +822,46 @@
         }
 
         .message-sender {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 500;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .message-text {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--text-primary);
-            line-height: 1.5;
-            padding: 12px 16px;
+            line-height: 1.4;
+            padding: 8px 10px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            border-top-left-radius: 4px;
+            border-radius: var(--radius-sm);
+            border-top-left-radius: 2px;
         }
 
         .message.user .message-text {
             background: var(--accent-warm-dim);
-            border-top-left-radius: var(--radius-md);
-            border-top-right-radius: 4px;
+            border-top-left-radius: var(--radius-sm);
+            border-top-right-radius: 2px;
         }
 
         .message-time {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .chat-input-container {
-            padding: 16px 20px;
+            padding: 10px 12px;
             border-top: var(--border-subtle);
         }
 
         .chat-input-wrapper {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 8px 12px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-md);
             box-shadow: var(--shadow-inner);
         }
 
@@ -871,7 +871,7 @@
             background: transparent;
             color: var(--text-primary);
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
+            font-size: 12px;
             outline: none;
         }
 
@@ -880,8 +880,8 @@
         }
 
         .chat-send {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border: none;
             background: var(--accent-warm);
             border-radius: 50%;
@@ -906,8 +906,8 @@
         /* File Organization Panel */
         .files-section {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 14px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
         }
@@ -916,12 +916,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .files-stats {
             display: flex;
-            gap: 16px;
+            gap: 12px;
         }
 
         .file-stat {
@@ -930,12 +930,12 @@
 
         .file-stat-value {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 24px;
+            font-size: 18px;
             color: var(--text-primary);
         }
 
         .file-stat-label {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -944,16 +944,16 @@
         .file-issues {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
 
         .file-issue {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 8px 10px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -965,12 +965,12 @@
         .file-issue-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .file-issue-icon {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
@@ -1015,8 +1015,8 @@
         /* Unsubscribe Section */
         .unsubscribe-section {
             background: var(--bg-secondary);
-            border-radius: var(--radius-xl);
-            padding: 24px;
+            border-radius: var(--radius-lg);
+            padding: 14px;
             box-shadow: var(--shadow-neumorphic);
             border: var(--border-subtle);
         }
@@ -1025,22 +1025,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .unsubscribe-stats {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
         .unsubscribe-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-height: 300px;
+            gap: 6px;
+            max-height: 180px;
             overflow-y: auto;
         }
 
@@ -1048,9 +1048,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 8px 10px;
             background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             transition: all 0.3s ease;
         }
 
@@ -1061,20 +1061,20 @@
         .unsubscribe-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             flex: 1;
             min-width: 0;
         }
 
         .unsubscribe-icon {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border-radius: var(--radius-sm);
             background: rgba(201, 124, 124, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--accent-danger);
             flex-shrink: 0;
@@ -1085,7 +1085,7 @@
         }
 
         .unsubscribe-text h4 {
-            font-size: 13px;
+            font-size: 11px;
             color: var(--text-primary);
             font-weight: 500;
             white-space: nowrap;
@@ -1094,7 +1094,7 @@
         }
 
         .unsubscribe-text span {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
