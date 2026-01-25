@@ -19,6 +19,16 @@
       "action": "archive",
       "count": 2,
       "autoApply": false
+    },
+    "notifications@vercel.com": {
+      "action": "delete",
+      "count": 22,
+      "autoApply": true
+    },
+    "stream@newsletters.fubo.tv": {
+      "action": "delete",
+      "count": 1,
+      "autoApply": false
     }
   },
   "subjectPatterns": {
@@ -40,6 +50,490 @@
     }
   },
   "recentActions": [
+    {
+      "emailId": 69280,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.297Z"
+    },
+    {
+      "emailId": 69281,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.295Z"
+    },
+    {
+      "emailId": 69283,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.291Z"
+    },
+    {
+      "emailId": 69285,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.288Z"
+    },
+    {
+      "emailId": 69284,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.285Z"
+    },
+    {
+      "emailId": 69331,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.282Z"
+    },
+    {
+      "emailId": 69287,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.279Z"
+    },
+    {
+      "emailId": 69288,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.275Z"
+    },
+    {
+      "emailId": 69289,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.272Z"
+    },
+    {
+      "emailId": 69290,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.269Z"
+    },
+    {
+      "emailId": 69332,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.265Z"
+    },
+    {
+      "emailId": 69292,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.262Z"
+    },
+    {
+      "emailId": 69322,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.258Z"
+    },
+    {
+      "emailId": 69296,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.254Z"
+    },
+    {
+      "emailId": 69320,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.251Z"
+    },
+    {
+      "emailId": 69323,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.246Z"
+    },
+    {
+      "emailId": 69321,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.244Z"
+    },
+    {
+      "emailId": 69324,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.240Z"
+    },
+    {
+      "emailId": 69304,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.237Z"
+    },
+    {
+      "emailId": 69325,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.233Z"
+    },
+    {
+      "emailId": 69326,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.230Z"
+    },
+    {
+      "emailId": 69310,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.226Z"
+    },
+    {
+      "emailId": 69327,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.222Z"
+    },
+    {
+      "emailId": 69312,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.218Z"
+    },
+    {
+      "emailId": 69315,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.215Z"
+    },
+    {
+      "emailId": 69317,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.212Z"
+    },
+    {
+      "emailId": 69328,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.208Z"
+    },
+    {
+      "emailId": 69319,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.204Z"
+    },
+    {
+      "emailId": 69338,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.201Z"
+    },
+    {
+      "emailId": 69344,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.194Z"
+    },
+    {
+      "emailId": 69346,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.189Z"
+    },
+    {
+      "emailId": 69348,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.170Z"
+    },
+    {
+      "emailId": 69352,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.162Z"
+    },
+    {
+      "emailId": 69354,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.151Z"
+    },
+    {
+      "emailId": 69357,
+      "action": "delete",
+      "timestamp": "2026-01-25T00:52:38.142Z"
+    },
+    {
+      "emailId": 69358,
+      "action": "archive",
+      "timestamp": "2026-01-25T00:50:23.579Z"
+    },
+    {
+      "emailId": 69359,
+      "action": "archive",
+      "timestamp": "2026-01-25T00:50:21.820Z"
+    },
+    {
+      "emailId": 1,
+      "action": "test",
+      "timestamp": "2026-01-24T23:47:43.352Z"
+    },
+    {
+      "emailId": 69257,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployment on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.780Z"
+    },
+    {
+      "emailId": 69236,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.777Z"
+    },
+    {
+      "emailId": 69237,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.773Z"
+    },
+    {
+      "emailId": 69238,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.769Z"
+    },
+    {
+      "emailId": 69331,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.766Z"
+    },
+    {
+      "emailId": 69332,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.763Z"
+    },
+    {
+      "emailId": 69322,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.760Z"
+    },
+    {
+      "emailId": 69323,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.756Z"
+    },
+    {
+      "emailId": 69324,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.753Z"
+    },
+    {
+      "emailId": 69325,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.750Z"
+    },
+    {
+      "emailId": 69326,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.746Z"
+    },
+    {
+      "emailId": 69327,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.742Z"
+    },
+    {
+      "emailId": 69328,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.731Z"
+    },
+    {
+      "emailId": 69339,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.728Z"
+    },
+    {
+      "emailId": 69340,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.724Z"
+    },
+    {
+      "emailId": 69341,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.721Z"
+    },
+    {
+      "emailId": 69342,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.716Z"
+    },
+    {
+      "emailId": 69343,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.709Z"
+    },
+    {
+      "emailId": 69345,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.702Z"
+    },
+    {
+      "emailId": 69347,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.695Z"
+    },
+    {
+      "emailId": 69349,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.686Z"
+    },
+    {
+      "emailId": 69350,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:38:57.679Z"
+    },
+    {
+      "emailId": 69279,
+      "sender": "stream@newsletters.fubo.tv",
+      "subject": "Don't miss today's 🔝 matchups!",
+      "action": "delete",
+      "timestamp": "2026-01-24T23:30:48.379Z"
+    },
+    {
+      "emailId": 69238,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.768Z"
+    },
+    {
+      "emailId": 69331,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.761Z"
+    },
+    {
+      "emailId": 69332,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.755Z"
+    },
+    {
+      "emailId": 69322,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.748Z"
+    },
+    {
+      "emailId": 69323,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.741Z"
+    },
+    {
+      "emailId": 69324,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.734Z"
+    },
+    {
+      "emailId": 69325,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.726Z"
+    },
+    {
+      "emailId": 69326,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.720Z"
+    },
+    {
+      "emailId": 69327,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.717Z"
+    },
+    {
+      "emailId": 69328,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.713Z"
+    },
+    {
+      "emailId": 69339,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.706Z"
+    },
+    {
+      "emailId": 69340,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.698Z"
+    },
+    {
+      "emailId": 69341,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.689Z"
+    },
+    {
+      "emailId": 69342,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.680Z"
+    },
+    {
+      "emailId": 69343,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.673Z"
+    },
+    {
+      "emailId": 69345,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.666Z"
+    },
+    {
+      "emailId": 69347,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.656Z"
+    },
+    {
+      "emailId": 69349,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.645Z"
+    },
+    {
+      "emailId": 69350,
+      "sender": "notifications@vercel.com",
+      "subject": "Failed production deployments on team 'Sniffypoc'",
+      "action": "archive",
+      "timestamp": "2026-01-24T23:30:35.637Z"
+    },
     {
       "emailId": 69107,
       "sender": "onlinebanking@ealerts.bankofamerica.com",
