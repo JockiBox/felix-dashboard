@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#b8935a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Felix — Your Chief of Staff</title>
-    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -20,959 +17,389 @@
             --accent-dim: rgba(184, 147, 90, 0.12);
             --success: #22c55e;
             --danger: #ef4444;
-            --info: #3b82f6;
-            --warning: #f59e0b;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'DM Sans', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-        }
-        .app {
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            grid-template-rows: 60px 1fr;
-            height: 100vh;
-            gap: 1px;
-            background: var(--border);
-        }
-        /* Header */
-        header {
-            grid-column: 1 / -1;
-            background: var(--card);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-        }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-icon {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--accent), #8b6914);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 18px; color: white; font-weight: 600;
-        }
-        .logo h1 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; }
-        .stats { display: flex; gap: 24px; }
-        .stat { text-align: center; }
-        .stat-val { font-size: 20px; font-weight: 600; color: var(--accent); }
-        .stat-val.zero { color: var(--success); }
-        .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .time-display { text-align: right; }
-        .time-display .t { font-family: 'Cormorant Garamond', serif; font-size: 22px; }
-        .time-display .d { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        .app { display: grid; grid-template-columns: 400px 1fr; grid-template-rows: 56px 1fr; height: 100vh; gap: 1px; background: var(--border); }
 
-        /* Chat Panel */
-        .chat-panel {
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .avatar {
-            width: 32px; height: 32px;
-            background: linear-gradient(135deg, var(--accent), #8b6914);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 14px; color: white;
-        }
-        .chat-header span { font-weight: 500; font-size: 14px; }
-        .chat-header small { color: var(--success); font-size: 11px; }
+        header { grid-column: 1 / -1; background: var(--card); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), #8b6914); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 16px; color: white; }
+        .logo h1 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; }
+        .stats { display: flex; gap: 20px; }
+        .stat-val { font-size: 18px; font-weight: 600; color: var(--accent); }
+        .stat-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; }
 
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .msg {
-            max-width: 95%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        .msg.felix { background: #f3f4f6; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg.user { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg.thinking { background: #f3f4f6; color: var(--muted); font-style: italic; }
-        .msg-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .msg-action {
-            padding: 5px 10px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .msg-action:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        .chat-panel { background: var(--card); display: flex; flex-direction: column; }
+        .chat-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .avatar { width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent), #8b6914); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 12px; color: white; }
+        .messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { max-width: 90%; padding: 8px 12px; border-radius: 10px; font-size: 13px; line-height: 1.4; }
+        .msg.felix { background: #f3f4f6; align-self: flex-start; }
+        .msg.user { background: var(--accent); color: white; align-self: flex-end; }
+        .msg-actions { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+        .msg-action { padding: 4px 8px; background: white; border: 1px solid var(--border); border-radius: 5px; font-size: 10px; cursor: pointer; }
+        .msg-action:hover { background: var(--accent-dim); border-color: var(--accent); }
+        .chat-input { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
+        .chat-input input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+        .chat-input input:focus { outline: none; border-color: var(--accent); }
+        .chat-input button { width: 36px; height: 36px; border: none; border-radius: 50%; background: var(--accent); color: white; cursor: pointer; }
 
-        .chat-input-wrap {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-            display: flex; gap: 8px;
-        }
-        .chat-input-wrap input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 13px;
-        }
-        .chat-input-wrap input:focus { outline: none; border-color: var(--accent); }
-        .send-btn {
-            width: 40px; height: 40px;
-            border: none; border-radius: 50%;
-            background: var(--accent);
-            color: white;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .send-btn:hover { opacity: 0.9; }
-
-        /* Email Panel */
-        .email-panel {
-            background: var(--card);
-            display: flex;
-            flex-direction: column;
-        }
-        .email-toolbar {
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 12px;
-        }
-        .email-toolbar h2 { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; }
-        .email-toolbar .info { font-size: 11px; color: var(--muted); margin-left: auto; }
-        .filters { display: flex; gap: 4px; }
-        .filter-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            background: transparent;
-            color: var(--muted);
-            font-size: 11px;
-            cursor: pointer;
-        }
-        .filter-btn:hover { background: var(--border); }
-        .filter-btn.active { background: var(--accent); color: white; }
-
-        .email-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-        .email-row {
-            display: grid;
-            grid-template-columns: 20px 140px 1fr auto 60px;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-        .email-row:hover { background: #f9fafb; }
-        .email-row.selected { background: var(--accent-dim); }
-        .check {
-            width: 16px; height: 16px;
-            border: 2px solid var(--border);
-            border-radius: 3px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px;
-        }
-        .check.on { background: var(--accent); border-color: var(--accent); color: white; }
+        .email-panel { background: var(--card); display: flex; flex-direction: column; }
+        .toolbar { padding: 8px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .toolbar h2 { font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+        .toolbar .sel { font-size: 11px; color: var(--muted); margin-left: auto; }
+        .filters { display: flex; gap: 3px; }
+        .filters button { padding: 4px 10px; border: none; border-radius: 4px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
+        .filters button.on { background: var(--accent); color: white; }
+        .email-list { flex: 1; overflow-y: auto; }
+        .email-row { display: grid; grid-template-columns: 18px 130px 1fr 50px; align-items: center; gap: 8px; padding: 6px 14px; border-bottom: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+        .email-row:hover { background: #fafafa; }
+        .email-row.sel { background: var(--accent-dim); }
+        .chk { width: 14px; height: 14px; border: 2px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+        .chk.on { background: var(--accent); border-color: var(--accent); color: white; }
         .sender { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .subject { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tag {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .tag.respond { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
-        .tag.important { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-        .tag.later { background: rgba(59, 130, 246, 0.15); color: var(--info); }
-        .time { color: var(--muted); text-align: right; font-size: 11px; }
-        .row-actions {
-            display: flex; gap: 2px;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-        .email-row:hover .row-actions { opacity: 1; }
-        .row-btn {
-            width: 24px; height: 24px;
-            border: none; border-radius: 4px;
-            background: transparent;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        .row-btn:hover { background: var(--border); }
-
-        .empty { padding: 40px; text-align: center; color: var(--muted); }
-        .empty h3 { color: var(--success); margin-bottom: 4px; }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px; right: 20px;
-            padding: 12px 20px;
-            background: var(--text);
-            color: white;
-            border-radius: 8px;
-            font-size: 13px;
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all 0.25s;
-        }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .subj { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .time { color: var(--muted); text-align: right; font-size: 10px; }
+        .empty { padding: 30px; text-align: center; color: var(--muted); }
     </style>
 </head>
 <body>
     <div class="app">
         <header>
-            <div class="logo">
-                <div class="logo-icon">F</div>
-                <h1>Felix</h1>
-            </div>
+            <div class="logo"><div class="logo-icon">F</div><h1>Felix</h1></div>
             <div class="stats">
-                <div class="stat">
-                    <div class="stat-val" id="unread">--</div>
-                    <div class="stat-lbl">Unread</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-val" id="respond">0</div>
-                    <div class="stat-lbl">Respond</div>
-                </div>
-            </div>
-            <div class="time-display">
-                <div class="t" id="time">--:--</div>
-                <div class="d" id="date">Loading...</div>
+                <div class="stat"><div class="stat-val" id="unread">--</div><div class="stat-lbl">Unread</div></div>
+                <div class="stat"><div class="stat-val" id="respond">0</div><div class="stat-lbl">Respond</div></div>
             </div>
         </header>
-
         <aside class="chat-panel">
-            <div class="chat-header">
-                <div class="avatar">F</div>
-                <div><span>Felix</span><br><small>● Online</small></div>
-            </div>
+            <div class="chat-header"><div class="avatar">F</div><span style="font-size:13px">Felix</span></div>
             <div class="messages" id="chat"></div>
-            <div class="chat-input-wrap">
-                <input type="text" id="input" placeholder="Ask Felix anything..." autofocus>
-                <button class="send-btn" onclick="send()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
-                </button>
+            <div class="chat-input">
+                <input type="text" id="inp" placeholder="Ask Felix anything...">
+                <button id="sendBtn">➤</button>
             </div>
         </aside>
-
         <main class="email-panel">
-            <div class="email-toolbar">
+            <div class="toolbar">
                 <h2>Inbox</h2>
-                <span class="info" id="sel-info"></span>
-                <div class="filters">
-                    <button class="filter-btn active" data-f="all">All</button>
-                    <button class="filter-btn" data-f="respond">Respond</button>
-                    <button class="filter-btn" data-f="important">Important</button>
-                    <button class="filter-btn" data-f="later">Later</button>
+                <span class="sel" id="selInfo"></span>
+                <div class="filters" id="filters">
+                    <button class="on" data-f="all">All</button>
+                    <button data-f="respond">Respond</button>
+                    <button data-f="important">Important</button>
                 </div>
             </div>
-            <div class="email-list" id="emails"></div>
+            <div class="email-list" id="list"></div>
         </main>
     </div>
-    <div class="toast" id="toast"></div>
 
-    <script>
-        const API = 'http://localhost:3847/api';
-        let emails = [];
-        let selected = new Set();
-        let tags = JSON.parse(localStorage.getItem('felixTags') || '{}');
-        let filter = 'all';
-        let total = 0;
-        let pending = null;
-
-        // Direct initialization (script is at end of body, DOM is ready)
-        (function() {
-            console.log('Felix initializing...');
-
-            // Input - handle Enter key
-            const inputEl = document.getElementById('input');
-            inputEl.onkeydown = function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    send();
-                    return false;
-                }
-            };
-
-            // Filter buttons
-            document.querySelectorAll('.filter-btn').forEach(function(b) {
-                b.onclick = function() { setFilter(this.dataset.f); };
-            });
-
-            updateTime();
-            setInterval(updateTime, 1000);
-            loadEmails();
-        })();
-
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('time').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-            document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        }
-
-        async function loadEmails() {
-            try {
-                addFelix("Loading your emails...");
-                const r = await fetch(`${API}/emails/unread?limit=100&offset=0`);
-                const d = await r.json();
-                if (d.success) {
-                    emails = d.emails;
-                    total = d.total;
-                    render();
-                    updateStats();
-                    // Clear loading message and show suggestions
-                    document.getElementById('chat').innerHTML = '';
-                    setTimeout(suggestCleanup, 300);
-                }
-            } catch (e) {
-                console.error('Email load error:', e);
-                document.getElementById('chat').innerHTML = '';
-                addFelix("I can't connect to the email server. Make sure the Felix server is running on port 3847.");
-            }
-        }
-
-        function suggestCleanup() {
-            if (emails.length === 0) {
-                addFelix("Your inbox is empty! Nothing to clean up. 🎉");
-                return;
-            }
-
-            // Analyze the emails
-            const senders = {};
-            const domains = {};
-            let newsletters = 0;
-            let promotions = 0;
-
-            emails.forEach(e => {
-                const sender = e.sender || '';
-                const domain = sender.split('@')[1] || 'unknown';
-                const name = e.senderName || sender.split('@')[0] || 'Unknown';
-
-                senders[sender] = senders[sender] || { count: 0, name, domain };
-                senders[sender].count++;
-
-                domains[domain] = (domains[domain] || 0) + 1;
-
-                if (isNewsletter(e)) newsletters++;
-                if (isPromo(e)) promotions++;
-            });
-
-            // Find cleanup opportunities
-            const topSenders = Object.entries(senders)
-                .sort((a, b) => b[1].count - a[1].count)
-                .slice(0, 5);
-
-            const topDomains = Object.entries(domains)
-                .filter(([d]) => d !== 'unknown' && d !== 'gmail.com' && d !== 'icloud.com')
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3);
-
-            // Build suggestion message
-            let msg = `📊 **I analyzed your last ${emails.length} emails.** Here's what I can clean up:\n\n`;
-
-            const suggestions = [];
-            const actions = [];
-
-            // Top volume senders
-            topSenders.forEach(([sender, info]) => {
-                if (info.count >= 3) {
-                    suggestions.push(`**${info.count}** from ${info.name}`);
-                    if (actions.length < 3) {
-                        actions.push({
-                            label: `Delete ${info.name} (${info.count})`,
-                            cmd: `delete from ${info.domain}`
-                        });
-                    }
-                }
-            });
-
-            if (newsletters > 0) {
-                suggestions.push(`**${newsletters}** newsletters`);
-                actions.push({ label: `Delete ${newsletters} newsletters`, cmd: 'delete newsletters' });
-            }
-
-            if (promotions > 0 && promotions !== newsletters) {
-                suggestions.push(`**${promotions}** promotions/marketing`);
-            }
-
-            if (suggestions.length === 0) {
-                msg = `📬 You have **${total}** unread emails. I don't see obvious bulk cleanup opportunities - looks like mostly unique senders. What would you like to do?`;
-                addFelixWithActions(msg, [
-                    { label: 'Show status', cmd: 'status' },
-                    { label: 'Select all', cmd: 'select all' },
-                    { label: 'Help', cmd: 'help' }
-                ]);
-            } else {
-                msg += suggestions.join('\n');
-                msg += `\n\n**Quick cleanup options:**`;
-                addFelixWithActions(msg, actions);
-            }
-        }
-
-        function render() {
-            const el = document.getElementById('emails');
-            let list = emails;
-            if (filter !== 'all') list = list.filter(e => tags[e.id] === filter);
-
-            if (list.length === 0) {
-                el.innerHTML = `<div class="empty">
-                    <h3>${filter === 'all' ? '🎉 Inbox Zero!' : 'Empty'}</h3>
-                    <p>${filter === 'all' ? 'All done!' : `No "${filter}" emails`}</p>
-                </div>`;
-                return;
-            }
-
-            el.innerHTML = list.map(e => {
-                const tag = tags[e.id];
-                const sel = selected.has(e.id);
-                const name = e.senderName || (e.sender || '').split('@')[0] || 'Unknown';
-                return `<div class="email-row ${sel ? 'selected' : ''}" onclick="toggle(${e.id})">
-                    <div class="check ${sel ? 'on' : ''}">${sel ? '✓' : ''}</div>
-                    <div class="sender">${esc(name)}</div>
-                    <div class="subject">${esc(e.subject || '(no subject)')}</div>
-                    ${tag ? `<span class="tag ${tag}">${tag}</span>` : '<span></span>'}
-                    <div class="time">${ago(e.received)}</div>
-                </div>`;
-            }).join('');
-
-            updateSelInfo();
-        }
-
-        function toggle(id) {
-            selected.has(id) ? selected.delete(id) : selected.add(id);
-            render();
-        }
-
-        function updateSelInfo() {
-            document.getElementById('sel-info').textContent = selected.size > 0 ? `${selected.size} selected` : '';
-        }
-
-        function updateStats() {
-            const u = document.getElementById('unread');
-            u.textContent = total;
-            u.classList.toggle('zero', total === 0);
-            document.getElementById('respond').textContent = Object.values(tags).filter(t => t === 'respond').length;
-        }
-
-        function setFilter(f) {
-            filter = f;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
-            render();
-        }
-
-        function ago(d) {
-            if (!d) return '';
-            const diff = (Date.now() - new Date(d)) / 60000;
-            if (diff < 60) return Math.floor(diff) + 'm';
-            if (diff < 1440) return Math.floor(diff / 60) + 'h';
-            return new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' });
-        }
-
-        function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-
-        // Chat functions
-        function addFelix(text) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg felix';
-            div.innerHTML = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function addFelixWithActions(text, actions) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg felix';
-            div.innerHTML = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            if (actions?.length) {
-                const wrap = document.createElement('div');
-                wrap.className = 'msg-actions';
-                actions.forEach(a => {
-                    const btn = document.createElement('button');
-                    btn.className = 'msg-action';
-                    btn.textContent = a.label;
-                    btn.onclick = () => { document.getElementById('input').value = a.cmd; send(); };
-                    wrap.appendChild(btn);
-                });
-                div.appendChild(wrap);
-            }
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function addUser(text) {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg user';
-            div.textContent = text;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function addThinking() {
-            const chat = document.getElementById('chat');
-            const div = document.createElement('div');
-            div.className = 'msg thinking';
-            div.id = 'thinking';
-            div.textContent = 'Working on it...';
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function removeThinking() {
-            document.getElementById('thinking')?.remove();
-        }
-
-        async function send() {
-            const input = document.getElementById('input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            console.log('Sending:', text);
-            input.value = '';
-            addUser(text);
-            addThinking();
-
-            try {
-                const response = await understand(text);
-                removeThinking();
-                if (response && response.actions) {
-                    addFelixWithActions(response.text, response.actions);
-                } else if (response) {
-                    addFelix(response.text || response);
-                } else {
-                    addFelix("I processed your request.");
-                }
-            } catch (err) {
-                console.error('Error in understand:', err);
-                removeThinking();
-                addFelix("Sorry, something went wrong. Try again.");
-            }
-
-            input.focus();
-        }
-
-        // Smart NLU - handles many variations
-        async function understand(input) {
-            const t = input.toLowerCase().trim();
-            const words = t.split(/\s+/);
-
-            // Confirmations
-            if (pending && matches(t, ['yes', 'yeah', 'yep', 'sure', 'ok', 'okay', 'do it', 'go ahead', 'confirm', 'proceed', 'y'])) {
-                const action = pending;
-                pending = null;
-                return await executeAction(action);
-            }
-            if (matches(t, ['no', 'nope', 'cancel', 'nevermind', 'nah', 'stop', 'n'])) {
-                pending = null;
-                return "Okay, cancelled. What else can I help with?";
-            }
-
-            // Greetings
-            if (matches(t, ['hi', 'hello', 'hey', 'yo', 'sup', 'good morning', 'good afternoon', 'good evening', 'howdy', 'hola'])) {
-                return { text: `Hey! You have **${total}** unread emails. What would you like to tackle?`, actions: [
-                    { label: 'Clean up suggestions', cmd: 'suggest' },
-                    { label: 'Show status', cmd: 'status' }
-                ]};
-            }
-
-            // Status/Overview
-            if (matches(t, ['status', 'overview', 'summary', 'briefing', 'how many', 'what do i have', 'inbox', 'count', 'stats', 'report'])) {
-                return getStatus();
-            }
-
-            // Help
-            if (matches(t, ['help', 'what can you do', 'commands', 'how to', 'guide', '?'])) {
-                return getHelp();
-            }
-
-            // Suggestions / Analyze
-            if (matches(t, ['suggest', 'analyze', 'clean', 'cleanup', 'tidy', 'organize', 'what should i', 'recommendations'])) {
-                return getSuggestions();
-            }
-
-            // Refresh
-            if (matches(t, ['refresh', 'reload', 'update', 'check', 'sync', 'fetch'])) {
-                await loadEmails();
-                return `Refreshed! **${total}** unread emails.`;
-            }
-
-            // Select all
-            if (contains(t, 'select') && contains(t, 'all')) {
-                const visible = filter === 'all' ? emails : emails.filter(e => tags[e.id] === filter);
-                visible.forEach(e => selected.add(e.id));
-                render();
-                return { text: `Selected all **${selected.size}** emails. What now?`, actions: [
-                    { label: 'Delete all', cmd: 'delete them' },
-                    { label: 'Archive all', cmd: 'archive them' },
-                    { label: 'Clear selection', cmd: 'clear' }
-                ]};
-            }
-
-            // Clear selection
-            if (matches(t, ['clear', 'deselect', 'unselect', 'clear selection', 'none'])) {
-                selected.clear();
-                render();
-                return "Selection cleared.";
-            }
-
-            // Delete operations
-            if (contains(t, 'delete') || contains(t, 'remove') || contains(t, 'trash') || contains(t, 'get rid')) {
-                // Delete selected
-                if (selected.size > 0 && (contains(t, 'them') || contains(t, 'selected') || contains(t, 'these') || contains(t, 'those') || t === 'delete' || t === 'delete them')) {
-                    return await deleteSelected();
-                }
-                // Delete newsletters
-                if (contains(t, 'newsletter') || contains(t, 'newsletters')) {
-                    const matches = emails.filter(e => isNewsletter(e));
-                    if (matches.length === 0) return "No newsletters found.";
-                    if (matches.length > 5) {
-                        pending = { type: 'delete', emails: matches };
-                        return { text: `Found **${matches.length}** newsletters. Delete them all?`, actions: [
-                            { label: 'Yes, delete', cmd: 'yes' },
-                            { label: 'No', cmd: 'no' }
-                        ]};
-                    }
-                    return await deleteEmails(matches);
-                }
-                // Delete from sender
-                const entity = findEntity(t);
-                if (entity.matches.length > 0) {
-                    if (entity.matches.length > 5) {
-                        pending = { type: 'delete', emails: entity.matches };
-                        return { text: `Found **${entity.matches.length}** emails from "${entity.name}". Delete all?`, actions: [
-                            { label: 'Yes, delete all', cmd: 'yes' },
-                            { label: 'No', cmd: 'no' }
-                        ]};
-                    }
-                    return await deleteEmails(entity.matches, entity.name);
-                }
-                // Delete all (dangerous)
-                if (contains(t, 'all') && emails.length > 0) {
-                    pending = { type: 'delete', emails: emails };
-                    return { text: `⚠️ Delete ALL **${emails.length}** emails? This cannot be undone.`, actions: [
-                        { label: 'Yes, delete all', cmd: 'yes' },
-                        { label: 'No, cancel', cmd: 'no' }
-                    ]};
-                }
-                return { text: "What would you like to delete?", actions: [
-                    { label: 'Delete newsletters', cmd: 'delete newsletters' },
-                    { label: 'Delete selected', cmd: 'delete selected' }
-                ]};
-            }
-
-            // Archive operations
-            if (contains(t, 'archive') || contains(t, 'file') || contains(t, 'move')) {
-                if (selected.size > 0 && (contains(t, 'them') || contains(t, 'selected') || t === 'archive' || t === 'archive them')) {
-                    return await archiveSelected();
-                }
-                const entity = findEntity(t);
-                if (entity.matches.length > 0) {
-                    return await archiveEmails(entity.matches, entity.name);
-                }
-                return "Select some emails first, or tell me which sender to archive.";
-            }
-
-            // Tag operations
-            if (contains(t, 'tag') || contains(t, 'mark') || contains(t, 'label') || contains(t, 'flag')) {
-                const tagType = contains(t, 'important') ? 'important' : contains(t, 'respond') || contains(t, 'reply') ? 'respond' : contains(t, 'later') ? 'later' : null;
-                if (selected.size > 0 && tagType) {
-                    selected.forEach(id => tags[id] = tagType);
-                    saveTags();
-                    const count = selected.size;
-                    selected.clear();
-                    render();
-                    updateStats();
-                    return `Tagged **${count}** emails as "${tagType}".`;
-                }
-                if (selected.size > 0) {
-                    return { text: `How should I tag these **${selected.size}** emails?`, actions: [
-                        { label: 'Respond', cmd: 'tag respond' },
-                        { label: 'Important', cmd: 'tag important' },
-                        { label: 'Later', cmd: 'tag later' }
-                    ]};
-                }
-                return "Select some emails first, then I can tag them.";
-            }
-
-            // Find/Search/Show
-            if (contains(t, 'find') || contains(t, 'search') || contains(t, 'show') || contains(t, 'look') || contains(t, 'get') || contains(t, 'from')) {
-                const entity = findEntity(t);
-                if (entity.matches.length > 0) {
-                    entity.matches.forEach(e => selected.add(e.id));
-                    render();
-                    return { text: `Found **${entity.matches.length}** emails from "${entity.name}" and selected them.`, actions: [
-                        { label: 'Delete them', cmd: 'delete them' },
-                        { label: 'Archive them', cmd: 'archive them' }
-                    ]};
-                }
-                if (contains(t, 'newsletter')) {
-                    const nls = emails.filter(e => isNewsletter(e));
-                    nls.forEach(e => selected.add(e.id));
-                    render();
-                    return { text: `Found **${nls.length}** newsletters and selected them.`, actions: [
-                        { label: 'Delete them', cmd: 'delete them' }
-                    ]};
-                }
-                // Didn't find anything specific, show suggestions
-                return getSuggestions();
-            }
-
-            // Thanks
-            if (matches(t, ['thanks', 'thank you', 'thx', 'ty', 'cheers', 'appreciate'])) {
-                return "You're welcome! Anything else?";
-            }
-
-            // Numbers - might be email index
-            const num = parseInt(t);
-            if (!isNaN(num) && num >= 1 && num <= emails.length) {
-                const e = emails[num - 1];
-                selected.clear();
-                selected.add(e.id);
-                render();
-                return { text: `Selected email #${num} from ${e.senderName || e.sender}`, actions: [
-                    { label: 'Delete', cmd: 'delete it' },
-                    { label: 'Archive', cmd: 'archive it' }
-                ]};
-            }
-
-            // Fallback - try to find any sender match in the message
-            const entity = findEntity(t);
-            if (entity.matches.length > 0) {
-                entity.matches.forEach(e => selected.add(e.id));
-                render();
-                return { text: `I found **${entity.matches.length}** emails related to "${entity.name}". What would you like to do?`, actions: [
-                    { label: 'Delete them', cmd: 'delete them' },
-                    { label: 'Archive them', cmd: 'archive them' },
-                    { label: 'Clear', cmd: 'clear' }
-                ]};
-            }
-
-            // Ultimate fallback - be helpful
-            return { text: `I can help with that! Here are some things I can do:`, actions: [
-                { label: 'Clean up suggestions', cmd: 'suggest' },
-                { label: 'Show inbox status', cmd: 'status' },
-                { label: 'See all commands', cmd: 'help' }
-            ]};
-        }
-
-        // Helper: check if input matches any of the phrases
-        function matches(input, phrases) {
-            return phrases.some(p => input === p || input.startsWith(p + ' ') || input.endsWith(' ' + p) || input.includes(' ' + p + ' '));
-        }
-
-        // Helper: check if input contains a word
-        function contains(input, word) {
-            return input.includes(word);
-        }
-
-        // Find sender/domain entity in text
-        function findEntity(text) {
-            // Remove common words
-            const clean = text.replace(/\b(from|by|emails?|delete|archive|show|find|get|remove|all|the|a|an|to|for|with)\b/gi, '').trim();
-            const words = clean.split(/\s+/).filter(w => w.length > 2);
-
-            // Check each word against emails
-            for (const word of words) {
-                const w = word.toLowerCase().replace(/['".,!?]/g, '');
-                const matches = emails.filter(e => {
-                    const sender = (e.sender || '').toLowerCase();
-                    const name = (e.senderName || '').toLowerCase();
-                    const domain = sender.split('@')[1] || '';
-                    return sender.includes(w) || name.includes(w) || domain.includes(w);
-                });
-                if (matches.length > 0) {
-                    return { matches, name: w };
-                }
-            }
-
-            // Check for email domain pattern
-            const domainMatch = text.match(/([a-z0-9.-]+\.(com|org|net|io|co|edu))/i);
-            if (domainMatch) {
-                const domain = domainMatch[1].toLowerCase();
-                const matches = emails.filter(e => (e.sender || '').toLowerCase().includes(domain));
-                if (matches.length > 0) {
-                    return { matches, name: domain };
-                }
-            }
-
-            return { matches: [], name: '' };
-        }
-
-        // Actions
-        async function deleteSelected() {
-            const count = selected.size;
-            const ids = Array.from(selected);
-            for (const id of ids) await doAction(id, 'delete');
-            emails = emails.filter(e => !selected.has(e.id));
-            total -= count;
-            selected.clear();
+<script>
+const API = 'http://localhost:3847/api';
+let emails = [], selected = new Set(), tags = JSON.parse(localStorage.getItem('felixTags')||'{}'), filter = 'all', total = 0, pending = null;
+
+// Init
+const inp = document.getElementById('inp');
+const sendBtn = document.getElementById('sendBtn');
+
+inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+sendBtn.addEventListener('click', send);
+document.querySelectorAll('#filters button').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.f)));
+
+load();
+
+async function load() {
+    say("Loading your emails...");
+    try {
+        const r = await fetch(API + '/emails/unread?limit=100');
+        const d = await r.json();
+        if (d.success) {
+            emails = d.emails;
+            total = d.total;
             render();
             updateStats();
-            return `Deleted **${count}** emails. ${total > 0 ? `**${total}** remaining.` : '🎉 Inbox Zero!'}`;
+            document.getElementById('chat').innerHTML = '';
+            analyze();
         }
+    } catch(e) {
+        document.getElementById('chat').innerHTML = '';
+        say("Can't connect to email server. Is it running on port 3847?");
+    }
+}
 
-        async function deleteEmails(list, name = '') {
-            for (const e of list) await doAction(e.id, 'delete');
-            emails = emails.filter(e => !list.find(m => m.id === e.id));
-            total -= list.length;
-            render();
-            updateStats();
-            return `Deleted **${list.length}** emails${name ? ` from "${name}"` : ''}. ${total > 0 ? `**${total}** remaining.` : '🎉 Inbox Zero!'}`;
+function analyze() {
+    if (!emails.length) { say("Inbox empty! 🎉"); return; }
+
+    // Group by domain
+    const domains = {};
+    emails.forEach(e => {
+        const d = (e.sender||'').split('@')[1] || 'unknown';
+        domains[d] = (domains[d]||0) + 1;
+    });
+
+    const top = Object.entries(domains).filter(([d]) => d!=='unknown').sort((a,b) => b[1]-a[1]).slice(0,4);
+    const newsletters = emails.filter(isNL).length;
+
+    let msg = `📊 **${total} emails.** I can clean up:\n`;
+    top.forEach(([d,c]) => { if(c >= 2) msg += `• **${c}** from ${d}\n`; });
+    if (newsletters) msg += `• **${newsletters}** newsletters\n`;
+
+    const actions = [];
+    if (top[0] && top[0][1] >= 2) actions.push({label: `Delete ${top[0][0]}`, cmd: `delete ${top[0][0]}`});
+    if (newsletters) actions.push({label: `Delete newsletters`, cmd: 'delete newsletters'});
+    actions.push({label: 'Help', cmd: 'help'});
+
+    sayActions(msg, actions);
+}
+
+function render() {
+    const el = document.getElementById('list');
+    let list = filter === 'all' ? emails : emails.filter(e => tags[e.id] === filter);
+    if (!list.length) { el.innerHTML = '<div class="empty">No emails</div>'; return; }
+    el.innerHTML = list.map(e => {
+        const s = selected.has(e.id);
+        const name = e.senderName || (e.sender||'').split('@')[0] || '?';
+        return `<div class="email-row${s?' sel':''}" data-id="${e.id}">
+            <div class="chk${s?' on':''}">${s?'✓':''}</div>
+            <div class="sender">${esc(name)}</div>
+            <div class="subj">${esc(e.subject||'(no subject)')}</div>
+            <div class="time">${ago(e.received)}</div>
+        </div>`;
+    }).join('');
+    el.querySelectorAll('.email-row').forEach(row => row.addEventListener('click', () => toggle(+row.dataset.id)));
+    document.getElementById('selInfo').textContent = selected.size ? selected.size + ' selected' : '';
+}
+
+function toggle(id) { selected.has(id) ? selected.delete(id) : selected.add(id); render(); }
+function updateStats() { document.getElementById('unread').textContent = total; document.getElementById('respond').textContent = Object.values(tags).filter(t=>t==='respond').length; }
+function setFilter(f) { filter = f; document.querySelectorAll('#filters button').forEach(b => b.classList.toggle('on', b.dataset.f === f)); render(); }
+function ago(d) { if(!d) return ''; const m = (Date.now() - new Date(d))/60000; return m < 60 ? Math.floor(m)+'m' : m < 1440 ? Math.floor(m/60)+'h' : new Date(d).toLocaleDateString('en',{month:'short',day:'numeric'}); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function say(text) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg felix';
+    div.innerHTML = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sayActions(text, actions) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg felix';
+    div.innerHTML = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    if (actions && actions.length) {
+        const wrap = document.createElement('div');
+        wrap.className = 'msg-actions';
+        actions.forEach(a => {
+            const btn = document.createElement('button');
+            btn.className = 'msg-action';
+            btn.textContent = a.label;
+            btn.addEventListener('click', () => { inp.value = a.cmd; send(); });
+            wrap.appendChild(btn);
+        });
+        div.appendChild(wrap);
+    }
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sayUser(text) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+async function send() {
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    sayUser(text);
+
+    try {
+        const result = await process(text);
+        if (result.actions) sayActions(result.text, result.actions);
+        else say(result.text || result);
+    } catch(e) {
+        console.error(e);
+        say("Something went wrong. Try again.");
+    }
+    inp.focus();
+}
+
+// Smart intent detection
+async function process(input) {
+    const t = input.toLowerCase().trim();
+
+    // Pending confirmation
+    if (pending) {
+        if (/^(y|yes|yeah|yep|sure|ok|okay|do it|go)/.test(t)) {
+            const p = pending; pending = null;
+            return await doDelete(p.list, p.name);
         }
-
-        async function archiveSelected() {
-            const count = selected.size;
-            const ids = Array.from(selected);
-            for (const id of ids) await doAction(id, 'archive');
-            emails = emails.filter(e => !selected.has(e.id));
-            total -= count;
-            selected.clear();
-            render();
-            updateStats();
-            return `Archived **${count}** emails.`;
+        if (/^(n|no|nope|cancel|stop)/.test(t)) {
+            pending = null;
+            return "Cancelled.";
         }
+    }
 
-        async function archiveEmails(list, name = '') {
-            for (const e of list) await doAction(e.id, 'archive');
-            emails = emails.filter(e => !list.find(m => m.id === e.id));
-            total -= list.length;
-            render();
-            updateStats();
-            return `Archived **${list.length}** emails${name ? ` from "${name}"` : ''}.`;
+    // GREETINGS
+    if (/^(hi|hello|hey|yo|sup|morning|afternoon|evening)/.test(t)) {
+        return {text: `Hey! **${total}** unread emails. What do you need?`, actions: [{label:'Suggestions', cmd:'suggest'}, {label:'Help', cmd:'help'}]};
+    }
+
+    // HELP
+    if (/help|what can you|how do i|\?$/.test(t)) {
+        return `**I can help you:**\n• "delete vercel" - delete emails from vercel\n• "delete newsletters" - clean up newsletters\n• "archive amazon" - archive Amazon emails\n• "select all" then "delete them"\n• Just type a sender name to find emails\n\nOr click the suggestion buttons!`;
+    }
+
+    // STATUS
+    if (/status|how many|inbox|count|overview/.test(t)) {
+        return `📬 **${total}** unread emails, **${selected.size}** selected.`;
+    }
+
+    // SUGGEST / ANALYZE
+    if (/suggest|analyze|clean|what should/.test(t)) {
+        analyze();
+        return {text: "Here are my suggestions ⬆️", actions: []};
+    }
+
+    // REFRESH
+    if (/refresh|reload|check|sync/.test(t)) {
+        await load();
+        return `Refreshed! **${total}** emails.`;
+    }
+
+    // SELECT ALL
+    if (/select all/.test(t)) {
+        emails.forEach(e => selected.add(e.id));
+        render();
+        return {text: `Selected **${selected.size}** emails.`, actions: [{label:'Delete all', cmd:'delete them'}, {label:'Clear', cmd:'clear'}]};
+    }
+
+    // CLEAR
+    if (/^clear$|deselect|unselect/.test(t)) {
+        selected.clear();
+        render();
+        return "Cleared.";
+    }
+
+    // DELETE
+    if (/delete|remove|trash|get rid/.test(t)) {
+        // Delete selected
+        if (selected.size > 0 && /them|selected|these|those/.test(t)) {
+            return await doDelete([...selected].map(id => emails.find(e => e.id === id)).filter(Boolean), 'selected');
         }
-
-        async function executeAction(action) {
-            if (action.type === 'delete') {
-                return await deleteEmails(action.emails);
-            }
-            return "Done.";
+        // Delete newsletters
+        if (/newsletter/.test(t)) {
+            const list = emails.filter(isNL);
+            if (!list.length) return "No newsletters found.";
+            if (list.length > 3) { pending = {list, name: 'newsletters'}; return {text: `Delete **${list.length}** newsletters?`, actions: [{label:'Yes', cmd:'yes'}, {label:'No', cmd:'no'}]}; }
+            return await doDelete(list, 'newsletters');
         }
-
-        async function doAction(id, action) {
-            const e = emails.find(x => x.id === id);
-            try {
-                await fetch(`${API}/emails/action`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ emailId: id, sender: e?.sender, subject: e?.subject, action })
-                });
-            } catch (err) {}
+        // Delete by sender/domain
+        const match = findSender(t);
+        if (match.list.length) {
+            if (match.list.length > 3) { pending = {list: match.list, name: match.name}; return {text: `Delete **${match.list.length}** from "${match.name}"?`, actions: [{label:'Yes', cmd:'yes'}, {label:'No', cmd:'no'}]}; }
+            return await doDelete(match.list, match.name);
         }
+        return {text: "Delete what?", actions: [{label:'Newsletters', cmd:'delete newsletters'}, {label:'Selected', cmd:'delete them'}]};
+    }
 
-        function isNewsletter(e) {
-            const s = (e.sender || '').toLowerCase();
-            const subj = (e.subject || '').toLowerCase();
-            return s.includes('newsletter') || s.includes('noreply') || s.includes('no-reply') ||
-                   s.includes('marketing') || s.includes('info@') || s.includes('hello@') ||
-                   s.includes('news@') || s.includes('digest') || s.includes('weekly') ||
-                   s.includes('updates@') || s.includes('notify') ||
-                   subj.includes('unsubscribe') || subj.includes('newsletter') ||
-                   subj.includes('weekly') || subj.includes('digest') || subj.includes('update');
+    // ARCHIVE
+    if (/archive/.test(t)) {
+        if (selected.size > 0 && /them|selected/.test(t)) {
+            return await doArchive([...selected].map(id => emails.find(e => e.id === id)).filter(Boolean));
         }
+        const match = findSender(t);
+        if (match.list.length) return await doArchive(match.list, match.name);
+        return "Archive what? Select emails first or specify a sender.";
+    }
 
-        function isPromo(e) {
-            const s = (e.sender || '').toLowerCase();
-            const subj = (e.subject || '').toLowerCase();
-            return s.includes('promo') || s.includes('deals') || s.includes('offer') ||
-                   s.includes('sale') || s.includes('discount') ||
-                   subj.includes('%') || subj.includes('off') || subj.includes('sale') ||
-                   subj.includes('deal') || subj.includes('limited') || subj.includes('exclusive');
+    // TAG
+    if (/tag|mark|label/.test(t)) {
+        if (!selected.size) return "Select emails first.";
+        const type = /important/.test(t) ? 'important' : /respond|reply/.test(t) ? 'respond' : /later/.test(t) ? 'later' : null;
+        if (type) {
+            selected.forEach(id => tags[id] = type);
+            localStorage.setItem('felixTags', JSON.stringify(tags));
+            const c = selected.size; selected.clear(); render(); updateStats();
+            return `Tagged **${c}** as ${type}.`;
         }
+        return {text: "Tag as what?", actions: [{label:'Respond', cmd:'tag respond'}, {label:'Important', cmd:'tag important'}, {label:'Later', cmd:'tag later'}]};
+    }
 
-        function getStatus() {
-            const respond = Object.values(tags).filter(t => t === 'respond').length;
-            const important = Object.values(tags).filter(t => t === 'important').length;
+    // THANKS
+    if (/thanks|thank you|thx|cheers/.test(t)) {
+        return "You're welcome!";
+    }
 
-            let msg = `📊 **Inbox Status**\n\n`;
-            msg += `📬 **${total}** unread emails\n`;
-            if (respond > 0) msg += `💬 **${respond}** need response\n`;
-            if (important > 0) msg += `⭐ **${important}** marked important\n`;
-            if (selected.size > 0) msg += `✓ **${selected.size}** currently selected\n`;
+    // Try to find sender in the message (fallback)
+    const match = findSender(t);
+    if (match.list.length) {
+        match.list.forEach(e => selected.add(e.id));
+        render();
+        return {text: `Found **${match.list.length}** from "${match.name}".`, actions: [{label:'Delete', cmd:'delete them'}, {label:'Archive', cmd:'archive them'}]};
+    }
 
-            if (total === 0) {
-                return "🎉 **Inbox Zero!** You're all caught up!";
-            }
-            return msg;
-        }
+    // Ultimate fallback - always helpful
+    return {text: `I can help! Try:`, actions: [{label:'Show suggestions', cmd:'suggest'}, {label:'Delete newsletters', cmd:'delete newsletters'}, {label:'Help', cmd:'help'}]};
+}
 
-        function getSuggestions() {
-            const senders = {};
-            emails.forEach(e => {
-                const domain = (e.sender || '').split('@')[1] || 'unknown';
-                senders[domain] = (senders[domain] || 0) + 1;
-            });
+function findSender(text) {
+    // Remove common words
+    const clean = text.replace(/\b(delete|archive|remove|show|find|get|from|all|the|emails?|please)\b/gi, '').trim();
+    const words = clean.split(/\s+/).filter(w => w.length > 2);
 
-            const top = Object.entries(senders)
-                .filter(([d]) => d !== 'unknown' && d !== 'gmail.com' && d !== 'icloud.com')
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3);
+    for (const word of words) {
+        const w = word.toLowerCase().replace(/['".,!?]/g, '');
+        const list = emails.filter(e => {
+            const sender = (e.sender||'').toLowerCase();
+            const name = (e.senderName||'').toLowerCase();
+            return sender.includes(w) || name.includes(w);
+        });
+        if (list.length) return {list, name: w};
+    }
+    return {list: [], name: ''};
+}
 
-            const newsletters = emails.filter(e => isNewsletter(e)).length;
+function isNL(e) {
+    const s = (e.sender||'').toLowerCase();
+    const subj = (e.subject||'').toLowerCase();
+    return /newsletter|noreply|no-reply|marketing|digest|weekly|notify|updates@|info@|hello@/.test(s) || /unsubscribe|newsletter|weekly|digest/.test(subj);
+}
 
-            let msg = `📊 **Cleanup suggestions:**\n\n`;
-            top.forEach(([domain, count]) => {
-                msg += `• **${count}** from ${domain}\n`;
-            });
-            if (newsletters > 0) {
-                msg += `• **${newsletters}** newsletters\n`;
-            }
+async function doDelete(list, name) {
+    for (const e of list) {
+        await fetch(API + '/emails/action', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({emailId: e.id, action: 'delete'})}).catch(()=>{});
+    }
+    const ids = new Set(list.map(e => e.id));
+    emails = emails.filter(e => !ids.has(e.id));
+    total -= list.length;
+    selected = new Set([...selected].filter(id => !ids.has(id)));
+    render();
+    updateStats();
+    return `Deleted **${list.length}** ${name ? `from "${name}"` : 'emails'}. ${total ? `**${total}** left.` : '🎉 Inbox Zero!'}`;
+}
 
-            const actions = [];
-            top.forEach(([domain, count]) => {
-                if (actions.length < 2) actions.push({ label: `Delete ${domain}`, cmd: `delete from ${domain}` });
-            });
-            if (newsletters > 0) actions.push({ label: `Delete newsletters`, cmd: 'delete newsletters' });
-
-            return { text: msg, actions };
-        }
-
-        function getHelp() {
-            return `**I understand natural language.** Just tell me what you need:\n\n` +
-                   `• "Delete emails from Amazon"\n` +
-                   `• "Archive all newsletters"\n` +
-                   `• "Show me LinkedIn emails"\n` +
-                   `• "Tag these as important"\n` +
-                   `• "Select all" / "Clear"\n` +
-                   `• "Status" / "Refresh"\n\n` +
-                   `Or just type a sender name and I'll find matching emails.`;
-        }
-
-        function saveTags() { localStorage.setItem('felixTags', JSON.stringify(tags)); }
-
-        function toast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
-        }
-    </script>
+async function doArchive(list, name) {
+    for (const e of list) {
+        await fetch(API + '/emails/action', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({emailId: e.id, action: 'archive'})}).catch(()=>{});
+    }
+    const ids = new Set(list.map(e => e.id));
+    emails = emails.filter(e => !ids.has(e.id));
+    total -= list.length;
+    selected = new Set([...selected].filter(id => !ids.has(id)));
+    render();
+    updateStats();
+    return `Archived **${list.length}** ${name ? `from "${name}"` : 'emails'}.`;
+}
+</script>
 </body>
 </html>
