@@ -20,6 +20,7 @@
             --success: #4a9a4a;
             --warning: #c4922a;
             --danger: #c45a5a;
+            --info: #4a7a9a;
             --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
             --shadow-neumorphic: 5px 5px 12px rgba(0, 0, 0, 0.07), -4px -4px 10px rgba(255, 255, 255, 0.8);
             --shadow-inner: inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
@@ -36,13 +37,34 @@
             overflow: hidden;
         }
 
+        /* Ambient background */
+        .ambient {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+        .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(184, 147, 90, 0.15) 0%, transparent 70%); top: -150px; right: -100px; }
+        .orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(74, 122, 154, 0.1) 0%, transparent 70%); bottom: -80px; left: -80px; }
+
         .app {
+            position: relative;
+            z-index: 1;
             display: grid;
-            grid-template-columns: 360px 1fr;
-            grid-template-rows: 70px 1fr;
+            grid-template-columns: 280px 1fr 340px;
+            grid-template-rows: 64px 1fr;
             gap: 20px;
             height: 100vh;
             padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
         /* Header */
@@ -60,15 +82,15 @@
         }
 
         .logo-icon {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, var(--accent), #a07a45);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
             color: white;
             box-shadow: var(--shadow-neumorphic);
@@ -76,7 +98,7 @@
 
         .logo-text h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 500;
         }
 
@@ -87,21 +109,21 @@
             letter-spacing: 1.5px;
         }
 
-        .header-stats {
+        .header-center {
             display: flex;
-            gap: 24px;
+            gap: 20px;
         }
 
         .stat {
             text-align: center;
-            padding: 10px 24px;
+            padding: 8px 20px;
             background: var(--bg-secondary);
-            border-radius: var(--radius);
+            border-radius: 12px;
             box-shadow: var(--shadow-neumorphic);
         }
 
         .stat-value {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 600;
             color: var(--accent);
             font-family: 'Cormorant Garamond', serif;
@@ -113,7 +135,21 @@
             font-size: 9px;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
         }
 
         .header-time {
@@ -122,15 +158,255 @@
 
         .header-time .time {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 28px;
-            font-weight: 500;
+            font-size: 24px;
         }
 
         .header-time .date {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-neumorphic);
+            padding: 16px;
+        }
+
+        .sidebar-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-btn:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .quick-btn .icon { font-size: 14px; }
+
+        .filter-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.15s;
+        }
+
+        .filter-item:hover { background: var(--bg-tertiary); }
+        .filter-item.active { background: var(--accent); color: white; }
+
+        .filter-count {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+        }
+
+        .filter-item.active .filter-count {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Email Panel */
+        .email-panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-neumorphic);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .email-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .email-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .email-header .sel-info {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .bulk-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .bulk-btn:hover { background: var(--bg-elevated); }
+        .bulk-btn.danger:hover { background: rgba(196, 90, 90, 0.15); color: var(--danger); }
+
+        .email-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .email-row {
+            display: grid;
+            grid-template-columns: 20px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .email-row:hover { background: var(--bg-tertiary); }
+        .email-row.selected { background: var(--accent-dim); }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--bg-elevated);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .checkbox.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .email-content { min-width: 0; }
+
+        .email-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .email-sender {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .email-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .email-tag.respond { background: rgba(196, 146, 42, 0.2); color: var(--warning); }
+        .email-tag.important { background: rgba(196, 90, 90, 0.2); color: var(--danger); }
+
+        .email-subject {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .email-meta { text-align: right; }
+
+        .email-time {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .email-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .email-row:hover .email-actions { opacity: 1; }
+
+        .email-action {
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 5px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .email-action:hover { background: var(--bg-elevated); }
+
+        .empty {
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--success);
+            margin-bottom: 4px;
         }
 
         /* Chat Panel */
@@ -144,50 +420,43 @@
         }
 
         .chat-header {
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--bg-tertiary);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .avatar {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             background: linear-gradient(135deg, var(--accent), #a07a45);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Cormorant Garamond', serif;
-            font-size: 16px;
+            font-size: 14px;
             color: white;
         }
 
-        .chat-header-text h3 {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .chat-header-text p {
-            font-size: 11px;
-            color: var(--success);
-        }
+        .chat-header-text h3 { font-size: 13px; font-weight: 500; }
+        .chat-header-text p { font-size: 10px; color: var(--success); }
 
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 14px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .msg {
             max-width: 90%;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             line-height: 1.5;
         }
 
@@ -206,41 +475,39 @@
 
         .msg-actions {
             display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 5px;
+            margin-top: 6px;
             flex-wrap: wrap;
         }
 
         .msg-action {
-            padding: 5px 10px;
+            padding: 4px 8px;
             background: var(--bg-secondary);
             border: 1px solid var(--bg-elevated);
-            border-radius: 8px;
-            font-size: 11px;
+            border-radius: 6px;
+            font-size: 10px;
             cursor: pointer;
-            transition: all 0.15s;
         }
 
         .msg-action:hover {
             background: var(--accent-dim);
             border-color: var(--accent);
-            color: var(--accent);
         }
 
         .chat-input {
-            padding: 14px;
+            padding: 12px;
             border-top: 1px solid var(--bg-tertiary);
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .chat-input input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             background: var(--bg-tertiary);
-            font-size: 13px;
+            font-size: 12px;
             box-shadow: var(--shadow-inner);
         }
 
@@ -250,195 +517,45 @@
         }
 
         .chat-input button {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             border: none;
             border-radius: 50%;
             background: var(--accent);
             color: white;
             cursor: pointer;
-            box-shadow: var(--shadow-soft);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.15s;
-        }
-
-        .chat-input button:hover { transform: scale(1.05); }
-
-        /* Email Panel */
-        .email-panel {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-neumorphic);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .email-header {
-            padding: 14px 20px;
-            border-bottom: 1px solid var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .email-header h2 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
-            font-weight: 500;
-        }
-
-        .email-header .sel-info {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-left: auto;
-        }
-
-        .filters {
-            display: flex;
-            gap: 6px;
-        }
-
-        .filter-btn {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 8px;
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .filter-btn:hover { background: var(--bg-tertiary); }
-        .filter-btn.active { background: var(--accent); color: white; }
-
-        .email-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .email-row {
-            display: grid;
-            grid-template-columns: 22px 1fr auto;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--bg-tertiary);
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-
-        .email-row:hover { background: var(--bg-tertiary); }
-        .email-row.selected { background: var(--accent-dim); }
-
-        .checkbox {
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--bg-elevated);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            transition: all 0.15s;
-        }
-
-        .checkbox.checked {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-        }
-
-        .email-content {
-            min-width: 0;
-        }
-
-        .email-sender {
-            font-weight: 500;
-            font-size: 13px;
-            margin-bottom: 2px;
-        }
-
-        .email-subject {
-            font-size: 12px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .email-meta {
-            text-align: right;
-        }
-
-        .email-time {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .email-actions {
-            display: flex;
-            gap: 4px;
-            margin-top: 4px;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-
-        .email-row:hover .email-actions { opacity: 1; }
-
-        .email-action {
-            width: 24px;
-            height: 24px;
-            border: none;
-            border-radius: 6px;
-            background: var(--bg-secondary);
-            cursor: pointer;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .email-action:hover { background: var(--bg-elevated); }
-
-        .empty {
-            padding: 40px;
-            text-align: center;
-            color: var(--text-muted);
-        }
-
-        .empty h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
-            color: var(--success);
-            margin-bottom: 4px;
         }
 
         /* Toast */
         .toast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            padding: 12px 20px;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 18px;
             background: var(--text-primary);
             color: white;
-            border-radius: 10px;
-            font-size: 13px;
-            transform: translateY(80px);
+            border-radius: 8px;
+            font-size: 12px;
+            transform: translateY(60px);
             opacity: 0;
             transition: all 0.25s;
         }
 
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
     </style>
 </head>
 <body>
+    <div class="ambient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
     <div class="app">
         <header>
             <div class="logo">
@@ -448,21 +565,67 @@
                     <p>Your Chief of Staff</p>
                 </div>
             </div>
-            <div class="header-stats">
+            <div class="header-center">
                 <div class="stat">
                     <div class="stat-value" id="unread">--</div>
                     <div class="stat-label">Unread</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value" id="respond">0</div>
-                    <div class="stat-label">To Respond</div>
+                    <div class="stat-label">Respond</div>
                 </div>
             </div>
-            <div class="header-time">
-                <div class="time" id="time">--:--</div>
-                <div class="date" id="date">Loading...</div>
+            <div class="header-right">
+                <div class="status-dot"></div>
+                <div class="header-time">
+                    <div class="time" id="time">--:--</div>
+                    <div class="date" id="date">Loading...</div>
+                </div>
             </div>
         </header>
+
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h3>⚡ Quick Actions</h3>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="runCmd('delete newsletters')">
+                        <span class="icon">🗑️</span> Delete Newsletters
+                    </button>
+                    <button class="quick-btn" onclick="runCmd('select all')">
+                        <span class="icon">☑️</span> Select All
+                    </button>
+                    <button class="quick-btn" onclick="runCmd('refresh')">
+                        <span class="icon">🔄</span> Refresh Inbox
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>📁 Filters</h3>
+                <div class="filter-list" id="filters">
+                    <div class="filter-item active" data-f="all">All Mail <span class="filter-count" id="countAll">0</span></div>
+                    <div class="filter-item" data-f="respond">To Respond <span class="filter-count" id="countRespond">0</span></div>
+                    <div class="filter-item" data-f="important">Important <span class="filter-count" id="countImportant">0</span></div>
+                </div>
+            </div>
+
+            <div class="sidebar-card" style="flex:1">
+                <h3>📊 Top Senders</h3>
+                <div id="topSenders" style="font-size: 11px; color: var(--text-secondary);"></div>
+            </div>
+        </aside>
+
+        <main class="email-panel">
+            <div class="email-header">
+                <h2>Inbox</h2>
+                <span class="sel-info" id="selInfo"></span>
+                <div class="bulk-actions">
+                    <button class="bulk-btn" onclick="runCmd('archive selected')">Archive</button>
+                    <button class="bulk-btn danger" onclick="runCmd('delete selected')">Delete</button>
+                </div>
+            </div>
+            <div class="email-list" id="list"></div>
+        </main>
 
         <aside class="chat-panel">
             <div class="chat-header">
@@ -474,27 +637,14 @@
             </div>
             <div class="messages" id="chat"></div>
             <div class="chat-input">
-                <input type="text" id="inp" placeholder="Ask Felix anything...">
+                <input type="text" id="inp" placeholder="Ask Felix...">
                 <button id="sendBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                     </svg>
                 </button>
             </div>
         </aside>
-
-        <main class="email-panel">
-            <div class="email-header">
-                <h2>Inbox</h2>
-                <span class="sel-info" id="selInfo"></span>
-                <div class="filters">
-                    <button class="filter-btn active" data-f="all">All</button>
-                    <button class="filter-btn" data-f="respond">Respond</button>
-                    <button class="filter-btn" data-f="important">Important</button>
-                </div>
-            </div>
-            <div class="email-list" id="list"></div>
-        </main>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -506,7 +656,7 @@ let emails = [], selected = new Set(), tags = JSON.parse(localStorage.getItem('f
 // Init
 document.getElementById('inp').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 document.getElementById('sendBtn').addEventListener('click', send);
-document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.f)));
+document.querySelectorAll('.filter-item').forEach(f => f.addEventListener('click', () => setFilter(f.dataset.f)));
 
 updateTime();
 setInterval(updateTime, 1000);
@@ -515,7 +665,7 @@ load();
 function updateTime() {
     const now = new Date();
     document.getElementById('time').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 async function load() {
@@ -527,6 +677,7 @@ async function load() {
             total = d.total;
             render();
             updateStats();
+            updateTopSenders();
             greet();
         }
     } catch(e) {
@@ -537,25 +688,20 @@ async function load() {
 function greet() {
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    sayActions(`${greeting}! You have **${total}** unread emails. How can I help?`, [
+        {label: 'Clean newsletters', cmd: 'delete newsletters'},
+        {label: 'Help', cmd: 'help'}
+    ]);
+}
 
+function updateTopSenders() {
     const domains = {};
     emails.forEach(e => {
         const d = (e.sender||'').split('@')[1] || 'unknown';
         domains[d] = (domains[d]||0) + 1;
     });
-    const top = Object.entries(domains).filter(([d]) => d!=='unknown').sort((a,b) => b[1]-a[1]).slice(0,3);
-
-    let msg = `${greeting}! You have **${total}** unread emails.\n\n`;
-    if (top.length) {
-        msg += `Top senders:\n`;
-        top.forEach(([d,c]) => msg += `• ${d}: ${c}\n`);
-    }
-
-    sayActions(msg, [
-        {label: 'Delete newsletters', cmd: 'delete newsletters'},
-        {label: 'Select all', cmd: 'select all'},
-        {label: 'Help', cmd: 'help'}
-    ]);
+    const top = Object.entries(domains).filter(([d]) => d!=='unknown').sort((a,b) => b[1]-a[1]).slice(0,5);
+    document.getElementById('topSenders').innerHTML = top.map(([d,c]) => `<div style="padding:4px 0;display:flex;justify-content:space-between"><span>${d}</span><span style="color:var(--accent)">${c}</span></div>`).join('');
 }
 
 function render() {
@@ -570,10 +716,14 @@ function render() {
     el.innerHTML = list.map(e => {
         const sel = selected.has(e.id);
         const name = e.senderName || (e.sender||'').split('@')[0] || 'Unknown';
+        const tag = tags[e.id];
         return `<div class="email-row${sel?' selected':''}" data-id="${e.id}">
             <div class="checkbox${sel?' checked':''}">${sel?'✓':''}</div>
             <div class="email-content">
-                <div class="email-sender">${esc(name)}</div>
+                <div class="email-top">
+                    <span class="email-sender">${esc(name)}</span>
+                    ${tag ? `<span class="email-tag ${tag}">${tag}</span>` : ''}
+                </div>
                 <div class="email-subject">${esc(e.subject||'(no subject)')}</div>
             </div>
             <div class="email-meta">
@@ -596,8 +746,7 @@ function render() {
     el.querySelectorAll('.email-action').forEach(btn => {
         btn.addEventListener('click', e => {
             e.stopPropagation();
-            const id = +btn.closest('.email-row').dataset.id;
-            quickAction(id, btn.dataset.action);
+            quickAction(+btn.closest('.email-row').dataset.id, btn.dataset.action);
         });
     });
 
@@ -620,12 +769,19 @@ function updateStats() {
     const u = document.getElementById('unread');
     u.textContent = total;
     u.classList.toggle('zero', total === 0);
-    document.getElementById('respond').textContent = Object.values(tags).filter(t => t === 'respond').length;
+
+    const respondCount = Object.entries(tags).filter(([id, t]) => t === 'respond' && emails.find(e => e.id == id)).length;
+    const importantCount = Object.entries(tags).filter(([id, t]) => t === 'important' && emails.find(e => e.id == id)).length;
+
+    document.getElementById('respond').textContent = respondCount;
+    document.getElementById('countAll').textContent = total;
+    document.getElementById('countRespond').textContent = respondCount;
+    document.getElementById('countImportant').textContent = importantCount;
 }
 
 function setFilter(f) {
     filter = f;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+    document.querySelectorAll('.filter-item').forEach(el => el.classList.toggle('active', el.dataset.f === f));
     render();
 }
 
@@ -659,7 +815,7 @@ function sayActions(text, actions) {
             const btn = document.createElement('button');
             btn.className = 'msg-action';
             btn.textContent = a.label;
-            btn.addEventListener('click', () => { document.getElementById('inp').value = a.cmd; send(); });
+            btn.addEventListener('click', () => runCmd(a.cmd));
             wrap.appendChild(btn);
         });
         div.appendChild(wrap);
@@ -675,6 +831,11 @@ function sayUser(text) {
     div.textContent = text;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
+}
+
+function runCmd(cmd) {
+    document.getElementById('inp').value = cmd;
+    send();
 }
 
 async function send() {
@@ -693,26 +854,22 @@ async function send() {
 async function process(input) {
     const t = input.toLowerCase().trim();
 
-    // Help
     if (/help|\?/.test(t)) {
-        return `**Commands:**\n• "delete [sender]" - delete emails\n• "delete newsletters"\n• "archive [sender]"\n• "select all" / "clear"\n• "tag important/respond/later"\n• Click emails to select, then act on them`;
+        return `**Commands:**\n• "delete [sender]"\n• "delete newsletters"\n• "archive [sender]"\n• "select all" / "clear"\n• "tag important/respond"`;
     }
 
-    // Select all
     if (/select all/.test(t)) {
         emails.forEach(e => selected.add(e.id));
         render();
         return {text: `Selected **${selected.size}** emails.`, actions: [{label:'Delete', cmd:'delete selected'}, {label:'Archive', cmd:'archive selected'}, {label:'Clear', cmd:'clear'}]};
     }
 
-    // Clear
     if (/^clear/.test(t)) {
         selected.clear();
         render();
-        return "Cleared selection.";
+        return "Cleared.";
     }
 
-    // Delete
     if (/delete|remove/.test(t)) {
         if (/selected|them/.test(t) && selected.size) {
             const count = selected.size;
@@ -722,16 +879,18 @@ async function process(input) {
             selected.clear();
             render();
             updateStats();
+            updateTopSenders();
             return `Deleted **${count}** emails.`;
         }
         if (/newsletter/.test(t)) {
-            const list = emails.filter(e => /newsletter|noreply|digest|weekly|marketing/.test((e.sender||'').toLowerCase()));
+            const list = emails.filter(e => /newsletter|noreply|digest|weekly|marketing|notifications/.test((e.sender||'').toLowerCase()));
             if (!list.length) return "No newsletters found.";
             for (const e of list) await doAction(e.id, 'delete');
             emails = emails.filter(e => !list.find(l => l.id === e.id));
             total -= list.length;
             render();
             updateStats();
+            updateTopSenders();
             return `Deleted **${list.length}** newsletters.`;
         }
         const match = findSender(t);
@@ -741,12 +900,12 @@ async function process(input) {
             total -= match.list.length;
             render();
             updateStats();
+            updateTopSenders();
             return `Deleted **${match.list.length}** from ${match.name}.`;
         }
         return {text: "Delete what?", actions: [{label:'Newsletters', cmd:'delete newsletters'}, {label:'Selected', cmd:'delete selected'}]};
     }
 
-    // Archive
     if (/archive/.test(t)) {
         if (/selected|them/.test(t) && selected.size) {
             const count = selected.size;
@@ -767,13 +926,12 @@ async function process(input) {
             updateStats();
             return `Archived **${match.list.length}** from ${match.name}.`;
         }
-        return "Archive what? Select emails first or specify a sender.";
+        return "Select emails first or specify sender.";
     }
 
-    // Tag
     if (/tag|mark/.test(t)) {
         if (!selected.size) return "Select emails first.";
-        const type = /important/.test(t) ? 'important' : /respond/.test(t) ? 'respond' : /later/.test(t) ? 'later' : null;
+        const type = /important/.test(t) ? 'important' : /respond/.test(t) ? 'respond' : null;
         if (type) {
             selected.forEach(id => tags[id] = type);
             localStorage.setItem('felixTags', JSON.stringify(tags));
@@ -783,16 +941,14 @@ async function process(input) {
             updateStats();
             return `Tagged **${c}** as ${type}.`;
         }
-        return {text: "Tag as what?", actions: [{label:'Respond', cmd:'tag respond'}, {label:'Important', cmd:'tag important'}, {label:'Later', cmd:'tag later'}]};
+        return {text: "Tag as?", actions: [{label:'Respond', cmd:'tag respond'}, {label:'Important', cmd:'tag important'}]};
     }
 
-    // Refresh
     if (/refresh|reload/.test(t)) {
         await load();
         return `Refreshed. **${total}** emails.`;
     }
 
-    // Try to find sender
     const match = findSender(t);
     if (match.list.length) {
         match.list.forEach(e => selected.add(e.id));
