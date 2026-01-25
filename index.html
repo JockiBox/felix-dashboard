@@ -3536,28 +3536,56 @@ Just ask naturally - I'll figure out what you need.`;
         }
 
         async function executePendingAction(action) {
+            const emailIds = action.emails.map(e => e.id);
+
             if (action.type === 'delete') {
-                let deleted = 0;
-                for (const email of action.emails) {
-                    try {
-                        await fetch(`${API_BASE}/emails/${email.id}`, { method: 'DELETE' });
-                        deleted++;
-                    } catch (e) {}
+                try {
+                    const res = await fetch(`${API_BASE}/batch/execute`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ emailIds, action: 'delete' })
+                    });
+                    const data = await res.json();
+                    await loadEmails();
+                    if (data.success !== undefined) {
+                        return `Done! Deleted **${data.success || emailIds.length}** emails ${action.reason}. Changes pushed to Apple Mail.`;
+                    }
+                } catch (e) {
+                    console.error('Delete error:', e);
                 }
                 await loadEmails();
-                return `Done! Deleted **${deleted}** emails ${action.reason}. Your inbox is lighter.`;
+                return `Attempted to delete ${emailIds.length} emails ${action.reason}.`;
             }
 
             if (action.type === 'archive') {
-                let archived = 0;
-                for (const email of action.emails) {
-                    try {
-                        await fetch(`${API_BASE}/emails/${email.id}/archive`, { method: 'POST' });
-                        archived++;
-                    } catch (e) {}
+                try {
+                    const res = await fetch(`${API_BASE}/batch/execute`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ emailIds, action: 'archive' })
+                    });
+                    const data = await res.json();
+                    await loadEmails();
+                    if (data.success !== undefined) {
+                        return `Archived **${data.success || emailIds.length}** emails ${action.reason}. Changes pushed to Apple Mail.`;
+                    }
+                } catch (e) {
+                    console.error('Archive error:', e);
                 }
                 await loadEmails();
-                return `Archived **${archived}** emails ${action.reason}.`;
+                return `Attempted to archive ${emailIds.length} emails ${action.reason}.`;
+            }
+
+            if (action.type === 'markRead') {
+                try {
+                    await fetch(`${API_BASE}/batch/execute`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ emailIds, action: 'markRead' })
+                    });
+                    await loadEmails();
+                    return `Marked **${emailIds.length}** emails as read.`;
+                } catch (e) {}
             }
 
             return "Action completed.";
