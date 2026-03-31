@@ -1,0 +1,32 @@
+# Dependabot configuration — JockiBox Standard
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # npm ecosystem (Node.js / TypeScript projects)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Denver"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Denver"
+    labels:
+      - "dependencies"
+      - "ci"
